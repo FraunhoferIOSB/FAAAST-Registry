@@ -8,30 +8,33 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-    <artifactId>core</artifactId>
-    <name>core</name>
-    <description>Core of the FA³ST Registry containing component interfaces and main classes.</description>
+    <artifactId>service</artifactId>
+    <name>service</name>
+    <description>Main service of the FA³ST Registry.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>memory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
             <artifactId>model</artifactId>
             <version>${faaast.service.version}</version>
         </dependency>
         <!-- <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>model</artifactId>
-            <version>${project.version}</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons.lang3.version}</version>
-        </dependency>  -->
+        </dependency> -->
     </dependencies>
     <build>
         <plugins>

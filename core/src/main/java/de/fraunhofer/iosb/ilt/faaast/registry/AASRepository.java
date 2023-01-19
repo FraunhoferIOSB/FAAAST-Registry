@@ -22,8 +22,23 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
  */
 public interface AASRepository {
 
+    /**
+     * Adds a Submodel to the given AAS.
+     *
+     * @param aasId The ID of the desired AAS.
+     * @param submodel The submodel to add.
+     * @return The descriptor of the desired submodel.
+     * @throws Exception When an error occurs.
+     */
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor submodel) throws Exception;
 
 
+    /**
+     * Adds a Submodel to the given AAS.
+     *
+     * @param submodel The submodel to add.
+     * @return The descriptor of the desired submodel.
+     * @throws Exception When an error occurs.
+     */
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor submodel) throws Exception;
 }
