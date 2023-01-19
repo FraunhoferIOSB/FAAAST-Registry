@@ -12,9 +12,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry;
+package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import java.util.List;
 
 
 /**
@@ -23,11 +25,20 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 public interface AASRepository {
 
     /**
+     * Retrieves a list of all registered Asset Administration Shells.
+     *
+     * @return The list of all registered Asset Administration Shells.
+     * @throws Exception When an error occurs.
+     */
+    public List<AssetAdministrationShellDescriptor> getAASs() throws Exception;
+
+
+    /**
      * Adds a Submodel to the given AAS.
      *
      * @param aasId The ID of the desired AAS.
      * @param submodel The submodel to add.
-     * @return The descriptor of the desired submodel.
+     * @return The descriptor of the created submodel.
      * @throws Exception When an error occurs.
      */
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor submodel) throws Exception;
@@ -37,7 +48,7 @@ public interface AASRepository {
      * Adds a Submodel to the given AAS.
      *
      * @param submodel The submodel to add.
-     * @return The descriptor of the desired submodel.
+     * @return The descriptor of the created submodel.
      * @throws Exception When an error occurs.
      */
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor submodel) throws Exception;

@@ -14,14 +14,26 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.AASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AASRepository;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
  * In-memory implementation of the Repository.
  */
 public class AASRepositoryMemory implements AASRepository {
+
+    private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
+
+    public AASRepositoryMemory() {
+        shellDescriptors = new HashMap<>();
+    }
+
 
     @Override
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor submodel) throws Exception {
@@ -34,4 +46,9 @@ public class AASRepositoryMemory implements AASRepository {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
+    @Override
+    public List<AssetAdministrationShellDescriptor> getAASs() {
+        return new ArrayList<>(shellDescriptors.values());
+    }
 }

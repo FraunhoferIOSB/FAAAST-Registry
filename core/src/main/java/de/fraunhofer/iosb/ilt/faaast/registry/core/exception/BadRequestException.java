@@ -12,30 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.core.exception;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 /**
- * Main application of the registry.
+ * Exception class for bad request.
  */
-@SpringBootApplication
-@EntityScan(basePackages = {
-        "de.fraunhofer.iosb.ilt.faaast.service.model.descriptor"
-})
-@ImportResource("classpath:applicationContext.xml")
-public class App {
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+public class BadRequestException extends RuntimeException {
 
-    /**
-     * Entry point of the application.
-     *
-     * @param args The command line arguments.
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
+    public BadRequestException() {
+        super();
+    }
+
+
+    public BadRequestException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public BadRequestException(final String message) {
+        super(message);
+    }
+
+
+    public BadRequestException(final Throwable cause) {
+        super(cause);
     }
 }
