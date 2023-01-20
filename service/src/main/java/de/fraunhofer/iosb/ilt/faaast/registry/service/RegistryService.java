@@ -48,6 +48,103 @@ public class RegistryService {
 
 
     /**
+     * Retrieves the Asset Administration Shell with the given ID.
+     *
+     * @param id The ID of the desired Asset Administration Shell.
+     * @return The desired Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor getAAS(String id) throws Exception {
+        AssetAdministrationShellDescriptor aas = aasRepository.getAAS(id);
+        return aas;
+
+    }
+
+
+    /**
+     * Create the given Asset Administration Shell.
+     *
+     * @param entity The desired Asset Administration Shell.
+     * @return The created Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor entity) throws Exception {
+        //String id = entity.getIdentification().getId();
+        //entity.setId(id);
+        checkShellIdentifiers(entity);
+        if (entity.getSubmodels() != null) {
+            entity.getSubmodels().stream().map((submodel) -> {
+                checkSubmodelIdentifiers(submodel);
+                return submodel;
+            });
+        }
+        return aasRepository.create(entity);
+    }
+
+
+    /**
+     * Deletes the Asset Administration Shell with the given ID.
+     *
+     * @param id The ID of the desired Asset Administration Shell.
+     * @throws Exception
+     */
+    public void deleteAAS(String id) throws Exception {
+        aasRepository.deleteAAS(id);
+    }
+
+
+    /**
+     * Updates the given Asset Administration Shell.
+     *
+     * @param id The ID of the desired Asset Administration Shell.
+     * @param entity The desired Asset Administration Shell.
+     * @return The updated Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor entity) throws Exception {
+        //String id = entity.getIdentification().getId();
+        //String id = Base64.getUrlEncoder().encodeToString(entity.getIdentification().getId().getBytes());
+        //entity.setId(id);
+        checkShellIdentifiers(entity);
+        entity.getSubmodels().stream().map((SubmodelDescriptor submodel) -> {
+            checkSubmodelIdentifiers(submodel);
+            return submodel;
+        });
+        return aasRepository.update(id, entity);
+    }
+
+
+    /**
+     * Retrieves the Submodel with given Submodel ID.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @return The desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor getSubmodel(String submodelId) throws Exception {
+        return getSubmodel(null, submodelId);
+    }
+
+
+    /**
+     * Retrieves the Submodel with given AAS ID and Submodel ID.
+     *
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @param submodelId The ID of the desired Submodel.
+     * @return The desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws Exception {
+        if (aasId == null) {
+            return aasRepository.getSubmodel(submodelId);
+        }
+        else {
+            return aasRepository.getSubmodel(aasId, submodelId);
+        }
+    }
+
+
+    /**
      * Creates a new submodel.
      *
      * @param submodel The desired submodel.
@@ -79,11 +176,15 @@ public class RegistryService {
 
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
-        if (submodel.getIdShort() == null || submodel.getIdentification() == null) {
-            throw new BadRequestException("no Submodel idShort provided");
+        if ((submodel.getIdentification() == null) || (submodel.getIdentification().getId() == null) || (submodel.getIdentification().getId().length() == 0)) {
+            throw new BadRequestException("no Submodel identification provided");
         }
-        else if (submodel.getIdShort().length() == 0 || submodel.getIdentification().getId().length() == 0) {
-            throw new BadRequestException("no Submodel idShort provided");
+    }
+
+
+    private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
+        if ((aas.getIdentification() == null) || (aas.getIdentification().getId() == null) || (aas.getIdentification().getId().length() == 0)) {
+            throw new BadRequestException("no AAS Identification provided");
         }
     }
 }

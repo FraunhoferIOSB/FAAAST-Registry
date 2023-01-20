@@ -34,6 +34,67 @@ public interface AASRepository {
 
 
     /**
+     * Retrieves the Asset Administration Shell with the given ID.
+     *
+     * @param id The ID of the desired Asset Administration Shell.
+     * @return The desired Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor getAAS(String id) throws Exception;
+
+
+    /**
+     * Create the given Asset Administration Shell.
+     *
+     * @param entity The desired Asset Administration Shell.
+     * @return The deleted Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor entity) throws Exception;
+
+
+    /**
+     * Deletes the Asset Administration Shell with the given ID.
+     *
+     * @param entityId The ID of the desired Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public void deleteAAS(String entityId) throws Exception;
+
+
+    /**
+     * Updates the given Asset Administration Shell.
+     *
+     * @param id The ID of the desired Asset Administration Shell.
+     * @param entity The desired Asset Administration Shell.
+     * @return The updated Asset Administration Shell.
+     * @throws Exception When an error occurs.
+     */
+    public AssetAdministrationShellDescriptor update(String id, AssetAdministrationShellDescriptor entity) throws Exception;
+
+
+    /**
+     * Retrieves the Submodel with given AAS ID and Submodel ID.
+     *
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @param submodelId The ID of the desired Submodel.
+     * @return The desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws Exception;
+
+
+    /**
+     * Retrieves the Submodel with given Submodel ID.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @return The desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor getSubmodel(String submodelId) throws Exception;
+
+
+    /**
      * Adds a Submodel to the given AAS.
      *
      * @param aasId The ID of the desired AAS.
