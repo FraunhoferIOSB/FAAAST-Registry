@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AASRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import java.util.Base64;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,9 +56,9 @@ public class RegistryService {
      * @throws Exception When an error occurs.
      */
     public AssetAdministrationShellDescriptor getAAS(String id) throws Exception {
-        AssetAdministrationShellDescriptor aas = aasRepository.getAAS(id);
+        String idDecoded = new String(Base64.getUrlDecoder().decode(id));
+        AssetAdministrationShellDescriptor aas = aasRepository.getAAS(idDecoded);
         return aas;
-
     }
 
 
@@ -89,7 +90,8 @@ public class RegistryService {
      * @throws Exception
      */
     public void deleteAAS(String id) throws Exception {
-        aasRepository.deleteAAS(id);
+        String idDecoded = new String(Base64.getUrlDecoder().decode(id));
+        aasRepository.deleteAAS(idDecoded);
     }
 
 
@@ -102,15 +104,14 @@ public class RegistryService {
      * @throws Exception When an error occurs.
      */
     public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor entity) throws Exception {
-        //String id = entity.getIdentification().getId();
-        //String id = Base64.getUrlEncoder().encodeToString(entity.getIdentification().getId().getBytes());
+        String idDecoded = new String(Base64.getUrlDecoder().decode(id));
         //entity.setId(id);
         checkShellIdentifiers(entity);
         entity.getSubmodels().stream().map((SubmodelDescriptor submodel) -> {
             checkSubmodelIdentifiers(submodel);
             return submodel;
         });
-        return aasRepository.update(id, entity);
+        return aasRepository.update(idDecoded, entity);
     }
 
 
@@ -135,11 +136,13 @@ public class RegistryService {
      * @throws Exception When an error occurs.
      */
     public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws Exception {
+        String submodelIdDecoded = new String(Base64.getUrlDecoder().decode(submodelId));
         if (aasId == null) {
-            return aasRepository.getSubmodel(submodelId);
+            return aasRepository.getSubmodel(submodelIdDecoded);
         }
         else {
-            return aasRepository.getSubmodel(aasId, submodelId);
+            String aasIdDecoded = new String(Base64.getUrlDecoder().decode(aasId));
+            return aasRepository.getSubmodel(aasIdDecoded, submodelIdDecoded);
         }
     }
 
@@ -170,7 +173,8 @@ public class RegistryService {
             return aasRepository.addSubmodel(submodel);
         }
         else {
-            return aasRepository.addSubmodel(aasId, submodel);
+            String aasIdDecoded = new String(Base64.getUrlDecoder().decode(aasId));
+            return aasRepository.addSubmodel(aasIdDecoded, submodel);
         }
     }
 

@@ -111,7 +111,7 @@ public class ShellRegistryController {
     public ResponseEntity<String> delete(@PathVariable("aasIdentifier") String aasIdentifier) {
         try {
             service.deleteAAS(aasIdentifier);
-            return new ResponseEntity<>("Successfully deleted AAS with ID '" + aasIdentifier + "'", HttpStatus.OK);
+            return new ResponseEntity<>("Successfully deleted AAS: ", HttpStatus.OK);
         }
         catch (ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
