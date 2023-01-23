@@ -116,6 +116,35 @@ public class RegistryService {
 
 
     /**
+     * Retrieves a list of all registered Submodels.
+     *
+     * @return The list of Submodels.
+     * @throws Exception Exception When an error occurs.
+     */
+    public List<SubmodelDescriptor> getSubmodels() throws Exception {
+        return getSubmodels(null);
+    }
+
+
+    /**
+     * Retrieves a list of all Submodels of the given Asset Administration Shell.
+     *
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @return The list of Submodels.
+     * @throws Exception Exception When an error occurs.
+     */
+    public List<SubmodelDescriptor> getSubmodels(String aasId) throws Exception {
+        if (aasId == null) {
+            return aasRepository.getSubmodels();
+        }
+        else {
+            String aasIdDecoded = new String(Base64.getUrlDecoder().decode(aasId));
+            return aasRepository.getSubmodels(aasIdDecoded);
+        }
+    }
+
+
+    /**
      * Retrieves the Submodel with given Submodel ID.
      *
      * @param submodelId The ID of the desired Submodel.

@@ -95,6 +95,22 @@ public class AASRepositoryMemory implements AASRepository {
 
 
     @Override
+    public List<SubmodelDescriptor> getSubmodels(String aasId) {
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        if (aas == null) {
+            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
+        }
+        return aas.getSubmodels();
+    }
+
+
+    @Override
+    public List<SubmodelDescriptor> getSubmodels() throws Exception {
+        return new ArrayList<>(submodelDescriptors.values());
+    }
+
+
+    @Override
     public SubmodelDescriptor getSubmodel(String aasId, String submodelId) {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         if (aas == null) {

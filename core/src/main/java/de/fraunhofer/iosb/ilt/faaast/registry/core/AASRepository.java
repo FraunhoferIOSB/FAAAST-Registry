@@ -74,6 +74,25 @@ public interface AASRepository {
 
 
     /**
+     * Retrieves a list of all Submodels of the given Asset Administration Shell.
+     *
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @return The list of Submodels.
+     * @throws Exception Exception When an error occurs.
+     */
+    public List<SubmodelDescriptor> getSubmodels(String aasId) throws Exception;
+
+
+    /**
+     * Retrieves a list of all registered Submodels.
+     *
+     * @return The list of Submodels.
+     * @throws Exception Exception When an error occurs.
+     */
+    public List<SubmodelDescriptor> getSubmodels() throws Exception;
+
+
+    /**
      * Retrieves the Submodel with given AAS ID and Submodel ID.
      *
      * @param aasId The ID of the desired Asset Administration Shell.

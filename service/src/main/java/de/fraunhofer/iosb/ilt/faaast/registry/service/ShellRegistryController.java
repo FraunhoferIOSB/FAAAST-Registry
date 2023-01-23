@@ -111,7 +111,7 @@ public class ShellRegistryController {
     public ResponseEntity<String> delete(@PathVariable("aasIdentifier") String aasIdentifier) {
         try {
             service.deleteAAS(aasIdentifier);
-            return new ResponseEntity<>("Successfully deleted AAS: ", HttpStatus.OK);
+            return new ResponseEntity<>("Successfully deleted AAS", HttpStatus.OK);
         }
         catch (ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
@@ -148,6 +148,27 @@ public class ShellRegistryController {
 
 
     /**
+     * Retrieves a list of all Submodels of the given Asset Administration Shell.
+     *
+     * @param aasIdentifier The ID of the desired Asset Administration Shell.
+     * @return The list of Submodels.
+     * @throws Exception Exception When an error occurs.
+     */
+    @GetMapping(value = "/{aasIdentifier}/submodel-descriptors")
+    public List<SubmodelDescriptor> getSubmodelsOfAAS(@PathVariable("aasIdentifier") String aasIdentifier) throws Exception {
+        try {
+            return service.getSubmodels(aasIdentifier);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+
+    /**
      * Retrieves the Submodel with given AAS ID and Submodel ID.
      *
      * @param aasIdentifier The ID of the desired Asset Administration Shell.
@@ -155,7 +176,7 @@ public class ShellRegistryController {
      * @return The desired Submodel.
      * @throws Exception When an error occurs.
      */
-    @GetMapping(value = "/{aasIdentifier}/submodel-descriptors/submodel-descriptors/{submodelIdentifier}")
+    @GetMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
     public SubmodelDescriptor getSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
                                                @PathVariable("submodelIdentifier") String submodelIdentifier)
             throws Exception {
