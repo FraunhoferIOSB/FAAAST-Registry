@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -170,6 +171,32 @@ public class AASRepositoryMemory implements AASRepository {
             submodelDescriptors.put(submodel.getIdentification().getId(), submodel);
         }
         return submodel;
+    }
+
+
+    @Override
+    public void deleteSubmodel(String aasId, String submodelId) {
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        if (aas == null) {
+            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
+        }
+
+        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getIdentification().getId(), submodelId));
+        if (!found) {
+            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found");
+        }
+        submodelDescriptors.remove(submodelId);
+    }
+
+
+    @Override
+    public void deleteSubmodel(String submodelId) throws Exception {
+        if (!submodelDescriptors.containsKey(submodelId)) {
+            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found");
+        }
+        else {
+            submodelDescriptors.remove(submodelId);
+        }
     }
 
 

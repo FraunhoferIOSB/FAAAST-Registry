@@ -215,4 +215,55 @@ public class ShellRegistryController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
+
+
+    /**
+     * Updates the given Submodel.
+     *
+     * @param aasIdentifier The ID of the desired AAS.
+     * @param submodelIdentifier The ID of the desired Submodel.
+     * @param submodel The desired Submodel.
+     * @return The updated Submodel.
+     * @throws Exception When an error occurs.
+     */
+    @PutMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
+    @ResponseStatus(HttpStatus.OK)
+    public SubmodelDescriptor updateSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                  @PathVariable("submodelIdentifier") String submodelIdentifier,
+                                                  @RequestBody SubmodelDescriptor submodel)
+            throws Exception {
+        try {
+            return service.updateSubmodel(aasIdentifier, submodelIdentifier, submodel);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
+
+
+    /**
+     * Deletes the Submodel with the given ID.
+     *
+     * @param aasIdentifier The ID of the desired AAS.
+     * @param submodelIdentifier The ID of the desired Submodel.
+     * @return Success message if the AAS was successfully deleted, error message otherwise.
+     */
+    @DeleteMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> deleteSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                      @PathVariable("submodelIdentifier") String submodelIdentifier) {
+        try {
+            service.deleteSubmodel(aasIdentifier, submodelIdentifier);
+            return new ResponseEntity<>("Successfully deleted Submodel with ID '" + submodelIdentifier + "' in AAS with ID '" + aasIdentifier + "'", HttpStatus.OK);
+        }
+        catch (ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
+    }
 }

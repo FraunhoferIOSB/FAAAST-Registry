@@ -208,6 +208,65 @@ public class RegistryService {
     }
 
 
+    /**
+     * Deletes the Submodel with the given ID.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public void deleteSubmodel(String submodelId) throws Exception {
+        deleteSubmodel(null, submodelId);
+    }
+
+
+    /**
+     * Deletes the Submodel with the given AAS ID and Submodel ID.
+     *
+     * @param aasId The ID of the desired AAS.
+     * @param submodelId The ID of the desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public void deleteSubmodel(String aasId, String submodelId) throws Exception {
+        if (aasId == null) {
+            aasRepository.deleteSubmodel(submodelId);
+        }
+        else {
+            aasRepository.deleteSubmodel(aasId, submodelId);
+        }
+    }
+
+
+    /**
+     * Updates the given Submodel.
+     *
+     * @param submodelIdentifier The ID of the desired Submodel.
+     * @param submodel The desired Submodel.
+     * @return The updated Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor updateSubmodel(String submodelIdentifier, SubmodelDescriptor submodel) throws Exception {
+        checkSubmodelIdentifiers(submodel);
+        aasRepository.deleteSubmodel(submodelIdentifier);
+        return aasRepository.addSubmodel(submodel);
+    }
+
+
+    /**
+     * Updates the given Submodel.
+     *
+     * @param aasId The ID of the desired AAS.
+     * @param submodelIdentifier The ID of the desired Submodel.
+     * @param submodel The desired Submodel.
+     * @return The updated Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelIdentifier, SubmodelDescriptor submodel) throws Exception {
+        checkSubmodelIdentifiers(submodel);
+        aasRepository.deleteSubmodel(aasId, submodelIdentifier);
+        return aasRepository.addSubmodel(aasId, submodel);
+    }
+
+
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         if ((submodel.getIdentification() == null) || (submodel.getIdentification().getId() == null) || (submodel.getIdentification().getId().length() == 0)) {
             throw new BadRequestException("no Submodel identification provided");

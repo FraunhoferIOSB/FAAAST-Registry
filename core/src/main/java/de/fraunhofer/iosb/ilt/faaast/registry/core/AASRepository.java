@@ -132,4 +132,23 @@ public interface AASRepository {
      * @throws Exception When an error occurs.
      */
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor submodel) throws Exception;
+
+
+    /**
+     * Deletes the Submodel with the given AAS ID and Submodel ID.
+     *
+     * @param aasId The ID of the desired AAS.
+     * @param submodelId The ID of the desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public void deleteSubmodel(String aasId, String submodelId) throws Exception;
+
+
+    /**
+     * Deletes the Submodel with the given ID.
+     *
+     * @param submodelId The ID of the desired Submodel.
+     * @throws Exception When an error occurs.
+     */
+    public void deleteSubmodel(String submodelId) throws Exception;
 }
