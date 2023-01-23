@@ -227,11 +227,13 @@ public class RegistryService {
      * @throws Exception When an error occurs.
      */
     public void deleteSubmodel(String aasId, String submodelId) throws Exception {
+        String submodelIdDecoded = new String(Base64.getUrlDecoder().decode(submodelId));
         if (aasId == null) {
-            aasRepository.deleteSubmodel(submodelId);
+            aasRepository.deleteSubmodel(submodelIdDecoded);
         }
         else {
-            aasRepository.deleteSubmodel(aasId, submodelId);
+            String aasIdDecoded = new String(Base64.getUrlDecoder().decode(aasId));
+            aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         }
     }
 
@@ -239,14 +241,15 @@ public class RegistryService {
     /**
      * Updates the given Submodel.
      *
-     * @param submodelIdentifier The ID of the desired Submodel.
+     * @param submodelId The ID of the desired Submodel.
      * @param submodel The desired Submodel.
      * @return The updated Submodel.
      * @throws Exception When an error occurs.
      */
-    public SubmodelDescriptor updateSubmodel(String submodelIdentifier, SubmodelDescriptor submodel) throws Exception {
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws Exception {
+        String submodelIdDecoded = new String(Base64.getUrlDecoder().decode(submodelId));
         checkSubmodelIdentifiers(submodel);
-        aasRepository.deleteSubmodel(submodelIdentifier);
+        aasRepository.deleteSubmodel(submodelIdDecoded);
         return aasRepository.addSubmodel(submodel);
     }
 
@@ -255,15 +258,17 @@ public class RegistryService {
      * Updates the given Submodel.
      *
      * @param aasId The ID of the desired AAS.
-     * @param submodelIdentifier The ID of the desired Submodel.
+     * @param submodelId The ID of the desired Submodel.
      * @param submodel The desired Submodel.
      * @return The updated Submodel.
      * @throws Exception When an error occurs.
      */
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelIdentifier, SubmodelDescriptor submodel) throws Exception {
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws Exception {
+        String aasIdDecoded = new String(Base64.getUrlDecoder().decode(aasId));
+        String submodelIdDecoded = new String(Base64.getUrlDecoder().decode(submodelId));
         checkSubmodelIdentifiers(submodel);
-        aasRepository.deleteSubmodel(aasId, submodelIdentifier);
-        return aasRepository.addSubmodel(aasId, submodel);
+        aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
+        return aasRepository.addSubmodel(aasIdDecoded, submodel);
     }
 
 

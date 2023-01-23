@@ -257,7 +257,7 @@ public class ShellRegistryController {
                                                       @PathVariable("submodelIdentifier") String submodelIdentifier) {
         try {
             service.deleteSubmodel(aasIdentifier, submodelIdentifier);
-            return new ResponseEntity<>("Successfully deleted Submodel with ID '" + submodelIdentifier + "' in AAS with ID '" + aasIdentifier + "'", HttpStatus.OK);
+            return new ResponseEntity<>("Successfully deleted Submodel", HttpStatus.OK);
         }
         catch (ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
