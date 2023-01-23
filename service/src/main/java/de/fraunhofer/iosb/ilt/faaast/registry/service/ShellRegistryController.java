@@ -34,7 +34,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 /**
- * REST controller for the registry.
+ * REST controller for the Asset Administration Shell registry.
  */
 @RestController
 @RequestMapping("/registry/shell-descriptors")
@@ -249,7 +249,7 @@ public class ShellRegistryController {
      *
      * @param aasIdentifier The ID of the desired AAS.
      * @param submodelIdentifier The ID of the desired Submodel.
-     * @return Success message if the AAS was successfully deleted, error message otherwise.
+     * @return Success message if the Submodel was successfully deleted, error message otherwise.
      */
     @DeleteMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
     @ResponseStatus(HttpStatus.OK)

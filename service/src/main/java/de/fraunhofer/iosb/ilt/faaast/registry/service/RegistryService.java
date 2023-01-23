@@ -119,7 +119,7 @@ public class RegistryService {
      * Retrieves a list of all registered Submodels.
      *
      * @return The list of Submodels.
-     * @throws Exception Exception When an error occurs.
+     * @throws Exception When an error occurs.
      */
     public List<SubmodelDescriptor> getSubmodels() throws Exception {
         return getSubmodels(null);
@@ -131,7 +131,7 @@ public class RegistryService {
      *
      * @param aasId The ID of the desired Asset Administration Shell.
      * @return The list of Submodels.
-     * @throws Exception Exception When an error occurs.
+     * @throws Exception When an error occurs.
      */
     public List<SubmodelDescriptor> getSubmodels(String aasId) throws Exception {
         if (aasId == null) {
@@ -180,7 +180,7 @@ public class RegistryService {
      * Creates a new submodel.
      *
      * @param submodel The desired submodel.
-     * @return The descriptor of the created submodel.
+     * @return The created submodel.
      * @throws Exception When an error occurs.
      */
     public SubmodelDescriptor createSubmodel(SubmodelDescriptor submodel) throws Exception {
