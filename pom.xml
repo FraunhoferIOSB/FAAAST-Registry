@@ -29,6 +29,7 @@
     <modules>
         <module>core</module>
         <module>memory</module>
+        <module>jpa</module>
         <module>service</module>
     </modules>
     <scm>
@@ -57,6 +58,7 @@
         <commons.io.version>2.11.0</commons.io.version>
         <commons.lang3.version>3.12.0</commons.lang3.version>
         <faaast.service.version>0.5.0-SNAPSHOT</faaast.service.version>
+        <hibernate.version>5.6.14.Final</hibernate.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.2.11</logback.version>
         <maven.compiler.source>11</maven.compiler.source>
@@ -70,6 +72,7 @@
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.owasp.version>7.4.1</maven.plugin.owasp.version>
         <maven.plugin.spotless.version>2.28.0</maven.plugin.spotless.version>
+        <postgres.version>42.5.1</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>

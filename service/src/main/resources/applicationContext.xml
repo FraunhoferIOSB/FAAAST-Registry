@@ -13,7 +13,7 @@
     <!--#####################-->
     
     <!--##### JPA Repository #####-->
-    <!--<bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.persistence.jpa.AASRepositoryJPA"/>-->
+    <!--<bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AASRepositoryJPA"/>-->
     <!--##########################-->
     
 </beans>
