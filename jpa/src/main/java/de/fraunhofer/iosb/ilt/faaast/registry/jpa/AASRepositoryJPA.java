@@ -67,11 +67,11 @@ public class AASRepositoryJPA implements AASRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(entity.getIdentification().getIdentifier());
         if (aas == null) {
             JPAAssetAdministrationShellDescriptor jpaEntity = new JPAAssetAdministrationShellDescriptor.Builder().from(entity).build();
-            List<SubmodelDescriptor> submodels = new ArrayList<>();
-            entity.getSubmodels().forEach((s) -> {
-                submodels.add(new JPASubmodelDescriptor.Builder().from(s).build());
-            });
-            jpaEntity.setSubmodels(submodels);
+            //List<SubmodelDescriptor> submodels = new ArrayList<>();
+            //entity.getSubmodels().forEach((s) -> {
+            //    submodels.add(new JPASubmodelDescriptor.Builder().from(s).build());
+            //});
+            //jpaEntity.setSubmodels(submodels);
             entityManager.persist(jpaEntity);
             aas = jpaEntity;
         }

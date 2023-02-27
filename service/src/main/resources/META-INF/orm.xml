@@ -10,11 +10,11 @@
         </id>
 
         <property name="idShort"/>
-        <property name="administration"/>
-        <property name="identification"/>
-        <property name="globalAssetId" length="10000"/>
+        <!--<property name="identification"/>-->
+        <!--<property name="globalAssetId" length="10000"/>-->
 
-
+        <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one>
+        
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
             <index column="type"/>
@@ -46,7 +46,7 @@
             <generator class="uuid"/>
         </id>
         <property name="interfaceInformation"/>
-        <property name="protocolInformation" length="10000"/>
+        <!--<property name="protocolInformation" length="10000"/>-->
     </class>
 
     <class name="JPADescriptionDescriptor" table="description">
@@ -61,8 +61,8 @@
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
-        <property name="semanticId" length="10000"/>
-        <property name="externalSubjectId" length="10000"/>
+        <!--<property name="semanticId" length="10000"/>
+        <property name="externalSubjectId" length="10000"/> -->
         <property name="key"/>
         <property name="value"/>
     </class>
@@ -71,10 +71,11 @@
         <id name="id" type="string">
         </id>
         <!--<property name="identifier"/>-->
-        <property name="administration"/>
         <property name="idShort"/>
-        <property name="identification"/>
-        <property name="semanticId" length="10000"/>
+        <!--<property name="identification"/>-->
+        <!--<property name="semanticId" length="10000"/>-->
+
+        <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one>
 
         <list name="endpoints" cascade="all">
             <key column="eid"/>
@@ -89,4 +90,13 @@
         </list>
     </class>
 
+    <class name="JPAAdministrativeInformationDescriptor" table="administrative_information">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="version"/>
+        <property name="revision"/>
+    </class>
+    
 </hibernate-mapping>

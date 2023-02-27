@@ -38,7 +38,7 @@ public class JPAHelper {
     public static List<Endpoint> createJPAEndpoints(List<Endpoint> endpoints) {
         List<Endpoint> retval = new ArrayList<>();
         endpoints.forEach((e) -> {
-            retval.add(JPAEndpointDescriptor.builder().from(e).build());
+            retval.add(new JPAEndpointDescriptor.Builder().from(e).build());
         });
         return retval;
     }

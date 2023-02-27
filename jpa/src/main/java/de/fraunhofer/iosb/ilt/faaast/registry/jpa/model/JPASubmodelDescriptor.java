@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 
@@ -51,9 +52,24 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
     public abstract static class AbstractBuilder<T extends JPASubmodelDescriptor, B extends AbstractBuilder<T, B>>
             extends DefaultSubmodelDescriptor.AbstractBuilder<JPASubmodelDescriptor, B> {
 
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
         @Override
         public B from(SubmodelDescriptor other) {
-            super.from(other);
+            //super.from(other);
+            if (other != null) {
+                id(other.getIdentification().getIdentifier());
+                idShort(other.getIdShort());
+                endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
+                administration(new JPAAdministrativeInformationDescriptor(other.getAdministration()));
+                descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
+                identification(other.getIdentification());
+                semanticId(other.getSemanticId());
+            }
             return getSelf();
         }
     }

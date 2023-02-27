@@ -49,6 +49,12 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
 
     public abstract static class AbstractBuilder<T extends JPAEndpointDescriptor, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
 
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
         @Override
         public B from(Endpoint other) {
             super.from(other);
