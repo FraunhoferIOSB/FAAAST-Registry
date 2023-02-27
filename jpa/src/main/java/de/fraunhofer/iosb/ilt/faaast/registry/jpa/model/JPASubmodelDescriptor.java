@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 
@@ -32,13 +31,12 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
         id = null;
     }
 
-
-    public JPASubmodelDescriptor(SubmodelDescriptor source) {
-        super(source);
-        id = source.getIdentification().getId();
-        setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
-        setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
-    }
+    //public JPASubmodelDescriptor(SubmodelDescriptor source) {
+    //    super(source);
+    //    id = source.getIdentification().getIdentifier();
+    //    setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
+    //    setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
+    //}
 
 
     public String getId() {
@@ -48,5 +46,29 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPASubmodelDescriptor, B extends AbstractBuilder<T, B>>
+            extends DefaultSubmodelDescriptor.AbstractBuilder<JPASubmodelDescriptor, B> {
+
+        @Override
+        public B from(SubmodelDescriptor other) {
+            super.from(other);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPASubmodelDescriptor, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPASubmodelDescriptor newBuildingInstance() {
+            return new JPASubmodelDescriptor();
+        }
     }
 }

@@ -17,9 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPADescriptionDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAEndpointDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePairDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.DescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.EndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.IdentifierKeyValuePairDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.LangString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +35,10 @@ public class JPAHelper {
      * @param endpoints The desired endpoints.
      * @return The list of JPA endpoints.
      */
-    public static List<EndpointDescriptor> createJPAEndpoints(List<EndpointDescriptor> endpoints) {
-        List<EndpointDescriptor> retval = new ArrayList<>();
+    public static List<Endpoint> createJPAEndpoints(List<Endpoint> endpoints) {
+        List<Endpoint> retval = new ArrayList<>();
         endpoints.forEach((e) -> {
-            retval.add(new JPAEndpointDescriptor(e));
+            retval.add(JPAEndpointDescriptor.builder().from(e).build());
         });
         return retval;
     }
@@ -50,8 +50,8 @@ public class JPAHelper {
      * @param descriptions The desired descriptions.
      * @return The list of JPA descriptions.
      */
-    public static List<DescriptionDescriptor> createJPADescriptions(List<DescriptionDescriptor> descriptions) {
-        List<DescriptionDescriptor> retval = new ArrayList<>();
+    public static List<LangString> createJPADescriptions(List<LangString> descriptions) {
+        List<LangString> retval = new ArrayList<>();
         descriptions.forEach((e) -> {
             retval.add(new JPADescriptionDescriptor(e));
         });
@@ -65,8 +65,8 @@ public class JPAHelper {
      * @param pairs The desired IdentifierKeyValuePairs.
      * @return The list of JPA IdentifierKeyValuePairs.
      */
-    public static List<IdentifierKeyValuePairDescriptor> createJPAIdentifierKeyValuePair(List<IdentifierKeyValuePairDescriptor> pairs) {
-        List<IdentifierKeyValuePairDescriptor> retval = new ArrayList<>();
+    public static List<IdentifierKeyValuePair> createJPAIdentifierKeyValuePair(List<IdentifierKeyValuePair> pairs) {
+        List<IdentifierKeyValuePair> retval = new ArrayList<>();
         pairs.forEach((e) -> {
             retval.add(new JPAIdentifierKeyValuePairDescriptor(e));
         });

@@ -15,14 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.DescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultDescriptionDescriptor;
+import io.adminshell.aas.v3.model.LangString;
 
 
 /**
  * Registry Descriptor JPA implementation for Description.
  */
-public class JPADescriptionDescriptor extends DefaultDescriptionDescriptor {
+public class JPADescriptionDescriptor extends LangString {
 
     @JsonIgnore
     private String id;
@@ -32,8 +31,8 @@ public class JPADescriptionDescriptor extends DefaultDescriptionDescriptor {
     }
 
 
-    public JPADescriptionDescriptor(DescriptionDescriptor source) {
-        super(source);
+    public JPADescriptionDescriptor(LangString source) {
+        super(source.getValue(), source.getLanguage());
         id = null;
     }
 
@@ -46,4 +45,5 @@ public class JPADescriptionDescriptor extends DefaultDescriptionDescriptor {
     public void setId(String id) {
         this.id = id;
     }
+
 }

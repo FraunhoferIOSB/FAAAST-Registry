@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 
@@ -32,14 +31,13 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
         id = null;
     }
 
-
-    public JPAAssetAdministrationShellDescriptor(AssetAdministrationShellDescriptor source) {
-        super(source);
-        id = source.getIdentification().getId();
-        setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
-        setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
-        setSpecificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(source.getSpecificAssetIds()));
-    }
+    //public JPAAssetAdministrationShellDescriptor(AssetAdministrationShellDescriptor source) {
+    //    super(source);
+    //    id = source.getIdentification().getId();
+    //    setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
+    //    setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
+    //    setSpecificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(source.getSpecificAssetIds()));
+    //}
 
 
     public String getId() {
@@ -51,4 +49,27 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
         this.id = id;
     }
 
+    public abstract static class AbstractBuilder<T extends JPAAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
+            extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JPAAssetAdministrationShellDescriptor, B> {
+
+        @Override
+        public B from(AssetAdministrationShellDescriptor other) {
+            super.from(other);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAAssetAdministrationShellDescriptor, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAAssetAdministrationShellDescriptor newBuildingInstance() {
+            return new JPAAssetAdministrationShellDescriptor();
+        }
+    }
 }

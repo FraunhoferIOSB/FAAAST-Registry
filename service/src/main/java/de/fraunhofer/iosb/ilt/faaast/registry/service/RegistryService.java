@@ -273,14 +273,14 @@ public class RegistryService {
 
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
-        if ((submodel.getIdentification() == null) || (submodel.getIdentification().getId() == null) || (submodel.getIdentification().getId().length() == 0)) {
+        if ((submodel.getIdentification() == null) || (submodel.getIdentification().getIdentifier() == null) || (submodel.getIdentification().getIdentifier().length() == 0)) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
 
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
-        if ((aas.getIdentification() == null) || (aas.getIdentification().getId() == null) || (aas.getIdentification().getId().length() == 0)) {
+        if ((aas.getIdentification() == null) || (aas.getIdentification().getIdentifier() == null) || (aas.getIdentification().getIdentifier().length() == 0)) {
             throw new BadRequestException("no AAS Identification provided");
         }
     }

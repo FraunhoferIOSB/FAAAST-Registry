@@ -54,7 +54,7 @@
             <generator class="uuid"/>
         </id>
         <property name="language"/>
-        <property name="text"/>
+        <property name="value"/>
     </class>
 
     <class name="JPAIdentifierKeyValuePairDescriptor" table="identifier_key_value_pair">

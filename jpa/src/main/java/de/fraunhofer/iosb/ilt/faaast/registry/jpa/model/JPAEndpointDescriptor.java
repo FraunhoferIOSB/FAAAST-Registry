@@ -15,14 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.EndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpointDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 
 
 /**
  * Registry Descriptor JPA implementation for Endpoint.
  */
-public class JPAEndpointDescriptor extends DefaultEndpointDescriptor {
+public class JPAEndpointDescriptor extends DefaultEndpoint {
 
     @JsonIgnore
     private String id;
@@ -31,11 +31,11 @@ public class JPAEndpointDescriptor extends DefaultEndpointDescriptor {
         id = null;
     }
 
-
-    public JPAEndpointDescriptor(EndpointDescriptor source) {
-        super(source);
-        id = null;
-    }
+    //public JPAEndpointDescriptor(Endpoint source) {
+    //    id = null;
+    //    setInterfaceInformation(source.getInterfaceInformation());
+    //    setProtocolInformation(source.getProtocolInformation());
+    //}
 
 
     public String getId() {
@@ -45,5 +45,28 @@ public class JPAEndpointDescriptor extends DefaultEndpointDescriptor {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPAEndpointDescriptor, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
+
+        @Override
+        public B from(Endpoint other) {
+            super.from(other);
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAEndpointDescriptor, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAEndpointDescriptor newBuildingInstance() {
+            return new JPAEndpointDescriptor();
+        }
     }
 }
