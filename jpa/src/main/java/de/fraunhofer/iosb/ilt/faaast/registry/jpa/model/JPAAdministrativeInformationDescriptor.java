@@ -25,27 +25,27 @@ import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
 public class JPAAdministrativeInformationDescriptor extends DefaultAdministrativeInformation {
 
     @JsonIgnore
-    private String id;
+    private String adminId;
 
     public JPAAdministrativeInformationDescriptor() {
-        id = null;
+        adminId = null;
     }
 
 
     public JPAAdministrativeInformationDescriptor(AdministrativeInformation source) {
-        id = null;
+        adminId = null;
         setVersion(source.getVersion());
         setRevision(source.getRevision());
         setEmbeddedDataSpecifications(source.getEmbeddedDataSpecifications());
     }
 
 
-    public String getId() {
-        return id;
+    public String getAdminId() {
+        return adminId;
     }
 
 
-    public void setId(String id) {
-        this.id = id;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
 }

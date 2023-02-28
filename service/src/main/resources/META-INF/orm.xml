@@ -10,10 +10,11 @@
         </id>
 
         <property name="idShort"/>
+        <!--<property name="administration" length="10000"/> -->
         <!--<property name="identification"/>-->
         <!--<property name="globalAssetId" length="10000"/>-->
 
-        <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one>
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
         
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
@@ -75,12 +76,13 @@
         <!--<property name="identification"/>-->
         <!--<property name="semanticId" length="10000"/>-->
 
-        <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one>
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
+        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one> -->
 
         <list name="endpoints" cascade="all">
             <key column="eid"/>
             <index column="type"/>
-            <one-to-many class="JPAEndpointDescriptor"/>
+            <many-to-many class="JPAEndpointDescriptor"/>
         </list>
 
         <list name="descriptions" cascade="all">
@@ -91,7 +93,7 @@
     </class>
 
     <class name="JPAAdministrativeInformationDescriptor" table="administrative_information">
-        <id name="id" type="string">
+        <id name="adminId" type="string">
             <generator class="uuid"/>
         </id>
         
