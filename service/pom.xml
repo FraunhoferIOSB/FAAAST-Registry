@@ -20,16 +20,16 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>memory</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <!--<dependency>
+        </dependency>-->
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jpa</artifactId>
             <version>${project.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
