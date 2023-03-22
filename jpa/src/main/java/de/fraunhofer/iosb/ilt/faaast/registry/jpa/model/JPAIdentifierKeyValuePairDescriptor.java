@@ -34,8 +34,8 @@ public class JPAIdentifierKeyValuePairDescriptor extends DefaultIdentifierKeyVal
 
     public JPAIdentifierKeyValuePairDescriptor(IdentifierKeyValuePair source) {
         id = null;
-        setSemanticId(source.getSemanticId());
-        setExternalSubjectId(source.getExternalSubjectId());
+        setSemanticId(new JPAReferenceDescriptor(source.getSemanticId()));
+        setExternalSubjectId(new JPAReferenceDescriptor(source.getExternalSubjectId()));
         setKey(source.getKey());
         setValue(source.getValue());
     }

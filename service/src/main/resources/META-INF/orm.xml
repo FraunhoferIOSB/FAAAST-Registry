@@ -11,7 +11,6 @@
 
         <property name="idShort"/>
         <!--<property name="identification"/>-->
-        <!--<property name="globalAssetId" length="10000"/>-->
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
 
@@ -63,8 +62,9 @@
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
-        <!--<property name="semanticId" length="10000"/>
-        <property name="externalSubjectId" length="10000"/> -->
+        
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReferenceDescriptor" cascade="all" column="semanticId" lazy="false"></many-to-one>
+        <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReferenceDescriptor" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
         <property name="key"/>
         <property name="value"/>
     </class>
@@ -107,8 +107,16 @@
             <generator class="uuid"/>
         </id>
 
-        <property name="idType"/>
-        <property name="type"/>
+        <property name="idType" column="idType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">io.adminshell.aas.v3.model.KeyType</param>
+            </type>
+        </property>
+        <property name="type">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">io.adminshell.aas.v3.model.KeyElements</param>
+            </type>
+        </property>
         <property name="value"/>
         
     </class>
