@@ -75,10 +75,11 @@
         <!--<property name="identifier"/>-->
         <property name="idShort"/>
         <!--<property name="identification"/>-->
-        <!--<property name="semanticId" length="10000"/>-->
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
         <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one> -->
+
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReferenceDescriptor" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
         <list name="endpoints" cascade="all">
             <key column="eid"/>
