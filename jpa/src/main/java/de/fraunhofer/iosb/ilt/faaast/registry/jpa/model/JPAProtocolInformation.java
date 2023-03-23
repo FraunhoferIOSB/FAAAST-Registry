@@ -22,12 +22,12 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtoc
 /**
  * Registry Descriptor JPA implementation for ProtocolInformation.
  */
-public class JPAProtocolInformationDescriptor extends DefaultProtocolInformation {
+public class JPAProtocolInformation extends DefaultProtocolInformation {
 
     @JsonIgnore
     private String id;
 
-    public JPAProtocolInformationDescriptor() {
+    public JPAProtocolInformation() {
         id = null;
     }
 
@@ -41,8 +41,8 @@ public class JPAProtocolInformationDescriptor extends DefaultProtocolInformation
         this.id = id;
     }
 
-    public abstract static class AbstractBuilder<T extends JPAProtocolInformationDescriptor, B extends AbstractBuilder<T, B>>
-            extends DefaultProtocolInformation.AbstractBuilder<JPAProtocolInformationDescriptor, B> {
+    public abstract static class AbstractBuilder<T extends JPAProtocolInformation, B extends AbstractBuilder<T, B>>
+            extends DefaultProtocolInformation.AbstractBuilder<JPAProtocolInformation, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -57,7 +57,7 @@ public class JPAProtocolInformationDescriptor extends DefaultProtocolInformation
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAProtocolInformationDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JPAProtocolInformation, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -66,8 +66,8 @@ public class JPAProtocolInformationDescriptor extends DefaultProtocolInformation
 
 
         @Override
-        protected JPAProtocolInformationDescriptor newBuildingInstance() {
-            return new JPAProtocolInformationDescriptor();
+        protected JPAProtocolInformation newBuildingInstance() {
+            return new JPAProtocolInformation();
         }
     }
 }

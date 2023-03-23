@@ -15,29 +15,27 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
+import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.impl.DefaultReference;
 
 
 /**
- * Registry Descriptor JPA implementation for IdentifierKeyValuePair.
+ * Registry Descriptor JPA implementation for Reference.
  */
-public class JPAIdentifierKeyValuePairDescriptor extends DefaultIdentifierKeyValuePair {
+public class JPAReference extends DefaultReference {
 
     @JsonIgnore
     private String id;
 
-    public JPAIdentifierKeyValuePairDescriptor() {
+    public JPAReference() {
         id = null;
     }
 
 
-    public JPAIdentifierKeyValuePairDescriptor(IdentifierKeyValuePair source) {
+    public JPAReference(Reference source) {
         id = null;
-        setSemanticId(new JPAReferenceDescriptor(source.getSemanticId()));
-        setExternalSubjectId(new JPAReferenceDescriptor(source.getExternalSubjectId()));
-        setKey(source.getKey());
-        setValue(source.getValue());
+        setKeys(JPAHelper.createJPAKeys(source.getKeys()));
     }
 
 
@@ -49,5 +47,4 @@ public class JPAIdentifierKeyValuePairDescriptor extends DefaultIdentifierKeyVal
     public void setId(String id) {
         this.id = id;
     }
-
 }

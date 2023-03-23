@@ -15,37 +15,39 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
+import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 
 
 /**
- * Registry Descriptor JPA implementation for AdministrativeInformation.
+ * Registry Descriptor JPA implementation for IdentifierKeyValuePair.
  */
-public class JPAAdministrativeInformationDescriptor extends DefaultAdministrativeInformation {
+public class JPAIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
 
     @JsonIgnore
-    private String adminId;
+    private String id;
 
-    public JPAAdministrativeInformationDescriptor() {
-        adminId = null;
+    public JPAIdentifierKeyValuePair() {
+        id = null;
     }
 
 
-    public JPAAdministrativeInformationDescriptor(AdministrativeInformation source) {
-        adminId = null;
-        setVersion(source.getVersion());
-        setRevision(source.getRevision());
-        setEmbeddedDataSpecifications(source.getEmbeddedDataSpecifications());
+    public JPAIdentifierKeyValuePair(IdentifierKeyValuePair source) {
+        id = null;
+        setSemanticId(new JPAReference(source.getSemanticId()));
+        setExternalSubjectId(new JPAReference(source.getExternalSubjectId()));
+        setKey(source.getKey());
+        setValue(source.getValue());
     }
 
 
-    public String getAdminId() {
-        return adminId;
+    public String getId() {
+        return id;
     }
 
 
-    public void setAdminId(String adminId) {
-        this.adminId = adminId;
+    public void setId(String id) {
+        this.id = id;
     }
+
 }

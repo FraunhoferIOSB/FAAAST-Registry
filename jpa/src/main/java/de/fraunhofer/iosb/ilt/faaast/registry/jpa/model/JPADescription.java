@@ -21,17 +21,17 @@ import io.adminshell.aas.v3.model.LangString;
 /**
  * Registry Descriptor JPA implementation for Description.
  */
-public class JPADescriptionDescriptor extends LangString {
+public class JPADescription extends LangString {
 
     @JsonIgnore
     private String id;
 
-    public JPADescriptionDescriptor() {
+    public JPADescription() {
         id = null;
     }
 
 
-    public JPADescriptionDescriptor(LangString source) {
+    public JPADescription(LangString source) {
         super(source.getValue(), source.getLanguage());
         id = null;
     }

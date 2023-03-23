@@ -15,27 +15,28 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.impl.DefaultKey;
 
 
 /**
- * Registry Descriptor JPA implementation for Reference.
+ * Registry Descriptor JPA implementation for Key.
  */
-public class JPAReferenceDescriptor extends DefaultReference {
+public class JPAKey extends DefaultKey {
 
     @JsonIgnore
     private String id;
 
-    public JPAReferenceDescriptor() {
+    public JPAKey() {
         id = null;
     }
 
 
-    public JPAReferenceDescriptor(Reference source) {
+    public JPAKey(Key source) {
         id = null;
-        setKeys(JPAHelper.createJPAKeys(source.getKeys()));
+        setIdType(source.getIdType());
+        setType(source.getType());
+        setValue(source.getValue());
     }
 
 

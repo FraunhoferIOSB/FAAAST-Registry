@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPADescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAEndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePairDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAKeyDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPADescription;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePair;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAKey;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.Key;
@@ -40,7 +40,7 @@ public class JPAHelper {
     public static List<Endpoint> createJPAEndpoints(List<Endpoint> endpoints) {
         List<Endpoint> retval = new ArrayList<>();
         endpoints.forEach((e) -> {
-            retval.add(new JPAEndpointDescriptor.Builder().from(e).build());
+            retval.add(new JPAEndpoint.Builder().from(e).build());
         });
         return retval;
     }
@@ -55,7 +55,7 @@ public class JPAHelper {
     public static List<LangString> createJPADescriptions(List<LangString> descriptions) {
         List<LangString> retval = new ArrayList<>();
         descriptions.forEach((e) -> {
-            retval.add(new JPADescriptionDescriptor(e));
+            retval.add(new JPADescription(e));
         });
         return retval;
     }
@@ -70,7 +70,7 @@ public class JPAHelper {
     public static List<IdentifierKeyValuePair> createJPAIdentifierKeyValuePair(List<IdentifierKeyValuePair> pairs) {
         List<IdentifierKeyValuePair> retval = new ArrayList<>();
         pairs.forEach((e) -> {
-            retval.add(new JPAIdentifierKeyValuePairDescriptor(e));
+            retval.add(new JPAIdentifierKeyValuePair(e));
         });
         return retval;
     }
@@ -85,7 +85,7 @@ public class JPAHelper {
     public static List<Key> createJPAKeys(List<Key> keys) {
         List<Key> retval = new ArrayList<>();
         keys.forEach((e) -> {
-            retval.add(new JPAKeyDescriptor(e));
+            retval.add(new JPAKey(e));
         });
         return retval;
     }

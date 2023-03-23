@@ -15,37 +15,37 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
+import io.adminshell.aas.v3.model.AdministrativeInformation;
+import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for AdministrativeInformation.
  */
-public class JPAKeyDescriptor extends DefaultKey {
+public class JPAAdministrativeInformation extends DefaultAdministrativeInformation {
 
     @JsonIgnore
-    private String id;
+    private String adminId;
 
-    public JPAKeyDescriptor() {
-        id = null;
+    public JPAAdministrativeInformation() {
+        adminId = null;
     }
 
 
-    public JPAKeyDescriptor(Key source) {
-        id = null;
-        setIdType(source.getIdType());
-        setType(source.getType());
-        setValue(source.getValue());
+    public JPAAdministrativeInformation(AdministrativeInformation source) {
+        adminId = null;
+        setVersion(source.getVersion());
+        setRevision(source.getRevision());
+        setEmbeddedDataSpecifications(source.getEmbeddedDataSpecifications());
     }
 
 
-    public String getId() {
-        return id;
+    public String getAdminId() {
+        return adminId;
     }
 
 
-    public void setId(String id) {
-        this.id = id;
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
     }
 }

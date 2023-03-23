@@ -65,10 +65,10 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
                 id(other.getIdentification().getIdentifier());
                 idShort(other.getIdShort());
                 endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
-                administration(new JPAAdministrativeInformationDescriptor(other.getAdministration()));
+                administration(new JPAAdministrativeInformation(other.getAdministration()));
                 descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
                 identification(other.getIdentification());
-                globalAssetId(new JPAReferenceDescriptor(other.getGlobalAssetId()));
+                globalAssetId(new JPAReference(other.getGlobalAssetId()));
                 specificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(other.getSpecificAssetIds()));
                 other.getSubmodels().forEach((s) -> {
                     submodel(new JPASubmodelDescriptor.Builder().from(s).build());
