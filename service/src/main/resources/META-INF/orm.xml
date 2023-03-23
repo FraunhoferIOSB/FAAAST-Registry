@@ -47,7 +47,8 @@
             <generator class="uuid"/>
         </id>
         <property name="interfaceInformation"/>
-        <!--<property name="protocolInformation" length="10000"/>-->
+
+        <many-to-one name="protocolInformation" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAProtocolInformationDescriptor" cascade="all" column="protocolId" lazy="false"></many-to-one>
     </class>
 
     <class name="JPADescriptionDescriptor" table="description">
@@ -132,5 +133,18 @@
             <index column="keyType"/>
             <one-to-many class="JPAKeyDescriptor"/>
         </list>
+    </class>
+    
+    <class name="JPAProtocolInformationDescriptor" table="protocol_information">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="endpointAddress"/>
+        <property name="endpointProtocol"/>
+        <property name="endpointProtocolVersion"/>
+        <property name="subprotocol"/>
+        <property name="subprotocolBody"/>
+        <property name="subprotocolBodyEncoding"/>
     </class>
 </hibernate-mapping>

@@ -15,27 +15,21 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 
 
 /**
- * Registry Descriptor JPA implementation for Endpoint.
+ * Registry Descriptor JPA implementation for ProtocolInformation.
  */
-public class JPAEndpointDescriptor extends DefaultEndpoint {
+public class JPAProtocolInformationDescriptor extends DefaultProtocolInformation {
 
     @JsonIgnore
     private String id;
 
-    public JPAEndpointDescriptor() {
+    public JPAProtocolInformationDescriptor() {
         id = null;
     }
-
-    //public JPAEndpointDescriptor(Endpoint source) {
-    //    id = null;
-    //    setInterfaceInformation(source.getInterfaceInformation());
-    //    setProtocolInformation(source.getProtocolInformation());
-    //}
 
 
     public String getId() {
@@ -47,7 +41,8 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
         this.id = id;
     }
 
-    public abstract static class AbstractBuilder<T extends JPAEndpointDescriptor, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends JPAProtocolInformationDescriptor, B extends AbstractBuilder<T, B>>
+            extends DefaultProtocolInformation.AbstractBuilder<JPAProtocolInformationDescriptor, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -56,16 +51,13 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
 
 
         @Override
-        public B from(Endpoint other) {
+        public B from(ProtocolInformation other) {
             super.from(other);
-            if (other != null) {
-                protocolInformation(new JPAProtocolInformationDescriptor.Builder().from(other.getProtocolInformation()).build());
-            }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAEndpointDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JPAProtocolInformationDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -74,8 +66,8 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
 
 
         @Override
-        protected JPAEndpointDescriptor newBuildingInstance() {
-            return new JPAEndpointDescriptor();
+        protected JPAProtocolInformationDescriptor newBuildingInstance() {
+            return new JPAProtocolInformationDescriptor();
         }
     }
 }
