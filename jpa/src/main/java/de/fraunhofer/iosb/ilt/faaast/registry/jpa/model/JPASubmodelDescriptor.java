@@ -63,11 +63,10 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
             super.from(other);
             if (other != null) {
                 id(other.getIdentification().getIdentifier());
-                //idShort(other.getIdShort());
                 endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
                 administration(new JPAAdministrativeInformation(other.getAdministration()));
                 descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
-                //identification(other.getIdentification());
+                identification(new JPAIdentifier(other.getIdentification()));
                 semanticId(new JPAReference(other.getSemanticId()));
             }
             return getSelf();

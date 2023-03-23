@@ -10,7 +10,8 @@
         </id>
 
         <property name="idShort"/>
-        <!--<property name="identification"/>-->
+
+        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
@@ -76,6 +77,8 @@
         <!--<property name="identifier"/>-->
         <property name="idShort"/>
         <!--<property name="identification"/>-->
+
+        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
         <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all"></one-to-one> -->
@@ -146,5 +149,18 @@
         <property name="subprotocol"/>
         <property name="subprotocolBody"/>
         <property name="subprotocolBodyEncoding"/>
+    </class>
+    
+    <class name="JPAIdentifier" table="identifier">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="identifier"/>
+        <property name="idType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">io.adminshell.aas.v3.model.IdentifierType</param>
+            </type>
+        </property>
     </class>
 </hibernate-mapping>

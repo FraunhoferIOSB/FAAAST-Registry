@@ -31,12 +31,6 @@ public class JPAEndpoint extends DefaultEndpoint {
         id = null;
     }
 
-    //public JPAEndpointDescriptor(Endpoint source) {
-    //    id = null;
-    //    setInterfaceInformation(source.getInterfaceInformation());
-    //    setProtocolInformation(source.getProtocolInformation());
-    //}
-
 
     public String getId() {
         return id;
