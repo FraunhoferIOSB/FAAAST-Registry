@@ -20,6 +20,12 @@
             <artifactId>model</artifactId>
             <version>${faaast.service.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>${spring.boot.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>model</artifactId>
