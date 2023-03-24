@@ -40,6 +40,15 @@ public class AASRepositoryMemory implements AASRepository {
     }
 
 
+    /**
+     * Clear the repository.
+     */
+    public void clear() {
+        shellDescriptors.clear();
+        submodelDescriptors.clear();
+    }
+
+
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs() {
         return new ArrayList<>(shellDescriptors.values());
