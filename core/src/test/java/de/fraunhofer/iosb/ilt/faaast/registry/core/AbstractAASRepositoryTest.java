@@ -214,7 +214,7 @@ public abstract class AbstractAASRepositoryTest<T extends AASRepository> {
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         repository.create(aas);
         repository.addSubmodel(aas.getIdentification().getIdentifier(), submodel);
-        Assert.assertEquals(repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()), submodel);
+        compareSubmodel(submodel, repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
     }
 
 
@@ -257,7 +257,7 @@ public abstract class AbstractAASRepositoryTest<T extends AASRepository> {
     public void deleteStandAloneSubmodel() throws Exception {
         SubmodelDescriptor submodel = getSubmodel();
         repository.addSubmodel(submodel);
-        Assert.assertEquals(submodel, repository.getSubmodel(submodel.getIdentification().getIdentifier()));
+        compareSubmodel(submodel, repository.getSubmodel(submodel.getIdentification().getIdentifier()));
 
         repository.deleteSubmodel(submodel.getIdentification().getIdentifier());
         Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(submodel.getIdentification().getIdentifier()));
@@ -270,10 +270,15 @@ public abstract class AbstractAASRepositoryTest<T extends AASRepository> {
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         repository.create(aas);
         repository.addSubmodel(aas.getIdentification().getIdentifier(), submodel);
-        Assert.assertEquals(repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()), submodel);
+        compareSubmodel(submodel, repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
 
         repository.deleteSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier());
 
         Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
+    }
+
+
+    protected void compareSubmodel(SubmodelDescriptor submodelExpected, SubmodelDescriptor submodelActual) {
+        Assert.assertEquals(submodelExpected, submodelActual);
     }
 }
