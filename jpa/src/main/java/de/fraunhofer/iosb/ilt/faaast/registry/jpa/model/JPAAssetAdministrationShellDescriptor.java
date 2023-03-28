@@ -32,14 +32,6 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
         id = null;
     }
 
-    //public JPAAssetAdministrationShellDescriptor(AssetAdministrationShellDescriptor source) {
-    //    super(source);
-    //    id = source.getIdentification().getId();
-    //    setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
-    //    setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
-    //    setSpecificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(source.getSpecificAssetIds()));
-    //}
-
 
     public String getId() {
         return id;

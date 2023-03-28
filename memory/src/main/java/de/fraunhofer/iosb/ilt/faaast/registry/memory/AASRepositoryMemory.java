@@ -71,7 +71,6 @@ public class AASRepositoryMemory implements AASRepository {
         if (aas == null) {
             shellDescriptors.put(entity.getIdentification().getIdentifier(), entity);
             entity.getSubmodels().forEach(s -> {
-                //setIdentifier(s);
                 submodelDescriptors.putIfAbsent(s.getIdentification().getIdentifier(), s);
             });
         }
@@ -156,7 +155,6 @@ public class AASRepositoryMemory implements AASRepository {
         if (aas == null) {
             throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
         }
-        //setIdentifier(submodel);
         try {
             getSubmodel(aasId, submodel.getIdentification().getIdentifier());
             throw new IllegalArgumentException("A submodel with the ID '" + submodel.getIdentification().getIdentifier()
@@ -176,7 +174,6 @@ public class AASRepositoryMemory implements AASRepository {
                     + "' already exists");
         }
         else {
-            //setIdentifier(submodel);
             submodelDescriptors.put(submodel.getIdentification().getIdentifier(), submodel);
         }
         return submodel;

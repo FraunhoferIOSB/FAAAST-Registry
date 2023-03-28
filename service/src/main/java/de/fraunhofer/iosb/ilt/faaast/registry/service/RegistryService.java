@@ -70,8 +70,6 @@ public class RegistryService {
      * @throws Exception When an error occurs.
      */
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor entity) throws Exception {
-        //String id = entity.getIdentification().getId();
-        //entity.setId(id);
         checkShellIdentifiers(entity);
         if (entity.getSubmodels() != null) {
             entity.getSubmodels().stream().map((submodel) -> {

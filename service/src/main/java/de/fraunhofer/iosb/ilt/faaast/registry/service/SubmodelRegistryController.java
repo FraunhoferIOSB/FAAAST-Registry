@@ -115,8 +115,6 @@ public class SubmodelRegistryController {
         }
         catch (ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-            //} catch (DataIntegrityViolationException e) {
-            //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Constraint Violation: Submodel with ID '" + submodelIdentifier +"' belongs to an AAS. Please update the AAS", e);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
@@ -140,8 +138,6 @@ public class SubmodelRegistryController {
         }
         catch (ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-            //} catch (DataIntegrityViolationException e) {
-            //    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Constraint Violation: Submodel with ID '" + submodelIdentifier +"' belongs to an AAS. Please delete AAS", e);
         }
         catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
