@@ -47,36 +47,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 @Configuration
 public class DescriptorMapperConfig {
 
-    //    /**
-    //     * Retrieves an ObjectMapper with the desired settings.
-    //     *
-    //     * <p>Two options will be configure by default:
-    //     * disable MapperFeature.DEFAULT_VIEW_INCLUSION
-    //     * disable DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES</p>
-    //     *
-    //     * @return The ObjectMapper.
-    //     */
-    //    @Bean
-    //    @Primary
-    //    public ObjectMapper objectMapper() {
-    //        ObjectMapper mapper = new ObjectMapper();
-    //
-    //        SimpleModule module = new SimpleModule("AasModel", Version.unknownVersion());
-    //
-    //        SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
-    //        resolver.addMapping(AssetAdministrationShellDescriptor.class, DefaultAssetAdministrationShellDescriptor.class);
-    //        resolver.addMapping(DescriptionDescriptor.class, DefaultDescriptionDescriptor.class);
-    //        resolver.addMapping(IdentifierKeyValuePairDescriptor.class, DefaultIdentifierKeyValuePairDescriptor.class);
-    //        resolver.addMapping(KeyDescriptor.class, DefaultKeyDescriptor.class);
-    //        resolver.addMapping(ReferenceDescriptor.class, DefaultReferenceDescriptor.class);
-    //        resolver.addMapping(SubmodelDescriptor.class, DefaultSubmodelDescriptor.class);
-    //
-    //        module.setAbstractTypes(resolver);
-    //
-    //        mapper.registerModule(module);
-    //        return mapper;
-    //    }
-
     /**
      * Register our Mappings in the ObjectMapper.
      *

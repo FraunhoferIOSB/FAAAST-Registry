@@ -32,13 +32,6 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
         id = null;
     }
 
-    //public JPASubmodelDescriptor(SubmodelDescriptor source) {
-    //    super(source);
-    //    id = source.getIdentification().getIdentifier();
-    //    setEndpoints(JPAHelper.createJPAEndpoints(source.getEndpoints()));
-    //    setDescriptions(JPAHelper.createJPADescriptions(source.getDescriptions()));
-    //}
-
 
     public String getId() {
         return id;
