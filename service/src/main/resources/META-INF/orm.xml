@@ -19,31 +19,31 @@
         
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
-            <index column="type"/>
+            <index column="index"/>
             <many-to-many class="JPAEndpoint"/>
         </list>
 
         <list name="descriptions" cascade="all" table="asset_administration_shell_descriptions">
             <key column="did"/>
-            <index column="type"/>
+            <index column="index"/>
             <many-to-many class="JPADescription"/>
         </list>
 
         <list name="displayNames" cascade="all" table="asset_administration_shell_display_names">
             <key column="dnid"/>
-            <index column="type"/>
+            <index column="index"/>
             <many-to-many class="JPADescription"/>
         </list>
 
         <list name="specificAssetIds" cascade="all">
             <key column="sid"/>
-            <index column="type"/>
+            <index column="index"/>
             <one-to-many class="JPAIdentifierKeyValuePair"/>
         </list>
 
         <list name="submodels" cascade="all" table="asset_administration_shell_submodels">
             <key column="sdid"/>
-            <index column="type"/>
+            <index column="index"/>
             <many-to-many class="JPASubmodelDescriptor"/>
         </list>
 
@@ -63,7 +63,7 @@
             <generator class="uuid"/>
         </id>
         <property name="language"/>
-        <property name="value"/>
+        <property name="value" column="value_col"/> 
     </class>
 
     <class name="JPAIdentifierKeyValuePair" table="identifier_key_value_pair">
@@ -73,8 +73,8 @@
         
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
         <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
-        <property name="key"/>
-        <property name="value"/>
+        <property name="key" column="key_vol"/>
+        <property name="value" column="value_col"/> 
     </class>
 
     <class name="JPASubmodelDescriptor" table="submodel">
@@ -91,21 +91,21 @@
 
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
-        <list name="endpoints" cascade="all">
+        <list name="endpoints" cascade="all" table="submodel_endpoints">
             <key column="eid"/>
-            <index column="type"/>
+            <index column="index"/>
             <many-to-many class="JPAEndpoint"/>
         </list>
 
         <list name="descriptions" cascade="all">
             <key column="did"/>
-            <index column="type"/>
+            <index column="index"/>
             <one-to-many class="JPADescription"/>
         </list>
 
         <list name="displayNames" cascade="all">
             <key column="dnid"/>
-            <index column="type"/>
+            <index column="index"/>
             <one-to-many class="JPADescription"/>
         </list>
     </class>
@@ -119,7 +119,7 @@
         <property name="revision"/>
     </class>
     
-    <class name="JPAKey" table="key">
+    <class name="JPAKey" table="key_table">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -134,7 +134,7 @@
                 <param name="enumClass">io.adminshell.aas.v3.model.KeyElements</param>
             </type>
         </property>
-        <property name="value"/>
+        <property name="value" column="value_col"/>
         
     </class>
     

@@ -29,6 +29,12 @@
             <many-to-many class="JPADescription"/>
         </list>
 
+        <list name="displayNames" cascade="all" table="asset_administration_shell_display_names">
+            <key column="dnid"/>
+            <index column="index"/>
+            <many-to-many class="JPADescription"/>
+        </list>
+
         <list name="specificAssetIds" cascade="all">
             <key column="sid"/>
             <index column="index"/>
@@ -85,7 +91,7 @@
 
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
-        <list name="endpoints" cascade="all">
+        <list name="endpoints" cascade="all" table="submodel_endpoints">
             <key column="eid"/>
             <index column="index"/>
             <many-to-many class="JPAEndpoint"/>
@@ -93,6 +99,12 @@
 
         <list name="descriptions" cascade="all">
             <key column="did"/>
+            <index column="index"/>
+            <one-to-many class="JPADescription"/>
+        </list>
+
+        <list name="displayNames" cascade="all">
+            <key column="dnid"/>
             <index column="index"/>
             <one-to-many class="JPADescription"/>
         </list>
