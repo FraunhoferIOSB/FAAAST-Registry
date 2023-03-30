@@ -59,6 +59,7 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
                 endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
                 administration(new JPAAdministrativeInformation(other.getAdministration()));
                 descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
+                displayNames(JPAHelper.createJPADescriptions(other.getDisplayNames()));
                 identification(new JPAIdentifier(other.getIdentification()));
                 semanticId(new JPAReference(other.getSemanticId()));
             }

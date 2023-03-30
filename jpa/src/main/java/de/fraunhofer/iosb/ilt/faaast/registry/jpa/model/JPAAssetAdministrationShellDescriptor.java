@@ -59,6 +59,7 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
                 endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
                 administration(new JPAAdministrativeInformation(other.getAdministration()));
                 descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
+                displayNames(JPAHelper.createJPADescriptions(other.getDisplayNames()));
                 identification(new JPAIdentifier(other.getIdentification()));
                 globalAssetId(new JPAReference(other.getGlobalAssetId()));
                 specificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(other.getSpecificAssetIds()));

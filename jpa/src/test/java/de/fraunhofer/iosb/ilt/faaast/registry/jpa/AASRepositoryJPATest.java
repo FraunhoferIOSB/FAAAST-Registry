@@ -56,6 +56,11 @@ public class AASRepositoryJPATest extends AbstractAASRepositoryTest<AASRepositor
             Assert.assertEquals(submodelExpected.getDescriptions().get(i).getLanguage(), submodelActual.getDescriptions().get(i).getLanguage());
             Assert.assertEquals(submodelExpected.getDescriptions().get(i).getValue(), submodelActual.getDescriptions().get(i).getValue());
         }
+        Assert.assertEquals(submodelExpected.getDisplayNames().size(), submodelActual.getDisplayNames().size());
+        for (int i = 0; i < submodelExpected.getDisplayNames().size(); i++) {
+            Assert.assertEquals(submodelExpected.getDisplayNames().get(i).getLanguage(), submodelActual.getDisplayNames().get(i).getLanguage());
+            Assert.assertEquals(submodelExpected.getDisplayNames().get(i).getValue(), submodelActual.getDisplayNames().get(i).getValue());
+        }
         Assert.assertEquals(submodelExpected.getEndpoints().size(), submodelActual.getEndpoints().size());
         for (int i = 0; i < submodelExpected.getEndpoints().size(); i++) {
             Assert.assertEquals(submodelExpected.getEndpoints().get(i).getInterfaceInformation(), submodelActual.getEndpoints().get(i).getInterfaceInformation());
