@@ -38,7 +38,7 @@ import org.springframework.web.server.ResponseStatusException;
  */
 @RestController
 @RequestMapping("/registry/shell-descriptors")
-public class AASRegistryController {
+public class ShellRegistryController {
 
     @Autowired
     RegistryService service;
