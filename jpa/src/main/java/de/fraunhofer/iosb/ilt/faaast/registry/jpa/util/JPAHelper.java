@@ -20,8 +20,10 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePai
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
 import io.adminshell.aas.v3.model.LangString;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 
 
 /**
@@ -36,11 +38,9 @@ public class JPAHelper {
      * @return The list of JPA endpoints.
      */
     public static List<Endpoint> createJPAEndpoints(List<Endpoint> endpoints) {
-        List<Endpoint> retval = new ArrayList<>();
-        endpoints.forEach((e) -> {
-            retval.add(new JPAEndpointDescriptor.Builder().from(e).build());
-        });
-        return retval;
+        return endpoints.stream()
+                .map(x -> new JPAEndpointDescriptor.Builder().from(x).build())
+                .collect(Collectors.toList());
     }
 
 
@@ -51,11 +51,9 @@ public class JPAHelper {
      * @return The list of JPA descriptions.
      */
     public static List<LangString> createJPADescriptions(List<LangString> descriptions) {
-        List<LangString> retval = new ArrayList<>();
-        descriptions.forEach((e) -> {
-            retval.add(new JPADescriptionDescriptor(e));
-        });
-        return retval;
+        return descriptions.stream()
+                .map(JPADescriptionDescriptor::new)
+                .collect(Collectors.toList());
     }
 
 
@@ -66,10 +64,43 @@ public class JPAHelper {
      * @return The list of JPA IdentifierKeyValuePairs.
      */
     public static List<IdentifierKeyValuePair> createJPAIdentifierKeyValuePair(List<IdentifierKeyValuePair> pairs) {
-        List<IdentifierKeyValuePair> retval = new ArrayList<>();
-        pairs.forEach((e) -> {
-            retval.add(new JPAIdentifierKeyValuePairDescriptor(e));
-        });
-        return retval;
+        return pairs.stream()
+                .map(JPAIdentifierKeyValuePairDescriptor::new)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Fetches all instances of a given type from the entityManager.
+     *
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @return all instances of given type
+     */
+    public static <T> List<T> getAll(EntityManager entityManager, Class<T> type) {
+        return getAll(entityManager, type, type);
+    }
+
+
+    /**
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
+     *
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @return all instances of given type cast to return type
+     */
+    public static <R, T extends R> List<R> getAll(EntityManager entityManager, Class<T> type, Class<R> returnType) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        var queryCriteria = builder.createQuery(type);
+        queryCriteria.select(queryCriteria.from(type));
+        //var query = entityManager.createQuery(String.format("SELECT x FROM %s x", type.getSimpleName()));
+        var query = entityManager.createQuery(queryCriteria);
+        return query.getResultList().stream()
+                .map(returnType::cast)
+                .collect(Collectors.toList());
     }
 }

@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,7 @@ import java.util.Optional;
 /**
  * In-memory implementation of the Repository.
  */
-public class AASRepositoryMemory implements AASRepository {
+public class AASRepositoryMemory extends AbstractAASRepository {
 
     private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
@@ -56,157 +58,142 @@ public class AASRepositoryMemory implements AASRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor getAAS(String id) {
+    public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
+        Ensure.requireNonNull(id, "id must be non-null");
         AssetAdministrationShellDescriptor aas = fetchAAS(id);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + id + "' not found");
-        }
+        Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
     }
 
 
     @Override
-    public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor entity) {
-        AssetAdministrationShellDescriptor aas = fetchAAS(entity.getIdentification().getIdentifier());
-        if (aas == null) {
-            shellDescriptors.put(entity.getIdentification().getIdentifier(), entity);
-            entity.getSubmodels().forEach(s -> {
-                submodelDescriptors.putIfAbsent(s.getIdentification().getIdentifier(), s);
-            });
-        }
-        else {
-            throw new IllegalArgumentException("An AAS with the ID '" + entity.getIdentification().getIdentifier() + "' already exists");
-        }
-        return entity;
+    public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
+        ensureDescriptorId(descriptor);
+        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
+        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
+        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        descriptor.getSubmodels().forEach(s -> {
+            submodelDescriptors.putIfAbsent(s.getIdentification().getIdentifier(), s);
+        });
+        return descriptor;
     }
 
 
     @Override
-    public void deleteAAS(String aasId) {
+    public void deleteAAS(String aasId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
-        }
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         shellDescriptors.remove(aasId);
         aas.getSubmodels().forEach(s -> submodelDescriptors.remove(s.getIdentification().getIdentifier()));
     }
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String id, AssetAdministrationShellDescriptor entity) {
-        AssetAdministrationShellDescriptor oldAAS = getAAS(id);
-        if (oldAAS != null) {
-            shellDescriptors.remove(id);
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureDescriptorId(descriptor);
+        AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
+        if (Objects.nonNull(oldAAS)) {
+            shellDescriptors.remove(aasId);
         }
-        shellDescriptors.put(entity.getIdentification().getIdentifier(), entity);
-        return entity;
+        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels(String aasId) {
+    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
-        }
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         return aas.getSubmodels();
     }
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels() throws Exception {
+    public List<SubmodelDescriptor> getSubmodels() {
         return new ArrayList<>(submodelDescriptors.values());
     }
 
 
     @Override
-    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) {
+    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
-        }
-
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         List<SubmodelDescriptor> submodels = aas.getSubmodels();
         Optional<SubmodelDescriptor> submodel = submodels.stream()
                 .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
                 .findAny();
-        if (submodel.isEmpty()) {
-            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found in AAS '" + aasId + "'");
-        }
-
+        Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         return submodel.get();
     }
 
 
     @Override
-    public SubmodelDescriptor getSubmodel(String submodelId) throws Exception {
-        if (submodelDescriptors.containsKey(submodelId)) {
-            return submodelDescriptors.get(submodelId);
-        }
-        else {
-            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found");
-        }
+    public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
+        ensureSubmodelId(submodelId);
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        return submodelDescriptors.get(submodelId);
     }
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor submodel) throws Exception {
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
-        }
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        // TODO what is this?
         try {
-            getSubmodel(aasId, submodel.getIdentification().getIdentifier());
-            throw new IllegalArgumentException("A submodel with the ID '" + submodel.getIdentification().getIdentifier()
-                    + "' already exists in AAS with ID '" + aasId + "'");
+            getSubmodel(aasId, descriptor.getIdentification().getIdentifier());
+            throw new ResourceNotFoundException(String.format(
+                    "Submodel already exists in AAS (AAS: %s, submodel: %s)",
+                    aasId,
+                    descriptor.getIdentification().getIdentifier()));
         }
         catch (ResourceNotFoundException ignored) {}
-        aas.getSubmodels().add(submodel);
-        submodelDescriptors.putIfAbsent(submodel.getIdentification().getIdentifier(), submodel);
-        return submodel;
+        aas.getSubmodels().add(descriptor);
+        submodelDescriptors.putIfAbsent(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(SubmodelDescriptor submodel) throws Exception {
-        if (submodelDescriptors.containsKey(submodel.getIdentification().getIdentifier())) {
-            throw new IllegalArgumentException("A submodel with the ID '" + submodel.getIdentification().getIdentifier()
-                    + "' already exists");
-        }
-        else {
-            submodelDescriptors.put(submodel.getIdentification().getIdentifier(), submodel);
-        }
-        return submodel;
+    public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
+        ensureDescriptorId(descriptor);
+        Ensure.require(
+                !submodelDescriptors.containsKey(descriptor.getIdentification().getIdentifier()),
+                buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
+        submodelDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
     @Override
-    public void deleteSubmodel(String aasId, String submodelId) {
+    public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        if (aas == null) {
-            throw new ResourceNotFoundException("AAS '" + aasId + "' not found");
-        }
-
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getIdentification().getIdentifier(), submodelId));
-        if (!found) {
-            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found");
-        }
+        Ensure.require(found, buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
     }
 
 
     @Override
-    public void deleteSubmodel(String submodelId) throws Exception {
-        if (!submodelDescriptors.containsKey(submodelId)) {
-            throw new ResourceNotFoundException("Submodel '" + submodelId + "' not found");
-        }
-        else {
-            submodelDescriptors.remove(submodelId);
-        }
+    public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
+        ensureSubmodelId(submodelId);
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        submodelDescriptors.remove(submodelId);
     }
 
 
-    private AssetAdministrationShellDescriptor fetchAAS(String id) {
-        return shellDescriptors.getOrDefault(id, null);
+    private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
+        ensureAasId(aasId);
+        return shellDescriptors.getOrDefault(aasId, null);
     }
 }

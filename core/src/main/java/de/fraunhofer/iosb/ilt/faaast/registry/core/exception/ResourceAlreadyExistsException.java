@@ -21,20 +21,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Exception class for resource not found.
  */
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class ResourceNotFoundException extends Exception {
+@ResponseStatus(value = HttpStatus.CONFLICT)
+public class ResourceAlreadyExistsException extends Exception {
 
-    public ResourceNotFoundException(final String message, final Throwable cause) {
+    public ResourceAlreadyExistsException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
 
-    public ResourceNotFoundException(final String message) {
+    public ResourceAlreadyExistsException(final String message) {
         super(message);
     }
 
 
-    public ResourceNotFoundException(final Throwable cause) {
+    public ResourceAlreadyExistsException(final Throwable cause) {
         super(cause);
     }
 }
