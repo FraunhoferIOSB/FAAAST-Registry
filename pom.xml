@@ -8,10 +8,10 @@
             <relativePath/>
     </parent> -->
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-    <artifactId>aasregistry</artifactId>
+    <artifactId>registry</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>aasregistry</name>
+    <name>registry</name>
     <description>An implementation of the AAS Registry</description>
     <url>https://github.com/FraunhoferIOSB/FAAAST-Registry</url>
     <inceptionYear>2023</inceptionYear>
@@ -231,7 +231,7 @@
                                 <file>${root.basedir}/license-header</file>
                             </licenseHeader>
                             <eclipse>
-                                <version>4.13.0</version>
+                                <version>4.13</version>
                                 <file>${root.basedir}/misc/codestyle/formatter.xml</file>
                             </eclipse>
                         </java>
