@@ -320,12 +320,6 @@
     </build>
     <profiles>
         <profile>
-            <id>build-local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
             <id>test</id>
         </profile>
         <profile>
