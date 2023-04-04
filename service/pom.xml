@@ -25,6 +25,7 @@
             <artifactId>memory</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
         <!--<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jpa</artifactId>

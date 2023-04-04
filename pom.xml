@@ -320,9 +320,6 @@
     </build>
     <profiles>
         <profile>
-            <id>test</id>
-        </profile>
-        <profile>
             <id>coverage</id>
             <build>
                 <plugins>
