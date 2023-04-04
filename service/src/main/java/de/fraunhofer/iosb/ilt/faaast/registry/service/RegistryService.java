@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Base64;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RegistryService {
+
+    private static final String AAS_NOT_NULL_TXT = "aas must be non-null";
+    private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
     private AASRepository aasRepository;
@@ -62,19 +66,20 @@ public class RegistryService {
     /**
      * Create the given Asset Administration Shell.
      *
-     * @param entity The desired Asset Administration Shell.
+     * @param aas The desired Asset Administration Shell.
      * @return The created Asset Administration Shell.
      * @throws ResourceAlreadyExistsException When the AAS already exists.
      */
-    public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor entity) throws ResourceAlreadyExistsException {
-        checkShellIdentifiers(entity);
-        if (entity.getSubmodels() != null) {
-            entity.getSubmodels().stream().map((submodel) -> {
+    public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
+        Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
+        checkShellIdentifiers(aas);
+        if (aas.getSubmodels() != null) {
+            aas.getSubmodels().stream().map((submodel) -> {
                 checkSubmodelIdentifiers(submodel);
                 return submodel;
             });
         }
-        return aasRepository.create(entity);
+        return aasRepository.create(aas);
     }
 
 
@@ -94,18 +99,19 @@ public class RegistryService {
      * Updates the given Asset Administration Shell.
      *
      * @param id The ID of the desired Asset Administration Shell.
-     * @param entity The desired Asset Administration Shell.
+     * @param aas The desired Asset Administration Shell.
      * @return The updated Asset Administration Shell.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor entity) throws ResourceNotFoundException {
+    public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor aas) throws ResourceNotFoundException {
+        Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         String idDecoded = decode(id);
-        checkShellIdentifiers(entity);
-        entity.getSubmodels().stream().map((SubmodelDescriptor submodel) -> {
+        checkShellIdentifiers(aas);
+        aas.getSubmodels().stream().map((SubmodelDescriptor submodel) -> {
             checkSubmodelIdentifiers(submodel);
             return submodel;
         });
-        return aasRepository.update(idDecoded, entity);
+        return aasRepository.update(idDecoded, aas);
     }
 
 
@@ -193,6 +199,7 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         checkSubmodelIdentifiers(submodel);
         if (aasId == null) {
             return aasRepository.addSubmodel(submodel);
@@ -244,6 +251,7 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String submodelIdDecoded = decode(submodelId);
         checkSubmodelIdentifiers(submodel);
         aasRepository.deleteSubmodel(submodelIdDecoded);
@@ -262,6 +270,7 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String aasIdDecoded = decode(aasId);
         String submodelIdDecoded = decode(submodelId);
         checkSubmodelIdentifiers(submodel);
@@ -276,6 +285,7 @@ public class RegistryService {
 
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
+        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         if ((submodel.getIdentification() == null) || (submodel.getIdentification().getIdentifier() == null) || (submodel.getIdentification().getIdentifier().length() == 0)) {
             throw new BadRequestException("no Submodel identification provided");
         }
