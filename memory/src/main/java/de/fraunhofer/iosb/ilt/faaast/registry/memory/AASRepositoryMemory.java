@@ -124,9 +124,7 @@ public class AASRepositoryMemory extends AbstractAASRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         List<SubmodelDescriptor> submodels = aas.getSubmodels();
-        Optional<SubmodelDescriptor> submodel = submodels.stream()
-                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
-                .findAny();
+        Optional<SubmodelDescriptor> submodel = getSubmodelIntern(submodels, submodelId);
         Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         return submodel.get();
     }
@@ -141,20 +139,14 @@ public class AASRepositoryMemory extends AbstractAASRepository {
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        // TODO what is this?
-        try {
-            getSubmodel(aasId, descriptor.getIdentification().getIdentifier());
-            throw new ResourceNotFoundException(String.format(
-                    "Submodel already exists in AAS (AAS: %s, submodel: %s)",
-                    aasId,
-                    descriptor.getIdentification().getIdentifier()));
+        if (getSubmodelIntern(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
+            throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
         }
-        catch (ResourceNotFoundException ignored) {}
         aas.getSubmodels().add(descriptor);
         submodelDescriptors.putIfAbsent(descriptor.getIdentification().getIdentifier(), descriptor);
         return descriptor;
@@ -189,6 +181,13 @@ public class AASRepositoryMemory extends AbstractAASRepository {
         ensureSubmodelId(submodelId);
         Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
+    }
+
+
+    private static Optional<SubmodelDescriptor> getSubmodelIntern(List<SubmodelDescriptor> submodels, String submodelId) {
+        return submodels.stream()
+                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
+                .findAny();
     }
 
 

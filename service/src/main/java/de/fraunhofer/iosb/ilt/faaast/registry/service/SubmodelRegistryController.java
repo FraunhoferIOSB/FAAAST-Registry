@@ -14,12 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 
 /**
@@ -46,16 +45,11 @@ public class SubmodelRegistryController {
      * Retrieves a list of all registered Submodels.
      *
      * @return The list of Submodels.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException When the Submodel was not found.
      */
     @GetMapping()
-    public List<SubmodelDescriptor> getSubmodels() throws Exception {
-        try {
-            return service.getSubmodels();
-        }
-        catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+    public List<SubmodelDescriptor> getSubmodels() throws ResourceNotFoundException {
+        return service.getSubmodels();
     }
 
 
@@ -64,19 +58,11 @@ public class SubmodelRegistryController {
      *
      * @param submodelIdentifier The ID of the desired Submodel.
      * @return The desired Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException When the Submodel was not found.
      */
     @GetMapping(value = "/{submodelIdentifier}")
-    public SubmodelDescriptor getSubmodel(@PathVariable("submodelIdentifier") String submodelIdentifier) throws Exception {
-        try {
-            return service.getSubmodel(submodelIdentifier);
-        }
-        catch (ResourceNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
-        catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+    public SubmodelDescriptor getSubmodel(@PathVariable("submodelIdentifier") String submodelIdentifier) throws ResourceNotFoundException {
+        return service.getSubmodel(submodelIdentifier);
     }
 
 
@@ -85,17 +71,13 @@ public class SubmodelRegistryController {
      *
      * @param submodel The desired submodel.
      * @return The created submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException When an error occurs.
+     * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SubmodelDescriptor createSubmodel(@RequestBody SubmodelDescriptor submodel) throws Exception {
-        try {
-            return service.createSubmodel(submodel);
-        }
-        catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+    public SubmodelDescriptor createSubmodel(@RequestBody SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        return service.createSubmodel(submodel);
     }
 
 
@@ -105,20 +87,14 @@ public class SubmodelRegistryController {
      * @param submodelIdentifier The ID of the desired Submodel.
      * @param submodel The desired Submodel.
      * @return The updated Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException When the Submodel was not found.
+     * @throws ResourceAlreadyExistsException When an error occurs.
      */
     @PutMapping(value = "/{submodelIdentifier}")
-    @ResponseStatus(HttpStatus.OK)
-    public SubmodelDescriptor update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel) throws Exception {
-        try {
-            return service.updateSubmodel(submodelIdentifier, submodel);
-        }
-        catch (ResourceNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
-        catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public SubmodelDescriptor update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel)
+            throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        return service.updateSubmodel(submodelIdentifier, submodel);
     }
 
 
@@ -126,21 +102,11 @@ public class SubmodelRegistryController {
      * Deletes the Submodel with the given ID.
      *
      * @param submodelIdentifier The ID of the desired Submodel.
-     * @return Success message if the Submodel was successfully deleted, error message otherwise.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException When the Submodel was not found.
      */
     @DeleteMapping(value = "/{submodelIdentifier}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> delete(@PathVariable("submodelIdentifier") String submodelIdentifier) throws Exception {
-        try {
-            service.deleteSubmodel(submodelIdentifier);
-            return new ResponseEntity<>("Successfully deleted Submodel", HttpStatus.OK);
-        }
-        catch (ResourceNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
-        catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage(), e);
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("submodelIdentifier") String submodelIdentifier) throws ResourceNotFoundException {
+        service.deleteSubmodel(submodelIdentifier);
     }
 }

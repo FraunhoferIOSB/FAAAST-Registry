@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Exception class for resource not found.
  */
-@ResponseStatus(value = HttpStatus.CONFLICT)
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class ResourceAlreadyExistsException extends Exception {
 
     public ResourceAlreadyExistsException(final String message, final Throwable cause) {
