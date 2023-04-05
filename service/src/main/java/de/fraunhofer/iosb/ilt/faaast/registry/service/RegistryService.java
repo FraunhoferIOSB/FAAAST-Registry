@@ -74,9 +74,8 @@ public class RegistryService {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         checkShellIdentifiers(aas);
         if (aas.getSubmodels() != null) {
-            aas.getSubmodels().stream().map((submodel) -> {
+            aas.getSubmodels().stream().forEach(submodel -> {
                 checkSubmodelIdentifiers(submodel);
-                return submodel;
             });
         }
         return aasRepository.create(aas);
@@ -107,9 +106,8 @@ public class RegistryService {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         String idDecoded = decode(id);
         checkShellIdentifiers(aas);
-        aas.getSubmodels().stream().map((SubmodelDescriptor submodel) -> {
+        aas.getSubmodels().stream().forEach(submodel -> {
             checkSubmodelIdentifiers(submodel);
-            return submodel;
         });
         return aasRepository.update(idDecoded, aas);
     }
@@ -293,6 +291,7 @@ public class RegistryService {
 
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
+        Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         if ((aas.getIdentification() == null) || (aas.getIdentification().getIdentifier() == null) || (aas.getIdentification().getIdentifier().length() == 0)) {
             throw new BadRequestException("no AAS Identification provided");
         }
