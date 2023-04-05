@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Transactional
-public abstract class AbstractAASRepositoryTest<T extends AASRepository> {
+public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
     protected T repository;
 

@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAssetAdministrationShellDescriptor;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 @Transactional
-public class AASRepositoryJPA extends AbstractAASRepository {
+public class AASRepositoryJPA extends AbstractAasRepository {
 
     @PersistenceContext(name = "AASRepositoryJPA")
     private final EntityManager entityManager;

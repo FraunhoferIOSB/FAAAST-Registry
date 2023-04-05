@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
@@ -31,12 +31,12 @@ import java.util.Optional;
 /**
  * In-memory implementation of the Repository.
  */
-public class AASRepositoryMemory extends AbstractAASRepository {
+public class AasRepositoryMemory extends AbstractAasRepository {
 
     private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
 
-    public AASRepositoryMemory() {
+    public AasRepositoryMemory() {
         shellDescriptors = new HashMap<>();
         submodelDescriptors = new HashMap<>();
     }

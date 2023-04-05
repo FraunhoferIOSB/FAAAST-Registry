@@ -22,9 +22,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 
 
 /**
- * Abstratc base class for implementing {@link AASRepository} interface providing helper methods for validation.
+ * Abstratc base class for implementing {@link AasRepository} interface providing helper methods for validation.
  */
-public abstract class AbstractAASRepository implements AASRepository {
+public abstract class AbstractAasRepository implements AasRepository {
 
     /**
      * Creates a new {@link ResourceNotFoundException} for the AAS.

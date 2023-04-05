@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * AAS Registry main repository.
  */
-public interface AASRepository {
+public interface AasRepository {
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.

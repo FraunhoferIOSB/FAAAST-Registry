@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AASRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
@@ -37,7 +37,7 @@ public class RegistryService {
     private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
-    private AASRepository aasRepository;
+    private AasRepository aasRepository;
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.
