@@ -24,6 +24,9 @@ import io.adminshell.aas.v3.model.Key;
 import io.adminshell.aas.v3.model.LangString;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 
 
 /**
@@ -88,5 +91,40 @@ public class JPAHelper {
             retval.add(new JPAKey(e));
         });
         return retval;
+    }
+
+
+    /**
+     * Fetches all instances of a given type from the entityManager.
+     *
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @return all instances of given type
+     */
+    public static <T> List<T> getAll(EntityManager entityManager, Class<T> type) {
+        return getAll(entityManager, type, type);
+    }
+
+
+    /**
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
+     *
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @return all instances of given type cast to return type
+     */
+    public static <R, T extends R> List<R> getAll(EntityManager entityManager, Class<T> type, Class<R> returnType) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        var queryCriteria = builder.createQuery(type);
+        queryCriteria.select(queryCriteria.from(type));
+        //var query = entityManager.createQuery(String.format("SELECT x FROM %s x", type.getSimpleName()));
+        var query = entityManager.createQuery(queryCriteria);
+        return query.getResultList().stream()
+                .map(returnType::cast)
+                .collect(Collectors.toList());
     }
 }

@@ -12,22 +12,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.memory;
+package de.fraunhofer.iosb.ilt.faaast.registry.core.exception;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAASRepositoryTest;
-import org.junit.Before;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
-public class AASRepositoryMemoryTest extends AbstractAASRepositoryTest<AASRepositoryMemory> {
+/**
+ * Exception class for resource not found.
+ */
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+public class ResourceAlreadyExistsException extends Exception {
 
-    @Before
-    public void setup() throws Exception {
-        repository = new AASRepositoryMemory();
+    public ResourceAlreadyExistsException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 
 
-    @Override
-    public void clearDatastore() {
-        repository.clear();
+    public ResourceAlreadyExistsException(final String message) {
+        super(message);
+    }
+
+
+    public ResourceAlreadyExistsException(final Throwable cause) {
+        super(cause);
     }
 }

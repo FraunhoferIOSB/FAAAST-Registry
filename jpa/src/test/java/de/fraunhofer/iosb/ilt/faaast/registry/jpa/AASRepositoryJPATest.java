@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAASRepositoryTest;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import javax.persistence.EntityManager;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.registry.jpa.model"
 })
-public class AASRepositoryJPATest extends AbstractAASRepositoryTest<AASRepositoryJPA> {
+public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositoryJPA> {
 
     @Autowired
     private EntityManager entityManager;

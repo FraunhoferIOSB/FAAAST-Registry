@@ -2,16 +2,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- <parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.7</version>
-		<relativePath/> 
-	</parent> -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-parent</artifactId>
+            <version>2.7.7</version>
+            <relativePath/>
+    </parent> -->
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-    <artifactId>aasregistry</artifactId>
+    <artifactId>registry</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>aasregistry</name>
+    <name>registry</name>
     <description>An implementation of the AAS Registry</description>
     <url>https://github.com/FraunhoferIOSB/FAAAST-Registry</url>
     <inceptionYear>2023</inceptionYear>
@@ -91,22 +91,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring.boot.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <pluginManagement>
@@ -122,14 +106,14 @@
                     <version>${maven.plugin.checkstyle.version}</version>
                     <dependencies>
                         <dependency>
-                            <groupId>${project.groupId}</groupId>
-                            <artifactId>checks</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
                             <version>${checkstyle.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+                            <artifactId>checks</artifactId>
+                            <version>${faaast.service.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -232,7 +216,7 @@
                                 <file>${root.basedir}/license-header</file>
                             </licenseHeader>
                             <eclipse>
-                                <version>4.13.0</version>
+                                <version>4.13</version>
                                 <file>${root.basedir}/misc/codestyle/formatter.xml</file>
                             </eclipse>
                         </java>
@@ -337,25 +321,7 @@
     </build>
     <profiles>
         <profile>
-            <id>build-local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>checks</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>test</id>
-            <modules>
-                <module>checks</module>
-            </modules>
-        </profile>
-        <profile>
             <id>coverage</id>
-            <modules>
-                <module>checks</module>
-            </modules>
             <build>
                 <plugins>
                     <plugin>

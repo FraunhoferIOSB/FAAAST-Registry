@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import java.util.List;
@@ -22,55 +24,54 @@ import java.util.List;
 /**
  * AAS Registry main repository.
  */
-public interface AASRepository {
+public interface AasRepository {
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
      * @return The list of all registered Asset Administration Shells.
-     * @throws Exception When an error occurs.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs() throws Exception;
+    public List<AssetAdministrationShellDescriptor> getAASs();
 
 
     /**
      * Retrieves the Asset Administration Shell with the given ID.
      *
-     * @param id The ID of the desired Asset Administration Shell.
+     * @param aasId The ID of the desired Asset Administration Shell.
      * @return The desired Asset Administration Shell.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public AssetAdministrationShellDescriptor getAAS(String id) throws Exception;
+    public AssetAdministrationShellDescriptor getAAS(String aasId) throws ResourceNotFoundException;
 
 
     /**
      * Create the given Asset Administration Shell.
      *
-     * @param entity The desired Asset Administration Shell.
+     * @param descriptor The desired Asset Administration Shell.
      * @return The deleted Asset Administration Shell.
-     * @throws Exception When an error occurs.
+     * @throws ResourceAlreadyExistsException if the resource already exists
      */
-    public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor entity) throws Exception;
+    public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException;
 
 
     /**
      * Deletes the Asset Administration Shell with the given ID.
      *
-     * @param entityId The ID of the desired Asset Administration Shell.
-     * @throws Exception When an error occurs.
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public void deleteAAS(String entityId) throws Exception;
+    public void deleteAAS(String aasId) throws ResourceNotFoundException;
 
 
     /**
      * Updates the given Asset Administration Shell.
      *
-     * @param id The ID of the desired Asset Administration Shell.
-     * @param entity The desired Asset Administration Shell.
+     * @param aasId The ID of the desired Asset Administration Shell.
+     * @param descriptor The desired Asset Administration Shell.
      * @return The updated Asset Administration Shell.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public AssetAdministrationShellDescriptor update(String id, AssetAdministrationShellDescriptor entity) throws Exception;
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException;
 
 
     /**
@@ -78,18 +79,17 @@ public interface AASRepository {
      *
      * @param aasId The ID of the desired Asset Administration Shell.
      * @return The list of Submodels.
-     * @throws Exception Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws Exception;
+    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException;
 
 
     /**
      * Retrieves a list of all registered Submodels.
      *
      * @return The list of Submodels.
-     * @throws Exception Exception When an error occurs.
      */
-    public List<SubmodelDescriptor> getSubmodels() throws Exception;
+    public List<SubmodelDescriptor> getSubmodels();
 
 
     /**
@@ -98,9 +98,9 @@ public interface AASRepository {
      * @param aasId The ID of the desired Asset Administration Shell.
      * @param submodelId The ID of the desired Submodel.
      * @return The desired Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws Exception;
+    public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws ResourceNotFoundException;
 
 
     /**
@@ -108,30 +108,31 @@ public interface AASRepository {
      *
      * @param submodelId The ID of the desired Submodel.
      * @return The desired Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public SubmodelDescriptor getSubmodel(String submodelId) throws Exception;
+    public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException;
 
 
     /**
      * Adds a Submodel to the given AAS.
      *
      * @param aasId The ID of the desired AAS.
-     * @param submodel The submodel to add.
+     * @param descriptor The submodel to add.
      * @return The descriptor of the created submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the aas does not exist
+     * @throws ResourceAlreadyExistsException if the submodel already exists
      */
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor submodel) throws Exception;
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException;
 
 
     /**
      * Adds a Submodel to the given AAS.
      *
-     * @param submodel The submodel to add.
+     * @param descriptor The submodel to add.
      * @return The descriptor of the created submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceAlreadyExistsException if the submodel already exists
      */
-    public SubmodelDescriptor addSubmodel(SubmodelDescriptor submodel) throws Exception;
+    public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException;
 
 
     /**
@@ -139,16 +140,16 @@ public interface AASRepository {
      *
      * @param aasId The ID of the desired AAS.
      * @param submodelId The ID of the desired Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public void deleteSubmodel(String aasId, String submodelId) throws Exception;
+    public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException;
 
 
     /**
      * Deletes the Submodel with the given ID.
      *
      * @param submodelId The ID of the desired Submodel.
-     * @throws Exception When an error occurs.
+     * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public void deleteSubmodel(String submodelId) throws Exception;
+    public void deleteSubmodel(String submodelId) throws ResourceNotFoundException;
 }

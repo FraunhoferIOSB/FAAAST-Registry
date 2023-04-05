@@ -12,29 +12,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.core.exception;
+package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
+import org.junit.Before;
 
 
-/**
- * Exception class for resource not found.
- */
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class ResourceNotFoundException extends Exception {
+public class AasRepositoryMemoryTest extends AbstractAasRepositoryTest<AasRepositoryMemory> {
 
-    public ResourceNotFoundException(final String message, final Throwable cause) {
-        super(message, cause);
+    @Before
+    public void setup() throws Exception {
+        repository = new AasRepositoryMemory();
     }
 
 
-    public ResourceNotFoundException(final String message) {
-        super(message);
-    }
-
-
-    public ResourceNotFoundException(final Throwable cause) {
-        super(cause);
+    @Override
+    public void clearDatastore() {
+        repository.clear();
     }
 }

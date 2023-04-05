@@ -12,54 +12,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
+package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPASubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import org.springframework.stereotype.Repository;
 
 
 /**
- * Relational database implementation of the Repository.
+ * In-memory implementation of the Repository.
  */
-@Repository
-@Transactional
-public class AASRepositoryJPA extends AbstractAasRepository {
+public class AasRepositoryMemory extends AbstractAasRepository {
 
-    @PersistenceContext(name = "AASRepositoryJPA")
-    private final EntityManager entityManager;
+    private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
+    private final Map<String, SubmodelDescriptor> submodelDescriptors;
 
-    public AASRepositoryJPA(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public AasRepositoryMemory() {
+        shellDescriptors = new HashMap<>();
+        submodelDescriptors = new HashMap<>();
+    }
+
+
+    /**
+     * Clear the repository.
+     */
+    public void clear() {
+        shellDescriptors.clear();
+        submodelDescriptors.clear();
     }
 
 
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs() {
-        return JPAHelper.getAll(entityManager, JPAAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
-        //Query query = entityManager.createQuery("SELECT x FROM JPAAssetAdministrationShellDescriptor x");
-        //return query.getResultList();
+        return new ArrayList<>(shellDescriptors.values());
     }
 
 
     @Override
-    public AssetAdministrationShellDescriptor getAAS(String aasId) throws ResourceNotFoundException {
-        Ensure.requireNonNull(aasId, "id must be non-null");
-        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+    public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
+        Ensure.requireNonNull(id, "id must be non-null");
+        AssetAdministrationShellDescriptor aas = fetchAAS(id);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
     }
 
@@ -69,9 +71,11 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        aas = new JPAAssetAdministrationShellDescriptor.Builder().from(descriptor).build();
-        entityManager.persist(aas);
-        return aas;
+        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        descriptor.getSubmodels().forEach(s -> {
+            submodelDescriptors.putIfAbsent(s.getIdentification().getIdentifier(), s);
+        });
+        return descriptor;
     }
 
 
@@ -80,7 +84,8 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        entityManager.remove(aas);
+        shellDescriptors.remove(aasId);
+        aas.getSubmodels().forEach(s -> submodelDescriptors.remove(s.getIdentification().getIdentifier()));
     }
 
 
@@ -88,9 +93,12 @@ public class AASRepositoryJPA extends AbstractAasRepository {
     public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
-        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return entityManager.merge(aas);
+        AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
+        if (Objects.nonNull(oldAAS)) {
+            shellDescriptors.remove(aasId);
+        }
+        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
@@ -105,7 +113,7 @@ public class AASRepositoryJPA extends AbstractAasRepository {
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        return JPAHelper.getAll(entityManager, JPASubmodelDescriptor.class, SubmodelDescriptor.class);
+        return new ArrayList<>(submodelDescriptors.values());
     }
 
 
@@ -115,11 +123,8 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-
         List<SubmodelDescriptor> submodels = aas.getSubmodels();
-        Optional<SubmodelDescriptor> submodel = submodels.stream()
-                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
-                .findAny();
+        Optional<SubmodelDescriptor> submodel = getSubmodelIntern(submodels, submodelId);
         Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         return submodel.get();
     }
@@ -128,9 +133,8 @@ public class AASRepositoryJPA extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
-        Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
-        return submodel;
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        return submodelDescriptors.get(submodelId);
     }
 
 
@@ -140,29 +144,23 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        //Ensure.require(
-        //        Objects.isNull(getSubmodel(aasId, descriptor.getIdentification().getIdentifier())),
-        //        buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        try {
-            getSubmodel(aasId, descriptor.getIdentification().getIdentifier());
+        if (getSubmodelIntern(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
         }
-        catch (ResourceNotFoundException ignored) {}
-        JPASubmodelDescriptor submodel = new JPASubmodelDescriptor.Builder().from(descriptor).build();
-        aas.getSubmodels().add(submodel);
-        entityManager.merge(aas);
-        return submodel;
+        aas.getSubmodels().add(descriptor);
+        submodelDescriptors.putIfAbsent(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        SubmodelDescriptor submodel = fetchSubmodel(descriptor.getIdentification().getIdentifier());
-        Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        submodel = new JPASubmodelDescriptor.Builder().from(descriptor).build();
-        entityManager.persist(submodel);
-        return submodel;
+        Ensure.require(
+                !submodelDescriptors.containsKey(descriptor.getIdentification().getIdentifier()),
+                buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
+        submodelDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        return descriptor;
     }
 
 
@@ -172,36 +170,29 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        Optional<SubmodelDescriptor> submodel = aas.getSubmodels().stream()
-                .filter(s -> s.getIdentification().getIdentifier().equalsIgnoreCase(submodelId))
-                .findAny();
-        Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
-        entityManager.remove(aas);
-        aas.getSubmodels().removeIf(x -> (x.getIdentification().getIdentifier().equals(submodelId)));
-        entityManager.persist(aas);
+        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getIdentification().getIdentifier(), submodelId));
+        Ensure.require(found, buildSubmodelNotFoundException(submodelId));
+        submodelDescriptors.remove(submodelId);
     }
 
 
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
-        Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
-        entityManager.remove(submodel);
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        submodelDescriptors.remove(submodelId);
+    }
+
+
+    private static Optional<SubmodelDescriptor> getSubmodelIntern(List<SubmodelDescriptor> submodels, String submodelId) {
+        return submodels.stream()
+                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
+                .findAny();
     }
 
 
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
-        try {
-            return entityManager.find(JPAAssetAdministrationShellDescriptor.class, aasId);
-        }
-        catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-
-    private SubmodelDescriptor fetchSubmodel(String submodelId) {
-        return entityManager.find(JPASubmodelDescriptor.class, submodelId);
+        ensureAasId(aasId);
+        return shellDescriptors.getOrDefault(aasId, null);
     }
 }

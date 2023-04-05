@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-        <artifactId>aasregistry</artifactId>
+        <artifactId>registry</artifactId>
         <version>0.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -24,7 +24,8 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>memory</artifactId>
             <version>${project.version}</version>
-        </dependency>-->
+        </dependency> -->
+        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>jpa</artifactId>
