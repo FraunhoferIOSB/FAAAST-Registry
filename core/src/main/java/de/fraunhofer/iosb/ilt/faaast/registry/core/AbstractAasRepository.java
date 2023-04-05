@@ -19,6 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -128,4 +130,19 @@ public abstract class AbstractAasRepository implements AasRepository {
     protected static void ensureSubmodelId(String submodelId) {
         Ensure.requireNonNull(submodelId, "submodelId must be non-null");
     }
+
+
+    /**
+     * Helper method to look for a submodel with the desired submodelId in a given list of submdels.
+     *
+     * @param submodels The list of submodels to search.
+     * @param submodelId The ID of the desired submodel.
+     * @return The desired submodel if it was found, an empty Optional if not.
+     */
+    protected static Optional<SubmodelDescriptor> getSubmodelIntern(List<SubmodelDescriptor> submodels, String submodelId) {
+        return submodels.stream()
+                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
+                .findAny();
+    }
+
 }

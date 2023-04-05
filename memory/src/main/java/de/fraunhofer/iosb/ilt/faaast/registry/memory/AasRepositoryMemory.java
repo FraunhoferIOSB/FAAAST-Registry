@@ -184,13 +184,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     }
 
 
-    private static Optional<SubmodelDescriptor> getSubmodelIntern(List<SubmodelDescriptor> submodels, String submodelId) {
-        return submodels.stream()
-                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
-                .findAny();
-    }
-
-
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
         return shellDescriptors.getOrDefault(aasId, null);
