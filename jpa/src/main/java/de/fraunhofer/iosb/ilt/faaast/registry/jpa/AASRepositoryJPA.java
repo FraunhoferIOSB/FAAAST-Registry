@@ -143,11 +143,9 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         //Ensure.require(
         //        Objects.isNull(getSubmodel(aasId, descriptor.getIdentification().getIdentifier())),
         //        buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        try {
-            getSubmodel(aasId, descriptor.getIdentification().getIdentifier());
+        if (getSubmodelIntern(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
         }
-        catch (ResourceNotFoundException ignored) {}
         JPASubmodelDescriptor submodel = new JPASubmodelDescriptor.Builder().from(descriptor).build();
         aas.getSubmodels().add(submodel);
         entityManager.merge(aas);
