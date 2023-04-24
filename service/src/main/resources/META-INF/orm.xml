@@ -1,0 +1,104 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
+    <class name="JPAAssetAdministrationShellDescriptor" table="asset_administration_shell">
+        
+        <id name="id" type="string">
+        </id>
+
+        <property name="idShort"/>
+        <!--<property name="administration" length="10000"/> -->
+        <!--<property name="identification"/>-->
+        <!--<property name="globalAssetId" length="10000"/>-->
+
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
+        
+        <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
+            <key column="eid"/>
+            <index column="type"/>
+            <many-to-many class="JPAEndpointDescriptor"/>
+        </list>
+
+        <list name="descriptions" cascade="all" table="asset_administration_shell_descriptions">
+            <key column="did"/>
+            <index column="type"/>
+            <many-to-many class="JPADescriptionDescriptor"/>
+        </list>
+
+        <list name="specificAssetIds" cascade="all">
+            <key column="sid"/>
+            <index column="type"/>
+            <one-to-many class="JPAIdentifierKeyValuePairDescriptor"/>
+        </list>
+
+        <list name="submodels" cascade="all" table="asset_administration_shell_submodels">
+            <key column="sdid"/>
+            <index column="type"/>
+            <many-to-many class="JPASubmodelDescriptor"/>
+        </list>
+
+    </class>
+
+    <class name="JPAEndpointDescriptor" table="endpoint">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="interfaceInformation"/>
+        <!--<property name="protocolInformation" length="10000"/>-->
+    </class>
+
+    <class name="JPADescriptionDescriptor" table="description">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="value"/>
+    </class>
+
+    <class name="JPAIdentifierKeyValuePairDescriptor" table="identifier_key_value_pair">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <!--<property name="semanticId" length="10000"/>
+        <property name="externalSubjectId" length="10000"/> -->
+        <property name="key"/>
+        <property name="value"/>
+    </class>
+
+    <class name="JPASubmodelDescriptor" table="submodel">
+        <id name="id" type="string">
+        </id>
+        <!--<property name="identifier"/>-->
+        <property name="idShort"/>
+        <!--<property name="identification"/>-->
+        <!--<property name="semanticId" length="10000"/>-->
+
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all" column="adminId" lazy="false"></many-to-one>
+        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformationDescriptor" cascade="all"></one-to-one> -->
+
+        <list name="endpoints" cascade="all">
+            <key column="eid"/>
+            <index column="type"/>
+            <many-to-many class="JPAEndpointDescriptor"/>
+        </list>
+
+        <list name="descriptions" cascade="all">
+            <key column="did"/>
+            <index column="type"/>
+            <one-to-many class="JPADescriptionDescriptor"/>
+        </list>
+    </class>
+
+    <class name="JPAAdministrativeInformationDescriptor" table="administrative_information">
+        <id name="adminId" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="version"/>
+        <property name="revision"/>
+    </class>
+    
+</hibernate-mapping>
