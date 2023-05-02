@@ -86,4 +86,5 @@ public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositor
             Assert.assertEquals(submodelExpected.getSemanticId().getKeys().get(i).getValue(), submodelActual.getSemanticId().getKeys().get(i).getValue());
         }
     }
+
 }

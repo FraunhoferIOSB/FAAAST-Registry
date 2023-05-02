@@ -53,9 +53,10 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
 
         @Override
         public B from(SubmodelDescriptor other) {
-            super.from(other);
+            //super.from(other);
             if (other != null) {
                 id(other.getIdentification().getIdentifier());
+                idShort(other.getIdShort());
                 endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
                 administration(new JPAAdministrativeInformation(other.getAdministration()));
                 descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));

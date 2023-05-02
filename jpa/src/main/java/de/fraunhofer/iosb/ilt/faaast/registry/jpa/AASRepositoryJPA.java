@@ -50,8 +50,6 @@ public class AASRepositoryJPA extends AbstractAasRepository {
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs() {
         return JPAHelper.getAll(entityManager, JPAAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
-        //Query query = entityManager.createQuery("SELECT x FROM JPAAssetAdministrationShellDescriptor x");
-        //return query.getResultList();
     }
 
 
@@ -69,9 +67,7 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        aas = new JPAAssetAdministrationShellDescriptor.Builder().from(descriptor).build();
-        entityManager.persist(aas);
-        return aas;
+        return createIntern(descriptor);
     }
 
 
@@ -90,7 +86,8 @@ public class AASRepositoryJPA extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return entityManager.merge(aas);
+        entityManager.remove(aas);
+        return createIntern(descriptor);
     }
 
 
@@ -201,5 +198,12 @@ public class AASRepositoryJPA extends AbstractAasRepository {
 
     private SubmodelDescriptor fetchSubmodel(String submodelId) {
         return entityManager.find(JPASubmodelDescriptor.class, submodelId);
+    }
+
+
+    private AssetAdministrationShellDescriptor createIntern(AssetAdministrationShellDescriptor descriptor) {
+        JPAAssetAdministrationShellDescriptor aas = new JPAAssetAdministrationShellDescriptor.Builder().from(descriptor).build();
+        entityManager.persist(aas);
+        return aas;
     }
 }

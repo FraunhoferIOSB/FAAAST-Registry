@@ -66,7 +66,9 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
                 other.getSubmodels().forEach((s) -> {
                     submodel(new JPASubmodelDescriptor.Builder().from(s).build());
                 });
+                //submodels(other.getSubmodels());
             }
+            //super.from(other);
             return getSelf();
         }
     }
