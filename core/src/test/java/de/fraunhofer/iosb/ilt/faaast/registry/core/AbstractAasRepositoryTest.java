@@ -184,7 +184,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void updateAAS() throws Exception {
         repository.create(getAASWithSubmodel());
         String aasId = "TestAAS1";
-        AssetAdministrationShellDescriptor aas = repository.getAAS(aasId);
+        // We have to create a new AAS here, otherwise the test won't work
+        AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         aas.setIdShort("NewIdShort");
         aas.getSubmodels().get(0).setIdShort("NewSubmodelIdShort");
         repository.update(aasId, aas);
