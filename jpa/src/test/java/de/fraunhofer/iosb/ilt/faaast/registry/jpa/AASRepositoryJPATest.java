@@ -48,6 +48,7 @@ public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositor
 
     @Override
     protected void compareSubmodel(SubmodelDescriptor submodelExpected, SubmodelDescriptor submodelActual) {
+        // we can't compare the whole objects here, as they are not identical because of the additional database id.
         Assert.assertEquals(submodelExpected.getIdShort(), submodelActual.getIdShort());
         Assert.assertEquals(submodelExpected.getAdministration().getVersion(), submodelActual.getAdministration().getVersion());
         Assert.assertEquals(submodelExpected.getAdministration().getRevision(), submodelActual.getAdministration().getRevision());
