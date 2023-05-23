@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -139,10 +140,13 @@ public abstract class AbstractAasRepository implements AasRepository {
      * @param submodelId The ID of the desired submodel.
      * @return The desired submodel if it was found, an empty Optional if not.
      */
-    protected static Optional<SubmodelDescriptor> getSubmodelIntern(List<SubmodelDescriptor> submodels, String submodelId) {
+    protected static Optional<SubmodelDescriptor> getSubmodelInternal(List<SubmodelDescriptor> submodels, String submodelId) {
         return submodels.stream()
-                .filter(x -> ((x.getIdentification() != null) && (x.getIdentification().getIdentifier() != null) && x.getIdentification().getIdentifier().equals(submodelId)))
+                .filter(x -> Objects.nonNull(x.getIdentification())
+                        && Objects.nonNull(x.getIdentification().getIdentifier())
+                        && Objects.equals(x.getIdentification().getIdentifier(), submodelId))
                 .findAny();
+
     }
 
 }

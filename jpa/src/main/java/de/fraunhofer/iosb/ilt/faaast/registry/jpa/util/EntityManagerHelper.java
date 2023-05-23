@@ -14,12 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPADescriptionDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAEndpointDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePairDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.LangString;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
@@ -29,46 +23,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 /**
  * Helper class for JPA objects.
  */
-public class JPAHelper {
-
-    /**
-     * Create a list of JPA endpoints from a list of default endpoints.
-     *
-     * @param endpoints The desired endpoints.
-     * @return The list of JPA endpoints.
-     */
-    public static List<Endpoint> createJPAEndpoints(List<Endpoint> endpoints) {
-        return endpoints.stream()
-                .map(x -> new JPAEndpointDescriptor.Builder().from(x).build())
-                .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Create a list of JPA descriptions from a list of default endpoints.
-     *
-     * @param descriptions The desired descriptions.
-     * @return The list of JPA descriptions.
-     */
-    public static List<LangString> createJPADescriptions(List<LangString> descriptions) {
-        return descriptions.stream()
-                .map(JPADescriptionDescriptor::new)
-                .collect(Collectors.toList());
-    }
-
-
-    /**
-     * Create a list of JPA IdentifierKeyValuePairs from a list of default endpoints.
-     *
-     * @param pairs The desired IdentifierKeyValuePairs.
-     * @return The list of JPA IdentifierKeyValuePairs.
-     */
-    public static List<IdentifierKeyValuePair> createJPAIdentifierKeyValuePair(List<IdentifierKeyValuePair> pairs) {
-        return pairs.stream()
-                .map(JPAIdentifierKeyValuePairDescriptor::new)
-                .collect(Collectors.toList());
-    }
-
+public class EntityManagerHelper {
 
     /**
      * Fetches all instances of a given type from the entityManager.

@@ -16,27 +16,21 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.adminshell.aas.v3.model.AdministrativeInformation;
+import io.adminshell.aas.v3.model.builder.AdministrativeInformationBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
+import java.util.Objects;
 
 
 /**
  * Registry Descriptor JPA implementation for AdministrativeInformation.
  */
-public class JPAAdministrativeInformationDescriptor extends DefaultAdministrativeInformation {
+public class JPAAdministrativeInformation extends DefaultAdministrativeInformation {
 
     @JsonIgnore
     private String adminId;
 
-    public JPAAdministrativeInformationDescriptor() {
+    public JPAAdministrativeInformation() {
         adminId = null;
-    }
-
-
-    public JPAAdministrativeInformationDescriptor(AdministrativeInformation source) {
-        adminId = null;
-        setVersion(source.getVersion());
-        setRevision(source.getRevision());
-        setEmbeddedDataSpecifications(source.getEmbeddedDataSpecifications());
     }
 
 
@@ -47,5 +41,32 @@ public class JPAAdministrativeInformationDescriptor extends DefaultAdministrativ
 
     public void setAdminId(String adminId) {
         this.adminId = adminId;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPAAdministrativeInformation, B extends AbstractBuilder<T, B>>
+            extends AdministrativeInformationBuilder<JPAAdministrativeInformation, B> {
+
+        public B from(AdministrativeInformation other) {
+            if (Objects.nonNull(other)) {
+                version(other.getVersion());
+                revision(other.getRevision());
+                embeddedDataSpecifications(other.getEmbeddedDataSpecifications());
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAAdministrativeInformation, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAAdministrativeInformation newBuildingInstance() {
+            return new JPAAdministrativeInformation();
+        }
     }
 }

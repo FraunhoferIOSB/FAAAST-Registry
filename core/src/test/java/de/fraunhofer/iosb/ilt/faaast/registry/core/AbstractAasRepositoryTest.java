@@ -56,6 +56,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                         .identifier("TestSubmodel2")
                         .build())
                 .description(new LangString("some submodel", "en-US"))
+                .displayName(new LangString("Submodel 2 Name", "de-DE"))
                 .semanticId(new DefaultReference.Builder()
                         .key(new DefaultKey.Builder()
                                 .idType(KeyType.IRI)
@@ -86,6 +87,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                         .identifier("TestAAS1")
                         .build())
                 .description(new LangString("some aas", "en-US"))
+                .displayName(new LangString("Test 1 AAS", "en-US"))
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .revision("1")
                         .version("1.1")
@@ -131,6 +133,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                         .identifier("TestSubmodel1")
                         .build())
                 .description(new LangString("some submodel", "en-US"))
+                .displayName(new LangString("Submodel 1 Name", "en-US"))
                 .semanticId(new DefaultReference.Builder()
                         .key(new DefaultKey.Builder()
                                 .idType(KeyType.IRI)
@@ -181,7 +184,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void updateAAS() throws Exception {
         repository.create(getAASWithSubmodel());
         String aasId = "TestAAS1";
-        AssetAdministrationShellDescriptor aas = repository.getAAS(aasId);
+        // We have to create a new AAS here, otherwise the test won't work
+        AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         aas.setIdShort("NewIdShort");
         aas.getSubmodels().get(0).setIdShort("NewSubmodelIdShort");
         repository.update(aasId, aas);
@@ -278,7 +282,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     }
 
 
-    protected void compareSubmodel(SubmodelDescriptor submodelExpected, SubmodelDescriptor submodelActual) {
-        Assert.assertEquals(submodelExpected, submodelActual);
+    protected void compareSubmodel(SubmodelDescriptor expected, SubmodelDescriptor actual) {
+        Assert.assertEquals(expected, actual);
     }
 }

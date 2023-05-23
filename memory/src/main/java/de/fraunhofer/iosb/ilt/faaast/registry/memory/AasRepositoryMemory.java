@@ -124,7 +124,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         List<SubmodelDescriptor> submodels = aas.getSubmodels();
-        Optional<SubmodelDescriptor> submodel = getSubmodelIntern(submodels, submodelId);
+        Optional<SubmodelDescriptor> submodel = getSubmodelInternal(submodels, submodelId);
         Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         return submodel.get();
     }
@@ -144,7 +144,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        if (getSubmodelIntern(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
+        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
         }
         aas.getSubmodels().add(descriptor);

@@ -15,27 +15,24 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
+import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.builder.IdentifierKeyValuePairBuilder;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Endpoint.
+ * Registry Descriptor JPA implementation for IdentifierKeyValuePair.
  */
-public class JPAEndpointDescriptor extends DefaultEndpoint {
+public class JPAIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
 
     @JsonIgnore
     private String id;
 
-    public JPAEndpointDescriptor() {
+    public JPAIdentifierKeyValuePair() {
         id = null;
     }
-
-    //public JPAEndpointDescriptor(Endpoint source) {
-    //    id = null;
-    //    setInterfaceInformation(source.getInterfaceInformation());
-    //    setProtocolInformation(source.getProtocolInformation());
-    //}
 
 
     public String getId() {
@@ -47,7 +44,8 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
         this.id = id;
     }
 
-    public abstract static class AbstractBuilder<T extends JPAEndpointDescriptor, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends JPAIdentifierKeyValuePair, B extends AbstractBuilder<T, B>>
+            extends IdentifierKeyValuePairBuilder<JPAIdentifierKeyValuePair, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -55,14 +53,18 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
         }
 
 
-        @Override
-        public B from(Endpoint other) {
-            super.from(other);
+        public B from(IdentifierKeyValuePair other) {
+            if (Objects.nonNull(other)) {
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
+                key(other.getKey());
+                value(other.getValue());
+            }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAEndpointDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JPAIdentifierKeyValuePair, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -71,8 +73,8 @@ public class JPAEndpointDescriptor extends DefaultEndpoint {
 
 
         @Override
-        protected JPAEndpointDescriptor newBuildingInstance() {
-            return new JPAEndpointDescriptor();
+        protected JPAIdentifierKeyValuePair newBuildingInstance() {
+            return new JPAIdentifierKeyValuePair();
         }
     }
 }
