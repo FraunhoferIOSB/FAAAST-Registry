@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import java.util.Objects;
 
 
 /**
@@ -31,12 +33,6 @@ public class JPADescription extends LangString {
     }
 
 
-    public JPADescription(LangString source) {
-        super(source.getValue(), source.getLanguage());
-        id = null;
-    }
-
-
     public String getId() {
         return id;
     }
@@ -44,6 +40,50 @@ public class JPADescription extends LangString {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPADescription, B extends AbstractBuilder<T, B>>
+            extends ExtendableBuilder<JPADescription, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+
+
+        public B language(String value) {
+            getBuildingInstance().setLanguage(value);
+            return getSelf();
+        }
+
+
+        public B from(LangString other) {
+            if (Objects.nonNull(other)) {
+                value(other.getValue());
+                language(other.getLanguage());
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPADescription, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPADescription newBuildingInstance() {
+            return new JPADescription();
+        }
     }
 
 }

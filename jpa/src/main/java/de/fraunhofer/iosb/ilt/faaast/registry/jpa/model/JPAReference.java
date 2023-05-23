@@ -15,9 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import io.adminshell.aas.v3.model.Reference;
+import io.adminshell.aas.v3.model.builder.ReferenceBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultReference;
+import java.util.Objects;
 
 
 /**
@@ -33,12 +35,6 @@ public class JPAReference extends DefaultReference {
     }
 
 
-    public JPAReference(Reference source) {
-        id = null;
-        setKeys(JPAHelper.createJPAKeys(source.getKeys()));
-    }
-
-
     public String getId() {
         return id;
     }
@@ -46,5 +42,36 @@ public class JPAReference extends DefaultReference {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPAReference, B extends AbstractBuilder<T, B>>
+            extends ReferenceBuilder<JPAReference, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B from(Reference other) {
+            if (Objects.nonNull(other)) {
+                keys(ModelTransformationHelper.convertKeys(other.getKeys()));
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAReference, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAReference newBuildingInstance() {
+            return new JPAReference();
+        }
     }
 }

@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.adminshell.aas.v3.model.Key;
+import io.adminshell.aas.v3.model.builder.KeyBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultKey;
+import java.util.Objects;
 
 
 /**
@@ -32,14 +34,6 @@ public class JPAKey extends DefaultKey {
     }
 
 
-    public JPAKey(Key source) {
-        id = null;
-        setIdType(source.getIdType());
-        setType(source.getType());
-        setValue(source.getValue());
-    }
-
-
     public String getId() {
         return id;
     }
@@ -47,5 +41,38 @@ public class JPAKey extends DefaultKey {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPAKey, B extends AbstractBuilder<T, B>>
+            extends KeyBuilder<JPAKey, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B from(Key other) {
+            if (Objects.nonNull(other)) {
+                idType(other.getIdType());
+                type(other.getType());
+                value(other.getValue());
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAKey, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAKey newBuildingInstance() {
+            return new JPAKey();
+        }
     }
 }

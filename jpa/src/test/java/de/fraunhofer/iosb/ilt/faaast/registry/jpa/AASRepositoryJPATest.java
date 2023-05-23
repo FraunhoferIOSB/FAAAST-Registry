@@ -14,10 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import javax.persistence.EntityManager;
-import org.junit.Assert;
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,45 +49,12 @@ public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositor
 
 
     @Override
-    protected void compareSubmodel(SubmodelDescriptor submodelExpected, SubmodelDescriptor submodelActual) {
-        // we can't compare the whole objects here, as they are not identical because of the additional database id.
-        Assert.assertEquals(submodelExpected.getIdShort(), submodelActual.getIdShort());
-        Assert.assertEquals(submodelExpected.getAdministration().getVersion(), submodelActual.getAdministration().getVersion());
-        Assert.assertEquals(submodelExpected.getAdministration().getRevision(), submodelActual.getAdministration().getRevision());
-        Assert.assertEquals(submodelExpected.getDescriptions().size(), submodelActual.getDescriptions().size());
-        for (int i = 0; i < submodelExpected.getDescriptions().size(); i++) {
-            Assert.assertEquals(submodelExpected.getDescriptions().get(i).getLanguage(), submodelActual.getDescriptions().get(i).getLanguage());
-            Assert.assertEquals(submodelExpected.getDescriptions().get(i).getValue(), submodelActual.getDescriptions().get(i).getValue());
-        }
-        Assert.assertEquals(submodelExpected.getDisplayNames().size(), submodelActual.getDisplayNames().size());
-        for (int i = 0; i < submodelExpected.getDisplayNames().size(); i++) {
-            Assert.assertEquals(submodelExpected.getDisplayNames().get(i).getLanguage(), submodelActual.getDisplayNames().get(i).getLanguage());
-            Assert.assertEquals(submodelExpected.getDisplayNames().get(i).getValue(), submodelActual.getDisplayNames().get(i).getValue());
-        }
-        Assert.assertEquals(submodelExpected.getEndpoints().size(), submodelActual.getEndpoints().size());
-        for (int i = 0; i < submodelExpected.getEndpoints().size(); i++) {
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getInterfaceInformation(), submodelActual.getEndpoints().get(i).getInterfaceInformation());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getEndpointAddress(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getEndpointAddress());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getEndpointProtocol(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getEndpointProtocol());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getEndpointProtocolVersion(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getEndpointProtocolVersion());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getSubprotocol(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getSubprotocol());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getSubprotocolBody(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getSubprotocolBody());
-            Assert.assertEquals(submodelExpected.getEndpoints().get(i).getProtocolInformation().getSubprotocolBodyEncoding(),
-                    submodelActual.getEndpoints().get(i).getProtocolInformation().getSubprotocolBodyEncoding());
-        }
-        Assert.assertEquals(submodelExpected.getIdentification().getIdType(), submodelActual.getIdentification().getIdType());
-        Assert.assertEquals(submodelExpected.getIdentification().getIdentifier(), submodelActual.getIdentification().getIdentifier());
-        Assert.assertEquals(submodelExpected.getSemanticId().getKeys().size(), submodelActual.getSemanticId().getKeys().size());
-        for (int i = 0; i < submodelExpected.getSemanticId().getKeys().size(); i++) {
-            Assert.assertEquals(submodelExpected.getSemanticId().getKeys().get(i).getIdType(), submodelActual.getSemanticId().getKeys().get(i).getIdType());
-            Assert.assertEquals(submodelExpected.getSemanticId().getKeys().get(i).getType(), submodelActual.getSemanticId().getKeys().get(i).getType());
-            Assert.assertEquals(submodelExpected.getSemanticId().getKeys().get(i).getValue(), submodelActual.getSemanticId().getKeys().get(i).getValue());
-        }
+    protected void compareSubmodel(SubmodelDescriptor expected, SubmodelDescriptor actual) {
+        RecursiveComparisonConfiguration ignoreIdConfig = new RecursiveComparisonConfiguration();
+        ignoreIdConfig.ignoreFields("id");
+        assertThat(expected)
+                .usingRecursiveComparison(ignoreIdConfig)
+                .isEqualTo(actual);
     }
 
 }

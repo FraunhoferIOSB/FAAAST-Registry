@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 
@@ -51,9 +52,9 @@ public class JPAEndpoint extends DefaultEndpoint {
 
         @Override
         public B from(Endpoint other) {
-            super.from(other);
             if (other != null) {
-                protocolInformation(new JPAProtocolInformation.Builder().from(other.getProtocolInformation()).build());
+                interfaceInformation(other.getInterfaceInformation());
+                protocolInformation(ModelTransformationHelper.convertProtocolInformation(other.getProtocolInformation()));
             }
             return getSelf();
         }

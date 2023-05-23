@@ -15,7 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 
@@ -53,16 +53,15 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
 
         @Override
         public B from(SubmodelDescriptor other) {
-            //super.from(other);
             if (other != null) {
                 id(other.getIdentification().getIdentifier());
                 idShort(other.getIdShort());
-                endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
-                administration(new JPAAdministrativeInformation(other.getAdministration()));
-                descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
-                displayNames(JPAHelper.createJPADescriptions(other.getDisplayNames()));
-                identification(new JPAIdentifier(other.getIdentification()));
-                semanticId(new JPAReference(other.getSemanticId()));
+                endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
+                administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
+                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
+                displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
+                identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
             }
             return getSelf();
         }

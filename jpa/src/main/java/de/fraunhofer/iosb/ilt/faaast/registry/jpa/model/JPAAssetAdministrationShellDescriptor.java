@@ -15,9 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.JPAHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import java.util.Objects;
 
 
 /**
@@ -53,22 +54,18 @@ public class JPAAssetAdministrationShellDescriptor extends DefaultAssetAdministr
 
         @Override
         public B from(AssetAdministrationShellDescriptor other) {
-            if (other != null) {
+            if (Objects.nonNull(other)) {
                 id(other.getIdentification().getIdentifier());
                 idShort(other.getIdShort());
-                endpoints(JPAHelper.createJPAEndpoints(other.getEndpoints()));
-                administration(new JPAAdministrativeInformation(other.getAdministration()));
-                descriptions(JPAHelper.createJPADescriptions(other.getDescriptions()));
-                displayNames(JPAHelper.createJPADescriptions(other.getDisplayNames()));
-                identification(new JPAIdentifier(other.getIdentification()));
-                globalAssetId(new JPAReference(other.getGlobalAssetId()));
-                specificAssetIds(JPAHelper.createJPAIdentifierKeyValuePair(other.getSpecificAssetIds()));
-                other.getSubmodels().forEach((s) -> {
-                    submodel(new JPASubmodelDescriptor.Builder().from(s).build());
-                });
-                //submodels(other.getSubmodels());
+                endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
+                administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
+                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
+                displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
+                identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
+                globalAssetId(ModelTransformationHelper.convertReference(other.getGlobalAssetId()));
+                specificAssetIds(ModelTransformationHelper.convertIdentifierKeyValuePairs(other.getSpecificAssetIds()));
+                submodels(ModelTransformationHelper.convertSubmodels(other.getSubmodels()));
             }
-            //super.from(other);
             return getSelf();
         }
     }

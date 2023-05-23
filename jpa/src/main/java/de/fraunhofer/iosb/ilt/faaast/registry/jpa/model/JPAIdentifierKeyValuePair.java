@@ -15,8 +15,11 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.builder.IdentifierKeyValuePairBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
+import java.util.Objects;
 
 
 /**
@@ -32,15 +35,6 @@ public class JPAIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
     }
 
 
-    public JPAIdentifierKeyValuePair(IdentifierKeyValuePair source) {
-        id = null;
-        setSemanticId(new JPAReference(source.getSemanticId()));
-        setExternalSubjectId(new JPAReference(source.getExternalSubjectId()));
-        setKey(source.getKey());
-        setValue(source.getValue());
-    }
-
-
     public String getId() {
         return id;
     }
@@ -50,4 +44,37 @@ public class JPAIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
         this.id = id;
     }
 
+    public abstract static class AbstractBuilder<T extends JPAIdentifierKeyValuePair, B extends AbstractBuilder<T, B>>
+            extends IdentifierKeyValuePairBuilder<JPAIdentifierKeyValuePair, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B from(IdentifierKeyValuePair other) {
+            if (Objects.nonNull(other)) {
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
+                key(other.getKey());
+                value(other.getValue());
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAIdentifierKeyValuePair, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAIdentifierKeyValuePair newBuildingInstance() {
+            return new JPAIdentifierKeyValuePair();
+        }
+    }
 }

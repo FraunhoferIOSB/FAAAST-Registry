@@ -282,7 +282,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     }
 
 
-    protected void compareSubmodel(SubmodelDescriptor submodelExpected, SubmodelDescriptor submodelActual) {
-        Assert.assertEquals(submodelExpected, submodelActual);
+    protected void compareSubmodel(SubmodelDescriptor expected, SubmodelDescriptor actual) {
+        Assert.assertEquals(expected, actual);
     }
 }

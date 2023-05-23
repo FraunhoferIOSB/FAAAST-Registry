@@ -16,7 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.builder.IdentifierBuilder;
 import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import java.util.Objects;
 
 
 /**
@@ -32,13 +34,6 @@ public class JPAIdentifier extends DefaultIdentifier {
     }
 
 
-    public JPAIdentifier(Identifier source) {
-        id = null;
-        setIdType(source.getIdType());
-        setIdentifier(source.getIdentifier());
-    }
-
-
     public String getId() {
         return id;
     }
@@ -46,5 +41,37 @@ public class JPAIdentifier extends DefaultIdentifier {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public abstract static class AbstractBuilder<T extends JPAIdentifier, B extends AbstractBuilder<T, B>>
+            extends IdentifierBuilder<JPAIdentifier, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B from(Identifier other) {
+            if (Objects.nonNull(other)) {
+                identifier(other.getIdentifier());
+                idType(other.getIdType());
+            }
+            return getSelf();
+        }
+    }
+
+    public static class Builder extends AbstractBuilder<JPAIdentifier, Builder> {
+
+        @Override
+        protected Builder getSelf() {
+            return this;
+        }
+
+
+        @Override
+        protected JPAIdentifier newBuildingInstance() {
+            return new JPAIdentifier();
+        }
     }
 }
