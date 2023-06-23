@@ -5,11 +5,11 @@
         <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
         <artifactId>registry</artifactId>
         <version>0.1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-    <artifactId>memory</artifactId>
-    <name>memory</name>
+    <artifactId>persistence-memory</artifactId>
+    <name>persistence-memory</name>
     <description>In-memory implementation of the FA³ST Registry.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
@@ -32,26 +32,9 @@
             <artifactId>model</artifactId>
             <version>${faaast.service.version}</version>
         </dependency>
-        <!-- <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
-        </dependency> -->
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.plugin.jar.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>

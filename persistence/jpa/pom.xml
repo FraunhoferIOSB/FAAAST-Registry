@@ -5,11 +5,11 @@
         <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
         <artifactId>registry</artifactId>
         <version>0.1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
-    <artifactId>jpa</artifactId>
-    <name>jpa</name>
+    <artifactId>persistence-jpa</artifactId>
+    <name>persistence-jpa</name>
     <description>Relational database implementation of the FA³ST Registry.</description>
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
@@ -50,11 +50,6 @@
             <version>${hibernate.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgres.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>${spring.boot.version}</version>
@@ -68,18 +63,6 @@
     </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.plugin.jar.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
