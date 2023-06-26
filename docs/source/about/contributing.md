@@ -32,8 +32,4 @@ and check the generated report in the directory `docs/third_party_licenses_repor
 | Name | Github Account |
 |:--| -- |
 | Michael Jacoby | [mjacoby](https://github.com/mjacoby) |
-| Jens Müller | [JensMueller2709](https://github.com/JensMueller2709) |
-| Klaus Schick | [schick64](https://github.com/schick64) |
 | Tino Bischoff | [tbischoff2](https://github.com/tbischoff2) |
-| Friedrich Volz | [fvolz](https://github.com/fvolz) |
-
