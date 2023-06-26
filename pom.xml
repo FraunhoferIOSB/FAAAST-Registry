@@ -64,7 +64,7 @@
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.5.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.0.0</maven.plugin.failsafe.version>
-        <maven.plugin.jacoco.version>0.8.8</maven.plugin.jacoco.version>
+        <maven.plugin.jacoco.version>0.8.10</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
         <maven.plugin.owasp.version>8.1.2</maven.plugin.owasp.version>
         <maven.plugin.spotless.version>2.35.0</maven.plugin.spotless.version>
@@ -73,6 +73,7 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>1.7.36</slf4j.version>
         <snakeyaml.version>2.0</snakeyaml.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
