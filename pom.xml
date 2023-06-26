@@ -385,10 +385,6 @@
             <modules>
                 <module>checks</module>
             </modules>
-            <properties>
-                <maven.javadoc.skip>true</maven.javadoc.skip>
-                <maven.test.skip>true</maven.test.skip>
-            </properties>
         </profile>
         <profile>
             <id>release</id>
