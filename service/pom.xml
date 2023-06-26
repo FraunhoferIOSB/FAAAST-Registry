@@ -20,17 +20,6 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>memory</artifactId>
-            <version>${project.version}</version>
-        </dependency> -->
-        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jpa</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
