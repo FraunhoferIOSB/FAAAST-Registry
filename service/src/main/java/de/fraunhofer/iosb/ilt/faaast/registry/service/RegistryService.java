@@ -72,7 +72,7 @@ public class RegistryService {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         checkShellIdentifiers(aas);
         if (aas.getSubmodels() != null) {
-            aas.getSubmodels().stream().forEach(submodel -> checkSubmodelIdentifiers(submodel));
+            aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         }
         return aasRepository.create(aas);
     }
@@ -102,9 +102,7 @@ public class RegistryService {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         String idDecoded = decode(id);
         checkShellIdentifiers(aas);
-        aas.getSubmodels().stream().forEach(submodel -> {
-            checkSubmodelIdentifiers(submodel);
-        });
+        aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         return aasRepository.update(idDecoded, aas);
     }
 
