@@ -44,6 +44,9 @@ import java.util.stream.Collectors;
  */
 public class ModelTransformationHelper {
 
+    private ModelTransformationHelper() {}
+
+
     /**
      * Converts AssetAdministrationShellDescriptor to JPAAssetAdministrationShellDescriptor.
      *

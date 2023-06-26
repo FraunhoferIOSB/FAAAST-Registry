@@ -25,6 +25,9 @@ import javax.persistence.criteria.CriteriaBuilder;
  */
 public class EntityManagerHelper {
 
+    private EntityManagerHelper() {}
+
+
     /**
      * Fetches all instances of a given type from the entityManager.
      *
@@ -52,7 +55,6 @@ public class EntityManagerHelper {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         var queryCriteria = builder.createQuery(type);
         queryCriteria.select(queryCriteria.from(type));
-        //var query = entityManager.createQuery(String.format("SELECT x FROM %s x", type.getSimpleName()));
         var query = entityManager.createQuery(queryCriteria);
         return query.getResultList().stream()
                 .map(returnType::cast)
