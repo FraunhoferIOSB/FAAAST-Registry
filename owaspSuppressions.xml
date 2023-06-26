@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">	
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+	<suppress>
+		<notes><![CDATA[False positive, vulnerable feature(s) are not used in code. For details see https://github.com/spring-projects/spring-framework/issues/24434]]></notes>
+		<cve>CVE-2016-1000027</cve>
+	</suppress>
 </suppressions>
