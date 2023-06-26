@@ -367,6 +367,20 @@
                                     <goal>prepare-agent</goal>
                                 </goals>
                             </execution>
+                            <execution>
+                                <id>report-aggregate</id>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <includes>
+                                        <!-- Analyze class files only to exclude shaded agent JAR from report -->
+                                        <include>**/*.class</include>
+                                        <includeCurrentProject>true</includeCurrentProject>
+                                    </includes>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
