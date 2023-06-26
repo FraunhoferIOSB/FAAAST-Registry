@@ -118,9 +118,9 @@
                             <version>${checkstyle.version}</version>
                         </dependency>
                         <dependency>
-                            <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
+                            <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
                             <artifactId>checks</artifactId>
-                            <version>${faaast.service.version}</version>
+                            <version>${project.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
@@ -328,7 +328,25 @@
     </build>
     <profiles>
         <profile>
+            <id>build-local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>checks</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>test</id>
+            <modules>
+                <module>checks</module>
+            </modules>
+        </profile>
+        <profile>
             <id>coverage</id>
+            <modules>
+                <module>checks</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -363,10 +381,17 @@
             </build>
         </profile>
         <profile>
-            <id>release</id>
+            <id>build-ci</id>
             <modules>
-                <module>endpoint/opcua</module>
+                <module>checks</module>
             </modules>
+            <properties>
+                <maven.javadoc.skip>true</maven.javadoc.skip>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>release</id>
             <properties>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <maven.test.skip>true</maven.test.skip>

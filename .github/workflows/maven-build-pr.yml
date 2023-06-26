@@ -36,7 +36,7 @@ jobs:
 
     - name: Build with Maven
       run: |
-        mvn test-compile --settings maven-ci-settings.xml -B
+        mvn test-compile -P build-ci --settings maven-ci-settings.xml -B
 
     - name: Test with Coverage
       if: ${{ github.event.pull_request.head.repo.fork == false }}
