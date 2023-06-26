@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import java.util.Objects;
 
 
 /**
@@ -39,6 +40,31 @@ public class JPAProtocolInformation extends DefaultProtocolInformation {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JPAProtocolInformation other = (JPAProtocolInformation) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.id, other.id);
+        }
     }
 
     public abstract static class AbstractBuilder<T extends JPAProtocolInformation, B extends AbstractBuilder<T, B>>

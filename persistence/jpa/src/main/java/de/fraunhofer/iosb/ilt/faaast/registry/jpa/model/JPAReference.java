@@ -44,6 +44,31 @@ public class JPAReference extends DefaultReference {
         this.id = id;
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JPAReference other = (JPAReference) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.id, other.id);
+        }
+    }
+
     public abstract static class AbstractBuilder<T extends JPAReference, B extends AbstractBuilder<T, B>>
             extends ReferenceBuilder<JPAReference, B> {
 

@@ -43,6 +43,31 @@ public class JPAKey extends DefaultKey {
         this.id = id;
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JPAKey other = (JPAKey) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.id, other.id);
+        }
+    }
+
     public abstract static class AbstractBuilder<T extends JPAKey, B extends AbstractBuilder<T, B>>
             extends KeyBuilder<JPAKey, B> {
 

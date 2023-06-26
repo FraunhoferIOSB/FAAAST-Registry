@@ -43,6 +43,31 @@ public class JPAAdministrativeInformation extends DefaultAdministrativeInformati
         this.adminId = adminId;
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), adminId);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JPAAdministrativeInformation other = (JPAAdministrativeInformation) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.adminId, other.adminId);
+        }
+    }
+
     public abstract static class AbstractBuilder<T extends JPAAdministrativeInformation, B extends AbstractBuilder<T, B>>
             extends AdministrativeInformationBuilder<JPAAdministrativeInformation, B> {
 

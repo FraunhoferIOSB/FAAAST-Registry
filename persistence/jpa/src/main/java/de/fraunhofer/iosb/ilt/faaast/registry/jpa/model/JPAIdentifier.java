@@ -43,6 +43,31 @@ public class JPAIdentifier extends DefaultIdentifier {
         this.id = id;
     }
 
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JPAIdentifier other = (JPAIdentifier) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.id, other.id);
+        }
+    }
+
     public abstract static class AbstractBuilder<T extends JPAIdentifier, B extends AbstractBuilder<T, B>>
             extends IdentifierBuilder<JPAIdentifier, B> {
 
