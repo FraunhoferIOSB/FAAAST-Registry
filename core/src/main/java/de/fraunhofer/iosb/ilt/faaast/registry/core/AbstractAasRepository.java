@@ -29,6 +29,9 @@ import java.util.Optional;
  */
 public abstract class AbstractAasRepository implements AasRepository {
 
+    protected AbstractAasRepository() {}
+
+
     /**
      * Creates a new {@link ResourceNotFoundException} for the AAS.
      *
