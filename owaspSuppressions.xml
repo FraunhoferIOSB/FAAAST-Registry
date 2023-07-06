@@ -4,4 +4,8 @@
 		<notes><![CDATA[False positive, vulnerable feature(s) are not used in code. For details see https://github.com/spring-projects/spring-framework/issues/24434]]></notes>
 		<cve>CVE-2016-1000027</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is a false positive according to the Jackson project maintainers. See https://github.com/FasterXML/jackson-databind/issues/3972]]></notes>
+		<cve>CVE-2023-35116</cve>
+	</suppress>
 </suppressions>

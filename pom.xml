@@ -60,7 +60,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
-        <maven.plugin.checkstyle.version>3.2.1</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.3.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.1.2</maven.plugin.failsafe.version>
@@ -71,7 +71,7 @@
         <postgres.version>42.6.0</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>1.7.36</slf4j.version>
+        <slf4j.version>2.0.7</slf4j.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
