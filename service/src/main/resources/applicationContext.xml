@@ -7,13 +7,16 @@
 	   		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
 	   		http://www.springframework.org/schema/context
 	   		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
-    
-    <!--##### in-memory #####-->
-    <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AasRepositoryMemory"/>
-    <!--#####################-->
-    
-    <!--##### JPA Repository #####-->
-    <!--<bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AASRepositoryJPA"/>-->
-   <!--##########################-->
+    <beans profile="default">
+        <!--##### in-memory #####-->
+        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AasRepositoryMemory"/>
+        <!--#####################-->
+    </beans>
+    <beans profile="external">
+        <!--##### JPA Repository #####-->
+        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AASRepositoryJPA"/>
+        <!--##########################-->
+    </beans>
+
     
 </beans>
