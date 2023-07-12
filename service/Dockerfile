@@ -1,6 +1,6 @@
 From eclipse-temurin:11-jre
 
-ARG ARTIFACT_FILE=service-0.1.0-SNAPSHOT.jar
+ARG ARTIFACT_FILE
 COPY ./target/${ARTIFACT_FILE} /app/service.jar
 
 RUN addgroup --system --gid 1000 faaast \
