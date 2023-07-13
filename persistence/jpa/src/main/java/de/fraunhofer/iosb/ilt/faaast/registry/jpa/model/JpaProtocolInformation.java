@@ -15,21 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.KeyBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for ProtocolInformation.
  */
-public class JPAKey extends DefaultKey {
+public class JpaProtocolInformation extends DefaultProtocolInformation {
 
     @JsonIgnore
     private String id;
 
-    public JPAKey() {
+    public JpaProtocolInformation() {
         id = null;
     }
 
@@ -62,14 +61,14 @@ public class JPAKey extends DefaultKey {
             return false;
         }
         else {
-            JPAKey other = (JPAKey) obj;
+            JpaProtocolInformation other = (JpaProtocolInformation) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JPAKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaProtocolInformation, B extends AbstractBuilder<T, B>>
+            extends DefaultProtocolInformation.AbstractBuilder<JpaProtocolInformation, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,17 +76,14 @@ public class JPAKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
-            if (Objects.nonNull(other)) {
-                idType(other.getIdType());
-                type(other.getType());
-                value(other.getValue());
-            }
+        @Override
+        public B from(ProtocolInformation other) {
+            super.from(other);
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaProtocolInformation, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -96,8 +92,8 @@ public class JPAKey extends DefaultKey {
 
 
         @Override
-        protected JPAKey newBuildingInstance() {
-            return new JPAKey();
+        protected JpaProtocolInformation newBuildingInstance() {
+            return new JpaProtocolInformation();
         }
     }
 }

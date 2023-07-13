@@ -16,20 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Submodel.
+ * Registry Descriptor JPA implementation for AssetAdministrationShell.
  */
-public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
+public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
 
     @JsonIgnore
     private String id;
 
-    public JPASubmodelDescriptor() {
+    public JpaAssetAdministrationShellDescriptor() {
         id = null;
     }
 
@@ -62,14 +62,14 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
             return false;
         }
         else {
-            JPASubmodelDescriptor other = (JPASubmodelDescriptor) obj;
+            JpaAssetAdministrationShellDescriptor other = (JpaAssetAdministrationShellDescriptor) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPASubmodelDescriptor, B extends AbstractBuilder<T, B>>
-            extends DefaultSubmodelDescriptor.AbstractBuilder<JPASubmodelDescriptor, B> {
+    public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
+            extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JpaAssetAdministrationShellDescriptor, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -78,8 +78,8 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
 
 
         @Override
-        public B from(SubmodelDescriptor other) {
-            if (other != null) {
+        public B from(AssetAdministrationShellDescriptor other) {
+            if (Objects.nonNull(other)) {
                 id(other.getIdentification().getIdentifier());
                 idShort(other.getIdShort());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
@@ -87,13 +87,15 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
                 descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
                 displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
                 identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
-                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                globalAssetId(ModelTransformationHelper.convertReference(other.getGlobalAssetId()));
+                specificAssetIds(ModelTransformationHelper.convertIdentifierKeyValuePairs(other.getSpecificAssetIds()));
+                submodels(ModelTransformationHelper.convertSubmodels(other.getSubmodels()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPASubmodelDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JpaAssetAdministrationShellDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -102,8 +104,8 @@ public class JPASubmodelDescriptor extends DefaultSubmodelDescriptor {
 
 
         @Override
-        protected JPASubmodelDescriptor newBuildingInstance() {
-            return new JPASubmodelDescriptor();
+        protected JpaAssetAdministrationShellDescriptor newBuildingInstance() {
+            return new JpaAssetAdministrationShellDescriptor();
         }
     }
 }

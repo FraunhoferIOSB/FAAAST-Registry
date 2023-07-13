@@ -16,20 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Endpoint.
+ * Registry Descriptor JPA implementation for Submodel.
  */
-public class JPAEndpoint extends DefaultEndpoint {
+public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
 
     @JsonIgnore
     private String id;
 
-    public JPAEndpoint() {
+    public JpaSubmodelDescriptor() {
         id = null;
     }
 
@@ -62,13 +62,14 @@ public class JPAEndpoint extends DefaultEndpoint {
             return false;
         }
         else {
-            JPAEndpoint other = (JPAEndpoint) obj;
+            JpaSubmodelDescriptor other = (JpaSubmodelDescriptor) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAEndpoint, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
+            extends DefaultSubmodelDescriptor.AbstractBuilder<JpaSubmodelDescriptor, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,22 @@ public class JPAEndpoint extends DefaultEndpoint {
 
 
         @Override
-        public B from(Endpoint other) {
+        public B from(SubmodelDescriptor other) {
             if (other != null) {
-                interfaceInformation(other.getInterfaceInformation());
-                protocolInformation(ModelTransformationHelper.convertProtocolInformation(other.getProtocolInformation()));
+                id(other.getIdentification().getIdentifier());
+                idShort(other.getIdShort());
+                endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
+                administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
+                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
+                displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
+                identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAEndpoint, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +102,8 @@ public class JPAEndpoint extends DefaultEndpoint {
 
 
         @Override
-        protected JPAEndpoint newBuildingInstance() {
-            return new JPAEndpoint();
+        protected JpaSubmodelDescriptor newBuildingInstance() {
+            return new JpaSubmodelDescriptor();
         }
     }
 }
