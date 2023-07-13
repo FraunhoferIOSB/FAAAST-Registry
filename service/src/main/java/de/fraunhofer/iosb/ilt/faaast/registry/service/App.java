@@ -57,5 +57,6 @@ public class App {
         out.println("                                                 |___/                |___/ ");
         out.println("----------------------------------------------------------------------------");
         out.println();
+        out.println("FA³ST Registry is now running...");
     }
 }
