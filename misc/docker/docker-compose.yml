@@ -1,26 +1,26 @@
 version: '3.4'
 services:
   FA3STRegistry:
-    image: fraunhoferiosb/faaast-registry
+    image: e3d8ccc93bb2
     volumes:
       - ../examples/:/app/resources/
     environment:
       - spring.profiles.active=external
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
       - spring.datasource.driver=org.postgresql.Driver
-      - spring.datasource.url=jdbc:postgresql://localhost:8083/Fa3stRegistry
+      - spring.datasource.url=jdbc:postgresql://db:5432/postgres
       - spring.datasource.username=postgres
       - spring.datasource.password=admin
     ports:
       - 8080:8082
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   db:
-    image: postgres
+    image: postgres:latest
     restart: always
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     ports:
-      - 8083:8083
+      - 5432:5432
