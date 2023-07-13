@@ -22,12 +22,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 
+
 /**
  * Main application of the registry.
  */
 @SpringBootApplication
 @EntityScan(basePackages = {
-    "de.fraunhofer.iosb.ilt.faaast.service.model.descriptor"
+        "de.fraunhofer.iosb.ilt.faaast.service.model.descriptor"
 })
 @ImportResource("classpath:applicationContext.xml")
 public class App {
@@ -43,6 +44,7 @@ public class App {
                 .banner(App::printBanner)
                 .run(args);
     }
+
 
     private static void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
         out.println("            _____                                                       ");
