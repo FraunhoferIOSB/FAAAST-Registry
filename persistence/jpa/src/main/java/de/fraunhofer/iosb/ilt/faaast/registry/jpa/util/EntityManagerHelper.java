@@ -18,8 +18,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
-// import javax.persistence.EntityManager;
-// import javax.persistence.criteria.CriteriaBuilder;
 
 
 /**
