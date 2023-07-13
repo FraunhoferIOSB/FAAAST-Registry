@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.Before;
 import org.junit.runner.RunWith;
