@@ -74,7 +74,7 @@ jobs:
     - name: Set env variables
       run: |
         echo "Exporting Variables"
-        export SERVICE_NAME=$(mvn -pl starter -Dexec.executable='echo' -Dexec.args='${project.build.finalName}' exec:exec -q)
+        export SERVICE_NAME=$(mvn -pl service -Dexec.executable='echo' -Dexec.args='${project.build.finalName}' exec:exec -q)
         echo "SERVICE_ARTIFACT=${SERVICE_NAME}.jar"   >> $GITHUB_ENV
         export version=$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
         echo "VERSION=${version}"     >> $GITHUB_ENV
@@ -90,7 +90,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Build and push docker image - starter
+    - name: Build and push docker image - service
       uses: docker/build-push-action@v4
       with:
         platforms: linux/amd64,linux/arm64
