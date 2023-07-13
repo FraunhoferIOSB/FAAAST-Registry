@@ -12,6 +12,8 @@
     <name>service</name>
     <description>Main service of the FA³ST Registry.</description>
     <properties>
+        <com.h2database.version>2.2.220</com.h2database.version>
+        <org.postgresql.version>42.6.0</org.postgresql.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -33,7 +35,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.2.220</version>
+            <version>${com.h2database.version}</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -43,7 +45,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.6.0</version>
+            <version>${org.postgresql.version}</version>
         </dependency>
     </dependencies>
     <build>
