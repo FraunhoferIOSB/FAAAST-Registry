@@ -38,12 +38,12 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 @Transactional
-public class AASRepositoryJPA extends AbstractAasRepository {
+public class AasRepositoryJpa extends AbstractAasRepository {
 
     @PersistenceContext(name = "AASRepositoryJPA")
     private final EntityManager entityManager;
 
-    public AASRepositoryJPA(EntityManager entityManager) {
+    public AasRepositoryJpa(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

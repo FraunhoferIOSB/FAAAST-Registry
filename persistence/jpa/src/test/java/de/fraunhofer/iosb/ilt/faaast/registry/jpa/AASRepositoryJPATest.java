@@ -32,19 +32,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
-@ContextConfiguration(classes = AASRepositoryJPATest.class)
+@ContextConfiguration(classes = AasRepositoryJpaTest.class)
 @DataJpaTest
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.registry.jpa.model"
 })
-public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositoryJPA> {
+public class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
 
     @Autowired
     private EntityManager entityManager;
 
     @Before
     public void setup() {
-        repository = new AASRepositoryJPA(entityManager);
+        repository = new AasRepositoryJpa(entityManager);
     }
 
 
