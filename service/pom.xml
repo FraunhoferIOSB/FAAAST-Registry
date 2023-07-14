@@ -20,15 +20,15 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
         <!--<dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>persistence-memory</artifactId>
+            <artifactId>persistence-jpa</artifactId>
             <version>${project.version}</version>
         </dependency> -->
-        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>persistence-jpa</artifactId>
+            <artifactId>persistence-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
