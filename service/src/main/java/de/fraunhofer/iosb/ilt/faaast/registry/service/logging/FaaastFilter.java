@@ -50,7 +50,7 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
     /**
      * Get level of logging for external packages.
-
+     *
      * @return level of logging
      */
     public static Level getLevelExternal() {
@@ -60,7 +60,7 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
     /**
      * Set level of logging for external packages.
-
+     *
      * @param level of logging
      */
     public static void setLevelExternal(Level level) {
