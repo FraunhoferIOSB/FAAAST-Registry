@@ -19,14 +19,16 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.spi.FilterReply;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
 
-
+/**
+ * Allows to set different log levels for FA³ST package and all other packages at run-time.
+ */
 public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
     private static final String PACKAGE_FAAAST = RegistryService.class.getPackageName();
     private static Level levelFaaast = Level.WARN;
     private static Level levelExternal = Level.WARN;
 
     /**
-     * Get level of logging for faaast packages
+     * Get level of logging for faaast packages.
      * 
      * @return level of logging
      */
@@ -36,7 +38,7 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
 
     /**
-     * Set level of logging for faaast packages
+     * Set level of logging for faaast packages.
      * 
      * @param level of logging
      */
@@ -46,7 +48,7 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
 
     /**
-     * Get level of logging for external packages
+     * Get level of logging for external packages.
      * 
      * @return level of logging
      */
@@ -56,7 +58,7 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
 
 
     /**
-     * Set level of logging for external packages
+     * Set level of logging for external packages.
      * 
      * @param level of logging
      */
