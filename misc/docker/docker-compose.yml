@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   FA3STRegistry:
-    image: 2dd1fd6bbe73
+    image: fraunhoferiosb/faaast-registry
     volumes:
       - ../examples/:/app/resources/
     environment:
