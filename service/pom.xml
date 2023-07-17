@@ -20,12 +20,11 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
-        <!--<dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-jpa</artifactId>
             <version>${project.version}</version>
-        </dependency> -->
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-memory</artifactId>
@@ -45,6 +44,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.220</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
