@@ -12,8 +12,6 @@
     <name>service</name>
     <description>Main service of the FA³ST Registry.</description>
     <properties>
-        <com.h2database.version>2.2.220</com.h2database.version>
-        <org.postgresql.version>42.6.0</org.postgresql.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -22,20 +20,31 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!-- This dependency (jpa) is used instead of memory when using relational database persistence. -->
+        <!--<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-jpa</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${com.h2database.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -45,7 +54,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${org.postgresql.version}</version>
+            <version>${postgres.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -53,17 +62,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
                 <configuration>
                     <mainClass>de.fraunhofer.iosb.ilt.faaast.registry.service.App</mainClass>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

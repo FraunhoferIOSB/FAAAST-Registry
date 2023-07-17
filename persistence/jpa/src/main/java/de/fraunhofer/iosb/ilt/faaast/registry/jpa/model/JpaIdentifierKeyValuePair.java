@@ -15,21 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.IdentifierBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
+import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
+import io.adminshell.aas.v3.model.builder.IdentifierKeyValuePairBuilder;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Identifier.
+ * Registry Descriptor JPA implementation for IdentifierKeyValuePair.
  */
-public class JPAIdentifier extends DefaultIdentifier {
+public class JpaIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
 
     @JsonIgnore
     private String id;
 
-    public JPAIdentifier() {
+    public JpaIdentifierKeyValuePair() {
         id = null;
     }
 
@@ -62,14 +63,14 @@ public class JPAIdentifier extends DefaultIdentifier {
             return false;
         }
         else {
-            JPAIdentifier other = (JPAIdentifier) obj;
+            JpaIdentifierKeyValuePair other = (JpaIdentifierKeyValuePair) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAIdentifier, B extends AbstractBuilder<T, B>>
-            extends IdentifierBuilder<JPAIdentifier, B> {
+    public abstract static class AbstractBuilder<T extends JpaIdentifierKeyValuePair, B extends AbstractBuilder<T, B>>
+            extends IdentifierKeyValuePairBuilder<JpaIdentifierKeyValuePair, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,18 @@ public class JPAIdentifier extends DefaultIdentifier {
         }
 
 
-        public B from(Identifier other) {
+        public B from(IdentifierKeyValuePair other) {
             if (Objects.nonNull(other)) {
-                identifier(other.getIdentifier());
-                idType(other.getIdType());
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
+                key(other.getKey());
+                value(other.getValue());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAIdentifier, Builder> {
+    public static class Builder extends AbstractBuilder<JpaIdentifierKeyValuePair, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +98,8 @@ public class JPAIdentifier extends DefaultIdentifier {
 
 
         @Override
-        protected JPAIdentifier newBuildingInstance() {
-            return new JPAIdentifier();
+        protected JpaIdentifierKeyValuePair newBuildingInstance() {
+            return new JpaIdentifierKeyValuePair();
         }
     }
 }
