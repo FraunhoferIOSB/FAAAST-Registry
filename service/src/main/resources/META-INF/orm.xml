@@ -4,61 +4,61 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
-    <class name="JPAAssetAdministrationShellDescriptor" table="asset_administration_shell">
+    <class name="JpaAssetAdministrationShellDescriptor" table="asset_administration_shell">
         
         <id name="id" type="string">
         </id>
 
         <property name="idShort"/>
 
-        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
+        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
-        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
-        <many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="referenceId" lazy="false"></many-to-one>
+        <many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referenceId" lazy="false"></many-to-one>
         
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
             <index column="index"/>
-            <many-to-many class="JPAEndpoint"/>
+            <many-to-many class="JpaEndpoint"/>
         </list>
 
         <list name="descriptions" cascade="all" table="asset_administration_shell_descriptions">
             <key column="did"/>
             <index column="index"/>
-            <many-to-many class="JPADescription"/>
+            <many-to-many class="JpaDescription"/>
         </list>
 
         <list name="displayNames" cascade="all" table="asset_administration_shell_display_names">
             <key column="dnid"/>
             <index column="index"/>
-            <many-to-many class="JPADescription"/>
+            <many-to-many class="JpaDescription"/>
         </list>
 
         <list name="specificAssetIds" cascade="all">
             <key column="sid"/>
             <index column="index"/>
-            <one-to-many class="JPAIdentifierKeyValuePair"/>
+            <one-to-many class="JpaIdentifierKeyValuePair"/>
         </list>
 
         <list name="submodels" cascade="all" table="asset_administration_shell_submodels">
             <key column="sdid"/>
             <index column="index"/>
-            <many-to-many class="JPASubmodelDescriptor"/>
+            <many-to-many class="JpaSubmodelDescriptor"/>
         </list>
 
     </class>
 
-    <class name="JPAEndpoint" table="endpoint">
+    <class name="JpaEndpoint" table="endpoint">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
         <property name="interfaceInformation"/>
 
-        <many-to-one name="protocolInformation" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAProtocolInformation" cascade="all" column="protocolId" lazy="false"></many-to-one>
+        <many-to-one name="protocolInformation" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation" cascade="all" column="protocolId" lazy="false"></many-to-one>
     </class>
 
-    <class name="JPADescription" table="description">
+    <class name="JpaDescription" table="description">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -66,51 +66,51 @@
         <property name="value" column="value_col"/> 
     </class>
 
-    <class name="JPAIdentifierKeyValuePair" table="identifier_key_value_pair">
+    <class name="JpaIdentifierKeyValuePair" table="identifier_key_value_pair">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
         
-        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
-        <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
+        <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
         <property name="key" column="key_vol"/>
         <property name="value" column="value_col"/> 
     </class>
 
-    <class name="JPASubmodelDescriptor" table="submodel">
+    <class name="JpaSubmodelDescriptor" table="submodel">
         <id name="id" type="string">
         </id>
         <!--<property name="identifier"/>-->
         <property name="idShort"/>
         <!--<property name="identification"/>-->
 
-        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
+        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
-        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
-        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation" cascade="all"></one-to-one> -->
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
+        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all"></one-to-one> -->
 
-        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
         <list name="endpoints" cascade="all" table="submodel_endpoints">
             <key column="eid"/>
             <index column="index"/>
-            <many-to-many class="JPAEndpoint"/>
+            <many-to-many class="JpaEndpoint"/>
         </list>
 
         <list name="descriptions" cascade="all">
             <key column="did"/>
             <index column="index"/>
-            <one-to-many class="JPADescription"/>
+            <one-to-many class="JpaDescription"/>
         </list>
 
         <list name="displayNames" cascade="all">
             <key column="dnid"/>
             <index column="index"/>
-            <one-to-many class="JPADescription"/>
+            <one-to-many class="JpaDescription"/>
         </list>
     </class>
 
-    <class name="JPAAdministrativeInformation" table="administrative_information">
+    <class name="JpaAdministrativeInformation" table="administrative_information">
         <id name="adminId" type="string">
             <generator class="uuid"/>
         </id>
@@ -119,7 +119,7 @@
         <property name="revision"/>
     </class>
     
-    <class name="JPAKey" table="key_table">
+    <class name="JpaKey" table="key_table">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -138,7 +138,7 @@
         
     </class>
     
-    <class name="JPAReference" table="reference">
+    <class name="JpaReference" table="reference">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -146,11 +146,11 @@
         <list name="keys" cascade="all">
             <key column="kid"/>
             <index column="keyType"/>
-            <one-to-many class="JPAKey"/>
+            <one-to-many class="JpaKey"/>
         </list>
     </class>
     
-    <class name="JPAProtocolInformation" table="protocol_information">
+    <class name="JpaProtocolInformation" table="protocol_information">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -163,7 +163,7 @@
         <property name="subprotocolBodyEncoding"/>
     </class>
     
-    <class name="JPAIdentifier" table="identifier">
+    <class name="JpaIdentifier" table="identifier">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>

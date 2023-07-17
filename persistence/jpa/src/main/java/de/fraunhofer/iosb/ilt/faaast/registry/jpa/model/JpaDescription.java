@@ -15,22 +15,20 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ReferenceBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import io.adminshell.aas.v3.model.LangString;
+import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Reference.
+ * Registry Descriptor JPA implementation for Description.
  */
-public class JPAReference extends DefaultReference {
+public class JpaDescription extends LangString {
 
     @JsonIgnore
     private String id;
 
-    public JPAReference() {
+    public JpaDescription() {
         id = null;
     }
 
@@ -63,14 +61,14 @@ public class JPAReference extends DefaultReference {
             return false;
         }
         else {
-            JPAReference other = (JPAReference) obj;
+            JpaDescription other = (JpaDescription) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAReference, B extends AbstractBuilder<T, B>>
-            extends ReferenceBuilder<JPAReference, B> {
+    public abstract static class AbstractBuilder<T extends JpaDescription, B extends AbstractBuilder<T, B>>
+            extends ExtendableBuilder<JpaDescription, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -78,15 +76,28 @@ public class JPAReference extends DefaultReference {
         }
 
 
-        public B from(Reference other) {
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+
+
+        public B language(String value) {
+            getBuildingInstance().setLanguage(value);
+            return getSelf();
+        }
+
+
+        public B from(LangString other) {
             if (Objects.nonNull(other)) {
-                keys(ModelTransformationHelper.convertKeys(other.getKeys()));
+                value(other.getValue());
+                language(other.getLanguage());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAReference, Builder> {
+    public static class Builder extends AbstractBuilder<JpaDescription, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +106,9 @@ public class JPAReference extends DefaultReference {
 
 
         @Override
-        protected JPAReference newBuildingInstance() {
-            return new JPAReference();
+        protected JpaDescription newBuildingInstance() {
+            return new JpaDescription();
         }
     }
+
 }

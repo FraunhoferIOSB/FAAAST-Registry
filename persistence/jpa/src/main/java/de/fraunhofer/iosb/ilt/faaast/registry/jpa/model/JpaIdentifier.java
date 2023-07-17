@@ -15,20 +15,21 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import io.adminshell.aas.v3.model.Identifier;
+import io.adminshell.aas.v3.model.builder.IdentifierBuilder;
+import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for ProtocolInformation.
+ * Registry Descriptor JPA implementation for Identifier.
  */
-public class JPAProtocolInformation extends DefaultProtocolInformation {
+public class JpaIdentifier extends DefaultIdentifier {
 
     @JsonIgnore
     private String id;
 
-    public JPAProtocolInformation() {
+    public JpaIdentifier() {
         id = null;
     }
 
@@ -61,14 +62,14 @@ public class JPAProtocolInformation extends DefaultProtocolInformation {
             return false;
         }
         else {
-            JPAProtocolInformation other = (JPAProtocolInformation) obj;
+            JpaIdentifier other = (JpaIdentifier) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAProtocolInformation, B extends AbstractBuilder<T, B>>
-            extends DefaultProtocolInformation.AbstractBuilder<JPAProtocolInformation, B> {
+    public abstract static class AbstractBuilder<T extends JpaIdentifier, B extends AbstractBuilder<T, B>>
+            extends IdentifierBuilder<JpaIdentifier, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -76,14 +77,16 @@ public class JPAProtocolInformation extends DefaultProtocolInformation {
         }
 
 
-        @Override
-        public B from(ProtocolInformation other) {
-            super.from(other);
+        public B from(Identifier other) {
+            if (Objects.nonNull(other)) {
+                identifier(other.getIdentifier());
+                idType(other.getIdType());
+            }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAProtocolInformation, Builder> {
+    public static class Builder extends AbstractBuilder<JpaIdentifier, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -92,8 +95,8 @@ public class JPAProtocolInformation extends DefaultProtocolInformation {
 
 
         @Override
-        protected JPAProtocolInformation newBuildingInstance() {
-            return new JPAProtocolInformation();
+        protected JpaIdentifier newBuildingInstance() {
+            return new JpaIdentifier();
         }
     }
 }

@@ -15,20 +15,21 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Description.
+ * Registry Descriptor JPA implementation for Endpoint.
  */
-public class JPADescription extends LangString {
+public class JpaEndpoint extends DefaultEndpoint {
 
     @JsonIgnore
     private String id;
 
-    public JPADescription() {
+    public JpaEndpoint() {
         id = null;
     }
 
@@ -61,14 +62,13 @@ public class JPADescription extends LangString {
             return false;
         }
         else {
-            JPADescription other = (JPADescription) obj;
+            JpaEndpoint other = (JpaEndpoint) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPADescription, B extends AbstractBuilder<T, B>>
-            extends ExtendableBuilder<JPADescription, B> {
+    public abstract static class AbstractBuilder<T extends JpaEndpoint, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -76,28 +76,17 @@ public class JPADescription extends LangString {
         }
 
 
-        public B value(String value) {
-            getBuildingInstance().setValue(value);
-            return getSelf();
-        }
-
-
-        public B language(String value) {
-            getBuildingInstance().setLanguage(value);
-            return getSelf();
-        }
-
-
-        public B from(LangString other) {
-            if (Objects.nonNull(other)) {
-                value(other.getValue());
-                language(other.getLanguage());
+        @Override
+        public B from(Endpoint other) {
+            if (other != null) {
+                interfaceInformation(other.getInterfaceInformation());
+                protocolInformation(ModelTransformationHelper.convertProtocolInformation(other.getProtocolInformation()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPADescription, Builder> {
+    public static class Builder extends AbstractBuilder<JpaEndpoint, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -106,9 +95,8 @@ public class JPADescription extends LangString {
 
 
         @Override
-        protected JPADescription newBuildingInstance() {
-            return new JPADescription();
+        protected JpaEndpoint newBuildingInstance() {
+            return new JpaEndpoint();
         }
     }
-
 }

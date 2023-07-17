@@ -24,12 +24,12 @@ import java.util.Objects;
 /**
  * Registry Descriptor JPA implementation for AdministrativeInformation.
  */
-public class JPAAdministrativeInformation extends DefaultAdministrativeInformation {
+public class JpaAdministrativeInformation extends DefaultAdministrativeInformation {
 
     @JsonIgnore
     private String adminId;
 
-    public JPAAdministrativeInformation() {
+    public JpaAdministrativeInformation() {
         adminId = null;
     }
 
@@ -62,14 +62,14 @@ public class JPAAdministrativeInformation extends DefaultAdministrativeInformati
             return false;
         }
         else {
-            JPAAdministrativeInformation other = (JPAAdministrativeInformation) obj;
+            JpaAdministrativeInformation other = (JpaAdministrativeInformation) obj;
             return super.equals(obj)
                     && Objects.equals(this.adminId, other.adminId);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JPAAdministrativeInformation, B extends AbstractBuilder<T, B>>
-            extends AdministrativeInformationBuilder<JPAAdministrativeInformation, B> {
+    public abstract static class AbstractBuilder<T extends JpaAdministrativeInformation, B extends AbstractBuilder<T, B>>
+            extends AdministrativeInformationBuilder<JpaAdministrativeInformation, B> {
 
         public B from(AdministrativeInformation other) {
             if (Objects.nonNull(other)) {
@@ -81,7 +81,7 @@ public class JPAAdministrativeInformation extends DefaultAdministrativeInformati
         }
     }
 
-    public static class Builder extends AbstractBuilder<JPAAdministrativeInformation, Builder> {
+    public static class Builder extends AbstractBuilder<JpaAdministrativeInformation, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -90,8 +90,8 @@ public class JPAAdministrativeInformation extends DefaultAdministrativeInformati
 
 
         @Override
-        protected JPAAdministrativeInformation newBuildingInstance() {
-            return new JPAAdministrativeInformation();
+        protected JpaAdministrativeInformation newBuildingInstance() {
+            return new JpaAdministrativeInformation();
         }
     }
 }
