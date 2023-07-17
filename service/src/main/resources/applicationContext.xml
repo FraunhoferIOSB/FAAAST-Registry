@@ -14,7 +14,7 @@
     </beans>
     <beans profile="external">
         <!--##### JPA Repository #####-->
-        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AASRepositoryJPA"/>
+        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AasRepositoryJpa"/>
         <!--##########################-->
     </beans>
 
