@@ -25,21 +25,41 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
     private static Level levelFaaast = Level.WARN;
     private static Level levelExternal = Level.WARN;
 
+    /**
+     * Get level of logging for faaast packages
+     * 
+     * @return level of logging
+     */
     public static Level getLevelFaaast() {
         return levelFaaast;
     }
 
 
+    /**
+     * Set level of logging for faaast packages
+     * 
+     * @param level of logging
+     */
     public static void setLevelFaaast(Level level) {
         levelFaaast = level;
     }
 
 
+    /**
+     * Get level of logging for external packages
+     * 
+     * @return level of logging
+     */
     public static Level getLevelExternal() {
         return levelExternal;
     }
 
 
+    /**
+     * Set level of logging for external packages
+     * 
+     * @param level of logging
+     */
     public static void setLevelExternal(Level level) {
         levelExternal = level;
     }
