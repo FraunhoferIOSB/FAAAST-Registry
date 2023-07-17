@@ -19,6 +19,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.spi.FilterReply;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
 
+
 /**
  * Allows to set different log levels for FA³ST package and all other packages at run-time.
  */
