@@ -14,6 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import ch.qos.logback.classic.Level;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.logging.FaaastFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -29,6 +33,16 @@ import org.springframework.context.annotation.ImportResource;
 })
 @ImportResource("classpath:applicationContext.xml")
 public class App {
+    // Reduces log output (ERROR for FA³ST packages, ERROR for all other packages). Default information about the starting process will still be printed.
+    private static final String QUITE_OPTION = "-q";
+    // Enables verbose logging (INFO for FA³ST packages, WARN for all other packages).
+    private static final String VERBOSE_OPTION = "-v";
+    // Enables very verbose logging (DEBUG for FA³ST packages, INFO for all other packages).
+    private static final String VERY_VERBOSE_OPTION = "-vv";
+    // Enables very very verbose logging (TRACE for FA³ST packages, DEBUG for all other packages).
+    private static final String VERY_VERY_VERBOSE_OPTION = "-vvv";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     /**
      * Entry point of the application.
@@ -36,6 +50,36 @@ public class App {
      * @param args The command line arguments.
      */
     public static void main(String[] args) {
+        configureLogging(args);
         SpringApplication.run(App.class, args);
+    }
+
+
+    private static void configureLogging(String[] args) {
+        for (String arg: args) {
+            if (arg.equals(VERY_VERY_VERBOSE_OPTION)) {
+                FaaastFilter.setLevelFaaast(Level.TRACE);
+                FaaastFilter.setLevelExternal(Level.DEBUG);
+                break;
+            }
+            else if (arg.equals(VERY_VERBOSE_OPTION)) {
+                FaaastFilter.setLevelFaaast(Level.DEBUG);
+                FaaastFilter.setLevelExternal(Level.INFO);
+                break;
+            }
+            else if (arg.equals(VERBOSE_OPTION)) {
+                FaaastFilter.setLevelFaaast(Level.INFO);
+                FaaastFilter.setLevelExternal(Level.WARN);
+                break;
+            }
+            else if (arg.equals(QUITE_OPTION)) {
+                FaaastFilter.setLevelFaaast(Level.ERROR);
+                FaaastFilter.setLevelExternal(Level.ERROR);
+                break;
+            }
+        }
+
+        LOGGER.info("Using log level for FA³ST packages: {}", FaaastFilter.getLevelFaaast());
+        LOGGER.info("Using log level for external packages: {}", FaaastFilter.getLevelExternal());
     }
 }
