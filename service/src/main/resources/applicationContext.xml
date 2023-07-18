@@ -9,11 +9,11 @@
 	   		http://www.springframework.org/schema/context/spring-context-4.3.xsd">
     
     <!--##### in-memory #####-->
-    <!--<bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AASRepositoryMemory"/>-->
+    <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AasRepositoryMemory"/>
     <!--#####################-->
     
     <!--##### JPA Repository #####-->
-    <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AASRepositoryJPA"/>
+    <!--<bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AasRepositoryJpa"/>-->
     <!--##########################-->
     
 </beans>

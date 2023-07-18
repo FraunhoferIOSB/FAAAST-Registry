@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -32,19 +32,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @EnableAutoConfiguration
-@ContextConfiguration(classes = AASRepositoryJPATest.class)
+@ContextConfiguration(classes = AasRepositoryJpaTest.class)
 @DataJpaTest
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.registry.jpa.model"
 })
-public class AASRepositoryJPATest extends AbstractAasRepositoryTest<AASRepositoryJPA> {
+public class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
 
     @Autowired
     private EntityManager entityManager;
 
     @Before
     public void setup() {
-        repository = new AASRepositoryJPA(entityManager);
+        repository = new AasRepositoryJpa(entityManager);
     }
 
 

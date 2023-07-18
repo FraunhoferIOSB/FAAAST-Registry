@@ -14,16 +14,16 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAdministrativeInformation;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPADescription;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAIdentifierKeyValuePair;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAKey;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPAReference;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JPASubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifierKeyValuePair;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
@@ -53,8 +53,8 @@ public class ModelTransformationHelper {
      * @param aas The AssetAdministrationShellDescriptor.
      * @return The converted JPAAssetAdministrationShellDescriptor.
      */
-    public static JPAAssetAdministrationShellDescriptor convertAAS(AssetAdministrationShellDescriptor aas) {
-        return new JPAAssetAdministrationShellDescriptor.Builder()
+    public static JpaAssetAdministrationShellDescriptor convertAAS(AssetAdministrationShellDescriptor aas) {
+        return new JpaAssetAdministrationShellDescriptor.Builder()
                 .from(aas)
                 .build();
     }
@@ -66,8 +66,8 @@ public class ModelTransformationHelper {
      * @param administrativeInformation The AdministrativeInformation.
      * @return The converted JPAAdministrativeInformation.
      */
-    public static JPAAdministrativeInformation convertAdministrativeInformation(AdministrativeInformation administrativeInformation) {
-        return new JPAAdministrativeInformation.Builder()
+    public static JpaAdministrativeInformation convertAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+        return new JpaAdministrativeInformation.Builder()
                 .from(administrativeInformation)
                 .build();
     }
@@ -81,7 +81,7 @@ public class ModelTransformationHelper {
      */
     public static List<LangString> convertDescriptions(List<LangString> descriptions) {
         return descriptions.stream()
-                .map(x -> new JPADescription.Builder().from(x).build())
+                .map(x -> new JpaDescription.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -97,7 +97,7 @@ public class ModelTransformationHelper {
             return null;
         }
         return endpoints.stream()
-                .map(x -> new JPAEndpoint.Builder().from(x).build())
+                .map(x -> new JpaEndpoint.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -109,7 +109,7 @@ public class ModelTransformationHelper {
      * @return The converted JPAIdentifier.
      */
     public static Identifier convertIdentifier(Identifier identifier) {
-        return new JPAIdentifier.Builder().from(identifier).build();
+        return new JpaIdentifier.Builder().from(identifier).build();
     }
 
 
@@ -124,7 +124,7 @@ public class ModelTransformationHelper {
             return null;
         }
         return pairs.stream()
-                .map(x -> new JPAIdentifierKeyValuePair.Builder().from(x).build())
+                .map(x -> new JpaIdentifierKeyValuePair.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -140,7 +140,7 @@ public class ModelTransformationHelper {
             return null;
         }
         return keys.stream()
-                .map(x -> new JPAKey.Builder().from(x).build())
+                .map(x -> new JpaKey.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -151,8 +151,8 @@ public class ModelTransformationHelper {
      * @param protocolInformation The ProtocolInformation.
      * @return The converted JPAProtocolInformation.
      */
-    public static JPAProtocolInformation convertProtocolInformation(ProtocolInformation protocolInformation) {
-        return new JPAProtocolInformation.Builder().from(protocolInformation).build();
+    public static JpaProtocolInformation convertProtocolInformation(ProtocolInformation protocolInformation) {
+        return new JpaProtocolInformation.Builder().from(protocolInformation).build();
     }
 
 
@@ -162,8 +162,8 @@ public class ModelTransformationHelper {
      * @param reference The Reference.
      * @return The converted JPAReference.
      */
-    public static JPAReference convertReference(Reference reference) {
-        return new JPAReference.Builder()
+    public static JpaReference convertReference(Reference reference) {
+        return new JpaReference.Builder()
                 .from(reference)
                 .build();
     }
@@ -175,8 +175,8 @@ public class ModelTransformationHelper {
      * @param submodel The SubmodelDescriptor.
      * @return The converted JPASubmodelDescriptor.
      */
-    public static JPASubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
-        return new JPASubmodelDescriptor.Builder().from(submodel).build();
+    public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
+        return new JpaSubmodelDescriptor.Builder().from(submodel).build();
     }
 
 
@@ -191,7 +191,7 @@ public class ModelTransformationHelper {
             return null;
         }
         return submodels.stream()
-                .map(x -> new JPASubmodelDescriptor.Builder().from(x).build())
+                .map(x -> new JpaSubmodelDescriptor.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
