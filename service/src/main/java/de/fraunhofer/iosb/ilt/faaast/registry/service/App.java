@@ -16,10 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import ch.qos.logback.classic.Level;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.logging.FaaastFilter;
+import java.io.PrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
-import java.io.PrintStream;
 import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -55,7 +54,6 @@ public class App {
      */
     public static void main(String[] args) {
         configureLogging(args);
-        SpringApplication.run(App.class, args);
         new SpringApplicationBuilder(App.class)
                 .bannerMode(Mode.CONSOLE)
                 .banner(App::printBanner)
@@ -82,25 +80,23 @@ public class App {
 
     private static void configureLogging(String[] args) {
         for (String arg: args) {
-            if (arg.equals(VERY_VERY_VERBOSE_OPTION)) {
-                FaaastFilter.setLevelFaaast(Level.TRACE);
-                FaaastFilter.setLevelExternal(Level.DEBUG);
-                break;
-            }
-            else if (arg.equals(VERY_VERBOSE_OPTION)) {
-                FaaastFilter.setLevelFaaast(Level.DEBUG);
-                FaaastFilter.setLevelExternal(Level.INFO);
-                break;
-            }
-            else if (arg.equals(VERBOSE_OPTION)) {
-                FaaastFilter.setLevelFaaast(Level.INFO);
-                FaaastFilter.setLevelExternal(Level.WARN);
-                break;
-            }
-            else if (arg.equals(QUITE_OPTION)) {
-                FaaastFilter.setLevelFaaast(Level.ERROR);
-                FaaastFilter.setLevelExternal(Level.ERROR);
-                break;
+            switch (arg) {
+                case (VERY_VERY_VERBOSE_OPTION):
+                    FaaastFilter.setLevelFaaast(Level.TRACE);
+                    FaaastFilter.setLevelExternal(Level.DEBUG);
+                    break;
+                case (VERY_VERBOSE_OPTION):
+                    FaaastFilter.setLevelFaaast(Level.DEBUG);
+                    FaaastFilter.setLevelExternal(Level.INFO);
+                    break;
+                case (VERBOSE_OPTION):
+                    FaaastFilter.setLevelFaaast(Level.INFO);
+                    FaaastFilter.setLevelExternal(Level.WARN);
+                    break;
+                case (QUITE_OPTION):
+                    FaaastFilter.setLevelFaaast(Level.ERROR);
+                    FaaastFilter.setLevelExternal(Level.ERROR);
+                    break;
             }
         }
 
