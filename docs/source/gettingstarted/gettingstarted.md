@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
--   Java 11+
+-   Java 17+
 
 ## Usage
 
@@ -42,4 +42,10 @@ mvn clean install
 
 ## Example
 
-...
+This example shows how to start a FA³ST Registry with in-memory persistence.
+
+### Via Command-line Interface (CLI)
+
+```sh
+mvn spring-boot:run
+```
