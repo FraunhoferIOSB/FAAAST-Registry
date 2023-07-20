@@ -98,8 +98,7 @@ public class App {
                     FaaastFilter.setLevelExternal(Level.ERROR);
                     break;
                 default:
-                    FaaastFilter.setLevelFaaast(Level.INFO);
-                    FaaastFilter.setLevelExternal(Level.INFO);
+                    //FaaastFilter already sets default value
                     break;
             }
         }
