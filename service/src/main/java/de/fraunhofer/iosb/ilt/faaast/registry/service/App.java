@@ -43,6 +43,7 @@ import picocli.CommandLine.Option;
 @Command(name = APP_NAME, mixinStandardHelpOptions = true, description = "Starts a FA³ST Registry", usageHelpAutoWidth = true)
 public class App implements Runnable {
     protected static final String APP_NAME = "FA³ST Registry Starter";
+    private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     @Option(names = {
             "-q",
@@ -61,8 +62,6 @@ public class App implements Runnable {
 
     @Option(names = "-vvv", description = "Enables very very verbose logging (TRACE for FA³ST packages, DEBUG for all other packages).")
     public boolean veryVeryVerbose = false;
-
-    private final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     /**
      * Entry point of the application.
