@@ -13,7 +13,7 @@
     <description>Main service of the FA³ST Registry.</description>
     <properties>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
-        <picocli.version>4.7.4</picocli.version>
+        <picocli.version>4.7.5</picocli.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
