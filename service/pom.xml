@@ -12,8 +12,6 @@
     <name>service</name>
     <description>Main service of the FA³ST Registry.</description>
     <properties>
-        <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
-        <picocli.version>4.7.5</picocli.version>
         <root.basedir>${project.parent.basedir}</root.basedir>
     </properties>
     <dependencies>
@@ -50,7 +48,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.2.220</version>
+            <version>${h2.version}</version>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
