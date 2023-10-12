@@ -8,4 +8,17 @@
 		<notes><![CDATA[This CVE is a false positive according to the Jackson project maintainers. See https://github.com/FasterXML/jackson-databind/issues/3972]]></notes>
 		<cve>CVE-2023-35116</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is a not an issue according to the H2 project maintainers since the webadminpassword config is not used. See https://github.com/h2database/h2database/issues/3686]]></notes>
+		<cve>CVE-2022-45868</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[This CVE is a false positive according to the H2 project maintainers. See https://github.com/h2database/h2database/issues/1294]]></notes>
+		<cve>CVE-2018-14335</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive, vulnerable feature(s) are not used in code. For details see https://github.com/apache/tomcat/commit/e3703c9abb8fe0d5602f6ba8a8f11d4b6940815a]]></notes>
+		<packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-(core|websocket)@.*$</packageUrl>
+		<cve>CVE-2023-41080</cve>
+	</suppress>
 </suppressions>

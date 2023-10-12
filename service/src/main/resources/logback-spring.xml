@@ -1,12 +1,10 @@
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/default.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />    
+    <variable name="PATTERN_STDOUT" value="%date{yyyy-MM-dd HH:mm:ss} [%level] %msg \(%logger\)%nopex%n"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>TRACE</level>
-        </filter>
+        <filter class="de.fraunhofer.iosb.ilt.faaast.registry.service.logging.FaaastFilter"></filter>
         <encoder>
-            <pattern>%date{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg %n</pattern>
+            <pattern>${PATTERN_STDOUT}</pattern>
         </encoder>
     </appender>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
