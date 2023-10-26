@@ -82,6 +82,7 @@
         </id>
         <!--<property name="identifier"/>-->
         <property name="idShort"/>
+        <property name="standalone"/>
         <!--<property name="identification"/>-->
 
         <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>

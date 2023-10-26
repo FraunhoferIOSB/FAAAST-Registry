@@ -28,9 +28,12 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
 
     @JsonIgnore
     private String id;
+    @JsonIgnore
+    private boolean standalone;
 
     public JpaSubmodelDescriptor() {
         id = null;
+        standalone = false;
     }
 
 
@@ -44,9 +47,19 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
     }
 
 
+    public boolean getStandalone() {
+        return standalone;
+    }
+
+
+    public void setStandalone(boolean value) {
+        standalone = value;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode(), id, standalone);
     }
 
 
@@ -64,7 +77,8 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
         else {
             JpaSubmodelDescriptor other = (JpaSubmodelDescriptor) obj;
             return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
+                    && Objects.equals(this.id, other.id)
+                    && Objects.equals(this.standalone, other.standalone);
         }
     }
 
@@ -73,6 +87,12 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B standalone(boolean value) {
+            getBuildingInstance().setStandalone(value);
             return getSelf();
         }
 

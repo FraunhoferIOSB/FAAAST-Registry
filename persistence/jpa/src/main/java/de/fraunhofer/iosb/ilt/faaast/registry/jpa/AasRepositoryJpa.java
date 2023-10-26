@@ -26,6 +26,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +40,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Transactional
 public class AasRepositoryJpa extends AbstractAasRepository {
+
+    private static final String FIND_SUBMODEL_STANDALONE = "SELECT s FROM JpaSubmodelDescriptor s where s.standalone=true";
 
     @PersistenceContext(name = "AASRepositoryJPA")
     private final EntityManager entityManager;
@@ -107,7 +110,11 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptor.class, SubmodelDescriptor.class);
+        TypedQuery<SubmodelDescriptor> query = entityManager.createQuery(FIND_SUBMODEL_STANDALONE, SubmodelDescriptor.class);
+        //entityManager.createQuery
+        return query.getResultList();
+
+        //return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptor.class, SubmodelDescriptor.class);
     }
 
 
@@ -159,8 +166,9 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         SubmodelDescriptor submodel = fetchSubmodel(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        submodel = ModelTransformationHelper.convertSubmodel(descriptor);
-        entityManager.persist(submodel);
+        JpaSubmodelDescriptor jpaSubmodel = ModelTransformationHelper.convertSubmodel(descriptor);
+        jpaSubmodel.setStandalone(true);
+        entityManager.persist(jpaSubmodel);
         return submodel;
     }
 
