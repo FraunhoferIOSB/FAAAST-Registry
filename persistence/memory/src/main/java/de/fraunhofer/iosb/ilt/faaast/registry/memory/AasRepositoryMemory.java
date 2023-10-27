@@ -146,7 +146,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
         }
         aas.getSubmodels().add(descriptor);
-        submodelDescriptors.putIfAbsent(descriptor.getIdentification().getIdentifier(), descriptor);
         return descriptor;
     }
 
