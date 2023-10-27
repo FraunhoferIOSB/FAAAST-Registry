@@ -82,7 +82,7 @@
         </id>
         <!--<property name="identifier"/>-->
         <property name="idShort"/>
-        <property name="standalone"/>
+        <!--<property name="standalone"/>-->
         <!--<property name="identification"/>-->
 
         <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
@@ -98,16 +98,16 @@
             <many-to-many class="JpaEndpoint"/>
         </list>
 
-        <list name="descriptions" cascade="all">
+        <list name="descriptions" cascade="all" table="submodel_descriptions">
             <key column="did"/>
             <index column="index"/>
-            <one-to-many class="JpaDescription"/>
+            <many-to-many class="JpaDescription"/>
         </list>
 
-        <list name="displayNames" cascade="all">
+        <list name="displayNames" cascade="all" table="submodel_displaynames">
             <key column="dnid"/>
             <index column="index"/>
-            <one-to-many class="JpaDescription"/>
+            <many-to-many class="JpaDescription"/>
         </list>
     </class>
 
@@ -176,4 +176,39 @@
             </type>
         </property>
     </class>
+
+    <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
+        <id name="id" type="string">
+        </id>
+        <!--<property name="identifier"/>-->
+        <property name="idShort"/>
+        <!--<property name="standalone"/>-->
+        <!--<property name="identification"/>-->
+
+        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
+
+        <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
+        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all"></one-to-one> -->
+
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
+
+        <list name="endpoints" cascade="all" table="submodel_endpoints_standalone">
+            <key column="eid"/>
+            <index column="index"/>
+            <many-to-many class="JpaEndpoint"/>
+        </list>
+
+        <list name="descriptions" cascade="all" table="submodel_descriptions_standalone">
+            <key column="did"/>
+            <index column="index"/>
+            <many-to-many class="JpaDescription"/>
+        </list>
+
+        <list name="displayNames" cascade="all" table="submodel_displaynames_standalone">
+            <key column="dnid"/>
+            <index column="index"/>
+            <many-to-many class="JpaDescription"/>
+        </list>
+    </class>
+
 </hibernate-mapping>

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
@@ -26,7 +27,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
@@ -40,8 +40,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Transactional
 public class AasRepositoryJpa extends AbstractAasRepository {
-
-    private static final String FIND_SUBMODEL_STANDALONE = "SELECT s FROM JpaSubmodelDescriptor s where s.standalone=true";
 
     @PersistenceContext(name = "AASRepositoryJPA")
     private final EntityManager entityManager;
@@ -110,11 +108,9 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        TypedQuery<SubmodelDescriptor> query = entityManager.createQuery(FIND_SUBMODEL_STANDALONE, SubmodelDescriptor.class);
-        //entityManager.createQuery
-        return query.getResultList();
-
-        //return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptor.class, SubmodelDescriptor.class);
+        //TypedQuery<SubmodelDescriptor> query = entityManager.createQuery(FIND_SUBMODEL_STANDALONE, SubmodelDescriptor.class);
+        //return query.getResultList();
+        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class);
     }
 
 
@@ -139,7 +135,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         return submodel;
     }
@@ -164,11 +160,11 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        SubmodelDescriptor submodel = fetchSubmodel(descriptor.getIdentification().getIdentifier());
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        JpaSubmodelDescriptor jpaSubmodel = ModelTransformationHelper.convertSubmodel(descriptor);
-        jpaSubmodel.setStandalone(true);
-        entityManager.persist(jpaSubmodel);
+        submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
+        //jpaSubmodel.setStandalone(true);
+        entityManager.persist(submodel);
         return submodel;
     }
 
@@ -194,7 +190,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         entityManager.remove(submodel);
     }
@@ -209,8 +205,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         }
     }
 
+    //private JpaSubmodelDescriptor fetchSubmodel(String submodelId) {
+    //    return entityManager.find(JpaSubmodelDescriptor.class, submodelId);
+    //}
 
-    private JpaSubmodelDescriptor fetchSubmodel(String submodelId) {
-        return entityManager.find(JpaSubmodelDescriptor.class, submodelId);
+
+    private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
+        return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
     }
 }

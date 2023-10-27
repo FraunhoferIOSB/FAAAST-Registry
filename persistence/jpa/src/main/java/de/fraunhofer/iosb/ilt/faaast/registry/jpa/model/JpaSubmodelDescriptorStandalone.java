@@ -22,18 +22,15 @@ import java.util.Objects;
 
 
 /**
- * Registry Descriptor JPA implementation for Submodel.
+ * Registry Descriptor JPA implementation for standalone Submodel.
  */
-public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
+public class JpaSubmodelDescriptorStandalone extends DefaultSubmodelDescriptor {
 
     @JsonIgnore
     private String id;
-    //@JsonIgnore
-    //private boolean standalone;
 
-    public JpaSubmodelDescriptor() {
+    public JpaSubmodelDescriptorStandalone() {
         id = null;
-        //standalone = false;
     }
 
 
@@ -45,14 +42,6 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
     public void setId(String id) {
         this.id = id;
     }
-
-    //public boolean getStandalone() {
-    //    return standalone;
-    //}
-
-    //public void setStandalone(boolean value) {
-    //    standalone = value;
-    //}
 
 
     @Override
@@ -73,24 +62,19 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
             return false;
         }
         else {
-            JpaSubmodelDescriptor other = (JpaSubmodelDescriptor) obj;
+            JpaSubmodelDescriptorStandalone other = (JpaSubmodelDescriptorStandalone) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
-            extends DefaultSubmodelDescriptor.AbstractBuilder<JpaSubmodelDescriptor, B> {
+    public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptorStandalone, B extends AbstractBuilder<T, B>>
+            extends DefaultSubmodelDescriptor.AbstractBuilder<JpaSubmodelDescriptorStandalone, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }
-
-        //public B standalone(boolean value) {
-        //    getBuildingInstance().setStandalone(value);
-        //    return getSelf();
-        //}
 
 
         @Override
@@ -109,7 +93,7 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSubmodelDescriptorStandalone, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -118,8 +102,8 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
 
 
         @Override
-        protected JpaSubmodelDescriptor newBuildingInstance() {
-            return new JpaSubmodelDescriptor();
+        protected JpaSubmodelDescriptorStandalone newBuildingInstance() {
+            return new JpaSubmodelDescriptorStandalone();
         }
     }
 }

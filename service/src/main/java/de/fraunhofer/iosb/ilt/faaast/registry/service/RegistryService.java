@@ -23,6 +23,8 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.Base64;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegistryService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     private static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
@@ -71,6 +74,7 @@ public class RegistryService {
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         checkShellIdentifiers(aas);
+        LOGGER.debug("createAAS: {}", aas.getIdentification().getIdentifier());
         if (aas.getSubmodels() != null) {
             aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         }
@@ -86,6 +90,7 @@ public class RegistryService {
      */
     public void deleteAAS(String id) throws ResourceNotFoundException {
         String idDecoded = decode(id);
+        LOGGER.debug("deleteAAS: AAS {}", idDecoded);
         aasRepository.deleteAAS(idDecoded);
     }
 
@@ -101,6 +106,7 @@ public class RegistryService {
     public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor aas) throws ResourceNotFoundException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         String idDecoded = decode(id);
+        LOGGER.debug("updateAAS: {}", idDecoded);
         checkShellIdentifiers(aas);
         aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         return aasRepository.update(idDecoded, aas);
@@ -194,10 +200,12 @@ public class RegistryService {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         checkSubmodelIdentifiers(submodel);
         if (aasId == null) {
+            LOGGER.debug("createSubmodel: Submodel {}", submodel.getIdentification().getIdentifier());
             return aasRepository.addSubmodel(submodel);
         }
         else {
             String aasIdDecoded = decode(aasId);
+            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getIdentification().getIdentifier());
             return aasRepository.addSubmodel(aasIdDecoded, submodel);
         }
     }
@@ -224,10 +232,12 @@ public class RegistryService {
     public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
         String submodelIdDecoded = decode(submodelId);
         if (aasId == null) {
+            LOGGER.debug("deleteSubmodel: Submodel {}", submodelIdDecoded);
             aasRepository.deleteSubmodel(submodelIdDecoded);
         }
         else {
             String aasIdDecoded = decode(aasId);
+            LOGGER.debug("deleteSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
             aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         }
     }
@@ -246,6 +256,7 @@ public class RegistryService {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String submodelIdDecoded = decode(submodelId);
         checkSubmodelIdentifiers(submodel);
+        LOGGER.debug("updateSubmodel: Submodel {}", submodelIdDecoded);
         aasRepository.deleteSubmodel(submodelIdDecoded);
         return aasRepository.addSubmodel(submodel);
     }
@@ -266,6 +277,7 @@ public class RegistryService {
         String aasIdDecoded = decode(aasId);
         String submodelIdDecoded = decode(submodelId);
         checkSubmodelIdentifiers(submodel);
+        LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
         aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         return aasRepository.addSubmodel(aasIdDecoded, submodel);
     }
