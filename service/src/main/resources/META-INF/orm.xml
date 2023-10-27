@@ -80,10 +80,7 @@
     <class name="JpaSubmodelDescriptor" table="submodel">
         <id name="id" type="string">
         </id>
-        <!--<property name="identifier"/>-->
         <property name="idShort"/>
-        <!--<property name="standalone"/>-->
-        <!--<property name="identification"/>-->
 
         <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
@@ -180,15 +177,11 @@
     <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
         <id name="id" type="string">
         </id>
-        <!--<property name="identifier"/>-->
         <property name="idShort"/>
-        <!--<property name="standalone"/>-->
-        <!--<property name="identification"/>-->
 
         <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
-        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all"></one-to-one> -->
 
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 

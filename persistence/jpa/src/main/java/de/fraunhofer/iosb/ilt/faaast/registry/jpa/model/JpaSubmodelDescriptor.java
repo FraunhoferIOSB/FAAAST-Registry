@@ -28,12 +28,9 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
 
     @JsonIgnore
     private String id;
-    //@JsonIgnore
-    //private boolean standalone;
 
     public JpaSubmodelDescriptor() {
         id = null;
-        //standalone = false;
     }
 
 
@@ -45,14 +42,6 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
     public void setId(String id) {
         this.id = id;
     }
-
-    //public boolean getStandalone() {
-    //    return standalone;
-    //}
-
-    //public void setStandalone(boolean value) {
-    //    standalone = value;
-    //}
 
 
     @Override
@@ -86,11 +75,6 @@ public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
             getBuildingInstance().setId(value);
             return getSelf();
         }
-
-        //public B standalone(boolean value) {
-        //    getBuildingInstance().setStandalone(value);
-        //    return getSelf();
-        //}
 
 
         @Override

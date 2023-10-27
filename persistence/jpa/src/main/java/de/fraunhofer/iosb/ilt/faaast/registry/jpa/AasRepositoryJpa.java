@@ -108,8 +108,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        //TypedQuery<SubmodelDescriptor> query = entityManager.createQuery(FIND_SUBMODEL_STANDALONE, SubmodelDescriptor.class);
-        //return query.getResultList();
         return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class);
     }
 
@@ -163,7 +161,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         SubmodelDescriptor submodel = fetchSubmodelStandalone(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
-        //jpaSubmodel.setStandalone(true);
         entityManager.persist(submodel);
         return submodel;
     }
@@ -204,10 +201,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             return null;
         }
     }
-
-    //private JpaSubmodelDescriptor fetchSubmodel(String submodelId) {
-    //    return entityManager.find(JpaSubmodelDescriptor.class, submodelId);
-    //}
 
 
     private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
