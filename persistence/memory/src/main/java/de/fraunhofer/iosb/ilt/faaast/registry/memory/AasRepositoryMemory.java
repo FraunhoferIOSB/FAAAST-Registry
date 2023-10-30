@@ -72,7 +72,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
         shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
-        //descriptor.getSubmodels().forEach(s -> submodelDescriptors.putIfAbsent(s.getIdentification().getIdentifier(), s));
         return descriptor;
     }
 
@@ -83,7 +82,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         shellDescriptors.remove(aasId);
-        //aas.getSubmodels().forEach(s -> submodelDescriptors.remove(s.getIdentification().getIdentifier()));
     }
 
 
