@@ -29,7 +29,7 @@ public abstract class JpaSubmodelDescriptorBase extends DefaultSubmodelDescripto
     @JsonIgnore
     private String id;
 
-    public JpaSubmodelDescriptorBase() {
+    protected JpaSubmodelDescriptorBase() {
         id = null;
     }
 
