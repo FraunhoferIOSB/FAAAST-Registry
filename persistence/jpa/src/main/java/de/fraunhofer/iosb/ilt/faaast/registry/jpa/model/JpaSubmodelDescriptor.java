@@ -14,84 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
-import java.util.Objects;
-
-
 /**
- * Registry Descriptor JPA implementation for Submodel.
+ * Registry Descriptor JPA implementation for Submodel of an AAS.
  */
-public class JpaSubmodelDescriptor extends DefaultSubmodelDescriptor {
-
-    @JsonIgnore
-    private String id;
-
-    public JpaSubmodelDescriptor() {
-        id = null;
-    }
-
-
-    public String getId() {
-        return id;
-    }
-
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        else if (obj == null) {
-            return false;
-        }
-        else if (this.getClass() != obj.getClass()) {
-            return false;
-        }
-        else {
-            JpaSubmodelDescriptor other = (JpaSubmodelDescriptor) obj;
-            return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
-        }
-    }
+public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
 
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
-            extends DefaultSubmodelDescriptor.AbstractBuilder<JpaSubmodelDescriptor, B> {
-
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        @Override
-        public B from(SubmodelDescriptor other) {
-            if (other != null) {
-                id(other.getIdentification().getIdentifier());
-                idShort(other.getIdShort());
-                endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
-                administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
-                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
-                displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
-                identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
-                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
-            }
-            return getSelf();
-        }
-    }
+            extends JpaSubmodelDescriptorBase.AbstractBuilder<JpaSubmodelDescriptor, B> {}
 
     public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
 
