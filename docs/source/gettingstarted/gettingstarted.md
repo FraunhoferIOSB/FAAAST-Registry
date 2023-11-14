@@ -49,3 +49,11 @@ This example shows how to start a FA³ST Registry with in-memory persistence.
 ```sh
 mvn spring-boot:run
 ```
+
+## Introduction
+
+The FA³ST Registry contains two separate Registry instances: An AAS Registry for Asset Administration Shell (AAS) Descriptors, and a Submodel Registry for Submodel Descriptors. These Registry instances are strictly separated, i.e. when an AAS with Submodels is registered in the AAS Registry, the Submodels of this AAS won't be registered in the Submodel Registry. If you want these Submodels to be registered in the Submodel Registry, you must register them in the Submodel Registry separately.
+
+## API
+
+The Registry allows accessing the data via REST-API.

@@ -2,7 +2,7 @@
 
 ## Use relational database persistence
 
-The default configuration starts the Registry with in-memory persistence. If you want to use relational database persistence with a PostgreSQL database, you must make several changes.
+The default configuration starts the Registry with in-memory persistence. If you want to use relational database persistence with a PostgreSQL database, you must make the following changes.
 
 ### service\src\main\resources\application.properties
 
@@ -27,6 +27,9 @@ uncomment the following block (except first and last line):
 #spring.datasource.driver=org.postgresql.Driver
 #spring.datasource.url=jdbc:postgresql://localhost:5432/Fa3stRegistry
 #spring.datasource.username=postgres
-#spring.datasource.password=admin
+#spring.datasource.password=
+
 ###############################################
 ```
+
+Please make sure, that you add username and password of your PostgreSQL database in this section (spring.datasource.username and spring.datasource.password).

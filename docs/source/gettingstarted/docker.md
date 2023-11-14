@@ -13,7 +13,7 @@ docker-compose up
 
 To modify the configuration edit the file `/misc/docker/docker-compose.yml`.
 You can change the following values using environment variables:
-
+    
 
 ### Configuration
 
