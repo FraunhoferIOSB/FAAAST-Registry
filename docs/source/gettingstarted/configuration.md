@@ -18,7 +18,7 @@ spring.datasource.password=
 #######################################
 ```
 
-uncomment the following block (except first and last line):
+uncomment the following block:
 
 ```properties
 ###### RDBS via JPA (external PostgresDB) #####
@@ -32,4 +32,4 @@ uncomment the following block (except first and last line):
 ###############################################
 ```
 
-Please make sure, that you add username and password of your PostgreSQL database in this section (spring.datasource.username and spring.datasource.password).
+Please make sure, that you add username and password of your PostgreSQL database in this section (`spring.datasource.username` and `spring.datasource.password`).
