@@ -48,20 +48,20 @@
     </distributionManagement>
     <properties>
         <assertj.version>3.24.2</assertj.version>
-        <checkstyle.version>10.12.4</checkstyle.version>
+        <checkstyle.version>10.12.5</checkstyle.version>
         <commons.codec.version>1.16.0</commons.codec.version>
         <commons.io.version>2.14.0</commons.io.version>
         <commons.lang3.version>3.13.0</commons.lang3.version>
         <faaast.service.version>0.6.0-SNAPSHOT</faaast.service.version>
         <h2.version>2.2.224</h2.version>
-        <hibernate.version>6.3.1.Final</hibernate.version>
-        <jackson.version>2.15.3</jackson.version>
+        <hibernate.version>6.4.0.Final</hibernate.version>
+        <jackson.version>2.16.0</jackson.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.4.11</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
-        <maven.plugin.checkstyle.version>3.3.0</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.1.2</maven.plugin.failsafe.version>
@@ -78,7 +78,7 @@
         <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.35.0</maven.plugin.spotless.version>
         <picocli.version>4.7.5</picocli.version>
-        <postgres.version>42.6.0</postgres.version>
+        <postgres.version>42.7.0</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.9</slf4j.version>
@@ -89,7 +89,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.1.5</spring.boot.version>
+        <spring.boot.version>3.2.0</spring.boot.version>
     </properties>
     <dependencies>
         <dependency>
