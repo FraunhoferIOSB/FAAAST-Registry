@@ -27,7 +27,6 @@
 implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:0.1.0-SNAPSHOT'
 ```
 
-
 ## Building from Source
 
 ### Prerequisites

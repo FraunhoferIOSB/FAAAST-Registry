@@ -9,7 +9,7 @@ In that case, you must make sure, that the corresponding database driver depende
 
 ## Configuration
 
-The JPA Persistence requires some settings in the application.properties (service\src\main\resources\application.properties) file:
+The JPA Persistence requires some settings in the `application.properties` (`service\src\main\resources\application.properties`) file:
 
 ```properties
 ##### RDBS via JPA (external PostgresDB) #####
@@ -21,8 +21,10 @@ spring.datasource.username=postgres
 spring.datasource.password=
 ```
 
-The property "spring.profiles.active" must be set to "external".
+An example of these settings is already prepared in comments in the `application.properties`.
 
-Please make sure, that the database, referenced by "spring.datasource.url", exists in your PostgreSQL database (in this example `Fa3stRegistry`).
+The property `spring.profiles.active` must be set to `external`.
+
+Please make sure, that the database, referenced by `spring.datasource.url`, exists in your PostgreSQL database (in this example `Fa3stRegistry`).
 
 Please make sure, that you add username and password of your PostgreSQL database in this section (properties `spring.datasource.username` and `spring.datasource.password`).
