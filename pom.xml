@@ -78,7 +78,7 @@
         <maven.plugin.source.version>3.3.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.41.1</maven.plugin.spotless.version>
         <picocli.version>4.7.5</picocli.version>
-        <postgres.version>42.7.0</postgres.version>
+        <postgres.version>42.7.1</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.9</slf4j.version>
