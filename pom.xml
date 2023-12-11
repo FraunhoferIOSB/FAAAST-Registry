@@ -48,10 +48,10 @@
     </distributionManagement>
     <properties>
         <assertj.version>3.24.2</assertj.version>
-        <checkstyle.version>10.12.5</checkstyle.version>
+        <checkstyle.version>10.12.6</checkstyle.version>
         <commons.codec.version>1.16.0</commons.codec.version>
-        <commons.io.version>2.14.0</commons.io.version>
-        <commons.lang3.version>3.13.0</commons.lang3.version>
+        <commons.io.version>2.15.1</commons.io.version>
+        <commons.lang3.version>3.14.0</commons.lang3.version>
         <faaast.service.version>0.6.0-SNAPSHOT</faaast.service.version>
         <h2.version>2.2.224</h2.version>
         <hibernate.version>6.4.0.Final</hibernate.version>
