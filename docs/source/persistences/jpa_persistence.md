@@ -21,7 +21,7 @@ spring.datasource.username=postgres
 spring.datasource.password=
 ```
 
-An example of these settings is already prepared in comments in the `application.properties`.
+An example of these settings is already prepared in comments in the `application.properties`. Please make sure that the corresponding In-Memory settings are removed from the `application.properties`.
 
 The property `spring.profiles.active` must be set to `external`.
 
