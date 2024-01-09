@@ -47,22 +47,22 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <assertj.version>3.24.2</assertj.version>
-        <checkstyle.version>10.12.6</checkstyle.version>
+        <assertj.version>3.25.1</assertj.version>
+        <checkstyle.version>10.12.7</checkstyle.version>
         <commons.codec.version>1.16.0</commons.codec.version>
         <commons.io.version>2.15.1</commons.io.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
         <faaast.service.version>0.6.0-SNAPSHOT</faaast.service.version>
         <h2.version>2.2.224</h2.version>
         <hibernate.version>6.4.0.Final</hibernate.version>
-        <jackson.version>2.16.0</jackson.version>
+        <jackson.version>2.16.1</jackson.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.4.14</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
         <maven.plugin.checkstyle.version>3.3.1</maven.plugin.checkstyle.version>
-        <maven.plugin.compiler.version>3.11.0</maven.plugin.compiler.version>
+        <maven.plugin.compiler.version>3.12.1</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.6.1</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.2.3</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.1.0</maven.plugin.gpg.version>
@@ -71,7 +71,7 @@
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.license.version>2.0.0</maven.plugin.license.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>8.4.3</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>9.0.8</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.5</maven.plugin.picocli.version>
         <maven.plugin.release.version>2.5.3</maven.plugin.release.version>
         <maven.plugin.shade.version>3.5.1</maven.plugin.shade.version>
@@ -81,7 +81,7 @@
         <postgres.version>42.7.1</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>2.0.9</slf4j.version>
+        <slf4j.version>2.0.11</slf4j.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
