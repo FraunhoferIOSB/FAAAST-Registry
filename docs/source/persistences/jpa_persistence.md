@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The JPA Persistence keeps the AAS and Submodel Registry in a relational database. When the Registry is restarted, all registered AASs and Submodels will still be availabe. So, when an AAS is not available anymore, it's important to delete it in the Registry.
+The JPA Persistence keeps the AAS and Submodel Registry in a relational database. When the Registry is restarted, all registered AASs and Submodels will still be availabe. So, when an AAS or Submodel is not available anymore, it's important to delete it from the Registry.
 
 Currently, the JPA Persistence is configured and tested with PostgreSQL. But other relational databases supported by JPA should also work.
 In that case, you must make sure, that the corresponding database driver dependency is included in the `pom.xml` of the service.

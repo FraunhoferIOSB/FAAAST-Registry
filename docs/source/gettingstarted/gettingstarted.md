@@ -9,7 +9,7 @@
 ### From precompiled JAR
 
 <!--start:download-snapshot-->
-[Download latest SNAPSHOT version (0.1.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots%26g=de.fraunhofer.iosb.ilt.faaast.registry%26a=service%26v=0.1.0-SNAPSHOT)<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (0.1.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.registry&a=service&v=0.1.0-SNAPSHOT)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 
