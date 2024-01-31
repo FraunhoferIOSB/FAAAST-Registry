@@ -25,7 +25,7 @@ import java.util.Optional;
 
 
 /**
- * Abstratc base class for implementing {@link AasRepository} interface providing helper methods for validation.
+ * Abstract base class for implementing {@link AasRepository} interface providing helper methods for validation.
  */
 public abstract class AbstractAasRepository implements AasRepository {
 
