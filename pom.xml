@@ -47,7 +47,7 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <assertj.version>3.25.2</assertj.version>
+        <assertj.version>3.25.3</assertj.version>
         <checkstyle.version>10.13.0</checkstyle.version>
         <commons.codec.version>1.16.0</commons.codec.version>
         <commons.io.version>2.15.1</commons.io.version>
