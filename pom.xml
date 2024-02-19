@@ -49,12 +49,12 @@
     <properties>
         <assertj.version>3.25.3</assertj.version>
         <checkstyle.version>10.13.0</checkstyle.version>
-        <commons.codec.version>1.16.0</commons.codec.version>
+        <commons.codec.version>1.16.1</commons.codec.version>
         <commons.io.version>2.15.1</commons.io.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
         <faaast.service.version>0.6.0-SNAPSHOT</faaast.service.version>
         <h2.version>2.2.224</h2.version>
-        <hibernate.version>6.4.2.Final</hibernate.version>
+        <hibernate.version>6.4.4.Final</hibernate.version>
         <jackson.version>2.16.1</jackson.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.0</logback.version>
