@@ -15,21 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.builder.IdentifierBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SpecificAssetIdBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 /**
- * Registry Descriptor JPA implementation for Identifier.
+ * Registry Descriptor JPA implementation for SpecificAssetId.
  */
-public class JpaIdentifier extends DefaultIdentifier {
+public class JpaSpecificAssetId extends DefaultSpecificAssetId {
 
     @JsonIgnore
     private String id;
 
-    public JpaIdentifier() {
+    public JpaSpecificAssetId() {
         id = null;
     }
 
@@ -62,14 +63,14 @@ public class JpaIdentifier extends DefaultIdentifier {
             return false;
         }
         else {
-            JpaIdentifier other = (JpaIdentifier) obj;
+            JpaSpecificAssetId other = (JpaSpecificAssetId) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaIdentifier, B extends AbstractBuilder<T, B>>
-            extends IdentifierBuilder<JpaIdentifier, B> {
+    public abstract static class AbstractBuilder<T extends JpaSpecificAssetId, B extends AbstractBuilder<T, B>>
+            extends SpecificAssetIdBuilder<JpaSpecificAssetId, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,19 @@ public class JpaIdentifier extends DefaultIdentifier {
         }
 
 
-        public B from(Identifier other) {
+        public B from(SpecificAssetId other) {
             if (Objects.nonNull(other)) {
-                identifier(other.getIdentifier());
-                idType(other.getIdType());
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
+                name(other.getName());
+                value(other.getValue());
+                // TODO: supplementalSemanticIds
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaIdentifier, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSpecificAssetId, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +99,8 @@ public class JpaIdentifier extends DefaultIdentifier {
 
 
         @Override
-        protected JpaIdentifier newBuildingInstance() {
-            return new JpaIdentifier();
+        protected JpaSpecificAssetId newBuildingInstance() {
+            return new JpaSpecificAssetId();
         }
     }
 }

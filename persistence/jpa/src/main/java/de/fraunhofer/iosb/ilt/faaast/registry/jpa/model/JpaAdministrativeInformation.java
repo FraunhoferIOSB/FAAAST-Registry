@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.builder.AdministrativeInformationBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AdministrativeInformationBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 
 
 /**

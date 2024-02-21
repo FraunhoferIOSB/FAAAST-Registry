@@ -14,7 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
@@ -26,69 +25,65 @@ import java.util.Objects;
  */
 public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
 
-    @JsonIgnore
-    private String id;
+    //@JsonIgnore
+    //private String id;
 
     public JpaAssetAdministrationShellDescriptor() {
-        id = null;
+        //id = null;
     }
 
+    //public String getId() {
+    //    return id;
+    //}
 
-    public String getId() {
-        return id;
-    }
+    //public void setId(String id) {
+    //    this.id = id;
+    //}
 
+    //@Override
+    //public int hashCode() {
+    //    return Objects.hash(super.hashCode(), id);
+    //}
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        else if (obj == null) {
-            return false;
-        }
-        else if (this.getClass() != obj.getClass()) {
-            return false;
-        }
-        else {
-            JpaAssetAdministrationShellDescriptor other = (JpaAssetAdministrationShellDescriptor) obj;
-            return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
-        }
-    }
+    //@Override
+    //public boolean equals(Object obj) {
+    //    if (this == obj) {
+    //        return true;
+    //    }
+    //    else if (obj == null) {
+    //        return false;
+    //    }
+    //    else if (this.getClass() != obj.getClass()) {
+    //        return false;
+    //    }
+    //    else {
+    //        JpaAssetAdministrationShellDescriptor other = (JpaAssetAdministrationShellDescriptor) obj;
+    //        return super.equals(obj)
+    //                && Objects.equals(this.id, other.id);
+    //    }
+    //}
 
     public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
             extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JpaAssetAdministrationShellDescriptor, B> {
 
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
+        //public B id(String value) {
+        //    getBuildingInstance().setId(value);
+        //    return getSelf();
+        //}
 
         @Override
         public B from(AssetAdministrationShellDescriptor other) {
             if (Objects.nonNull(other)) {
-                id(other.getIdentification().getIdentifier());
+                //id(other.getIdentification().getIdentifier());
+                id(other.getId());
                 idShort(other.getIdShort());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
                 descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
-                displayNames(ModelTransformationHelper.convertDescriptions(other.getDisplayNames()));
-                identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
-                globalAssetId(ModelTransformationHelper.convertReference(other.getGlobalAssetId()));
-                specificAssetIds(ModelTransformationHelper.convertIdentifierKeyValuePairs(other.getSpecificAssetIds()));
+                displayNames(ModelTransformationHelper.convertDisplayNames(other.getDisplayNames()));
+                //identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
+                globalAssetId(other.getGlobalAssetId());
+                specificAssetIds(ModelTransformationHelper.convertSpecificAssetIds(other.getSpecificAssetIds()));
                 submodels(ModelTransformationHelper.convertSubmodels(other.getSubmodels()));
             }
             return getSelf();

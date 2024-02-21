@@ -17,27 +17,27 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifierKeyValuePair;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSpecificAssetId;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Reference;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
@@ -80,9 +80,22 @@ public class ModelTransformationHelper {
      * @param descriptions The list of LangString.
      * @return The converted list of JPADescription.
      */
-    public static List<LangString> convertDescriptions(List<LangString> descriptions) {
+    public static List<LangStringTextType> convertDescriptions(List<LangStringTextType> descriptions) {
         return descriptions.stream()
                 .map(x -> new JpaDescription.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of LangString to a list of JPADescription.
+     *
+     * @param names The list of DisplayNames.
+     * @return The converted list of JPADescription.
+     */
+    public static List<LangStringNameType> convertDisplayNames(List<LangStringNameType> names) {
+        return names.stream()
+                .map(x -> new JpaDisplayName.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -102,30 +115,29 @@ public class ModelTransformationHelper {
                 .collect(Collectors.toList());
     }
 
+    //    /**
+    //     * Converts Identifier to JPAIdentifier.
+    //     *
+    //     * @param identifier The Identifier.
+    //     * @return The converted JPAIdentifier.
+    //     */
+    //    public static Identifier convertIdentifier(Identifier identifier) {
+    //        return new JpaIdentifier.Builder().from(identifier).build();
+    //    }
+
 
     /**
-     * Converts Identifier to JPAIdentifier.
+     * Converts a list of SpecificAssetIds to a list of JPASpecificAssetId.
      *
-     * @param identifier The Identifier.
-     * @return The converted JPAIdentifier.
+     * @param pairs The list of SpecificAssetId.
+     * @return The converted list of JPASpecificAssetId.
      */
-    public static Identifier convertIdentifier(Identifier identifier) {
-        return new JpaIdentifier.Builder().from(identifier).build();
-    }
-
-
-    /**
-     * Converts a list of IdentifierKeyValuePair to a list of JPAIdentifierKeyValuePair.
-     *
-     * @param pairs The list of IdentifierKeyValuePair.
-     * @return The converted list of JPAIdentifierKeyValuePair.
-     */
-    public static List<IdentifierKeyValuePair> convertIdentifierKeyValuePairs(List<IdentifierKeyValuePair> pairs) {
+    public static List<SpecificAssetId> convertSpecificAssetIds(List<SpecificAssetId> pairs) {
         if (Objects.isNull(pairs)) {
             return null;
         }
         return pairs.stream()
-                .map(x -> new JpaIdentifierKeyValuePair.Builder().from(x).build())
+                .map(x -> new JpaSpecificAssetId.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 

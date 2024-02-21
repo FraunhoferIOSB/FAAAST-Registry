@@ -69,9 +69,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
-        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
+        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -93,7 +93,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
         }
-        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -140,8 +140,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
-            throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
+        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getId()).isPresent()) {
+            throw buildSubmodelAlreadyExistsException(descriptor.getId());
         }
         aas.getSubmodels().add(descriptor);
         return descriptor;
@@ -152,9 +152,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
         Ensure.require(
-                !submodelDescriptors.containsKey(descriptor.getIdentification().getIdentifier()),
-                buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        submodelDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+                !submodelDescriptors.containsKey(descriptor.getId()),
+                buildSubmodelAlreadyExistsException(descriptor.getId()));
+        submodelDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -165,7 +165,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getIdentification().getIdentifier(), submodelId));
+        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
     }

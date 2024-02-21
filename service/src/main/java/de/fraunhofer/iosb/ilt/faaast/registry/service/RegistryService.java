@@ -74,7 +74,7 @@ public class RegistryService {
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         checkShellIdentifiers(aas);
-        LOGGER.debug("createAAS: {}", aas.getIdentification().getIdentifier());
+        LOGGER.debug("createAAS: {}", aas.getId());
         if (aas.getSubmodels() != null) {
             aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         }
@@ -200,12 +200,12 @@ public class RegistryService {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         checkSubmodelIdentifiers(submodel);
         if (aasId == null) {
-            LOGGER.debug("createSubmodel: Submodel {}", submodel.getIdentification().getIdentifier());
+            LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
             return aasRepository.addSubmodel(submodel);
         }
         else {
             String aasIdDecoded = decode(aasId);
-            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getIdentification().getIdentifier());
+            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getId());
             return aasRepository.addSubmodel(aasIdDecoded, submodel);
         }
     }
@@ -290,7 +290,7 @@ public class RegistryService {
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        if ((submodel.getIdentification() == null) || (submodel.getIdentification().getIdentifier() == null) || (submodel.getIdentification().getIdentifier().length() == 0)) {
+        if ((submodel.getId() == null) || (submodel.getId().length() == 0)) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
@@ -298,7 +298,7 @@ public class RegistryService {
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        if ((aas.getIdentification() == null) || (aas.getIdentification().getIdentifier() == null) || (aas.getIdentification().getIdentifier().length() == 0)) {
+        if ((aas.getId() == null) || (aas.getId().length() == 0)) {
             throw new BadRequestException("no AAS Identification provided");
         }
     }

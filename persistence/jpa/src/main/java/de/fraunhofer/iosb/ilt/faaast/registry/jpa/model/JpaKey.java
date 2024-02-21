@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.builder.KeyBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 
 
 /**
@@ -79,7 +79,6 @@ public class JpaKey extends DefaultKey {
 
         public B from(Key other) {
             if (Objects.nonNull(other)) {
-                idType(other.getIdType());
                 type(other.getType());
                 value(other.getValue());
             }

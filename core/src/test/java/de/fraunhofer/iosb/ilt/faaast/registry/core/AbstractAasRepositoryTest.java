@@ -21,18 +21,17 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetA
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
-import io.adminshell.aas.v3.model.IdentifierType;
-import io.adminshell.aas.v3.model.KeyElements;
-import io.adminshell.aas.v3.model.KeyType;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -51,18 +50,15 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     protected DefaultSubmodelDescriptor getSubmodel() {
         return DefaultSubmodelDescriptor.builder()
                 .idShort("Submodel2")
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.CUSTOM)
-                        .identifier("TestSubmodel2")
-                        .build())
-                .description(new LangString("some submodel", "en-US"))
-                .displayName(new LangString("Submodel 2 Name", "de-DE"))
+                .id("TestSubmodel2")
+                .description(new DefaultLangStringTextType.Builder().text("some submodel").language("en-US").build())
+                .displayName(new DefaultLangStringNameType.Builder().text("Submodel 2 Name").language("de-DE").build())
                 .semanticId(new DefaultReference.Builder()
-                        .key(new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/smTest2")
                                 .build())
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
                         .build())
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .revision("1")
@@ -82,41 +78,32 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     protected AssetAdministrationShellDescriptor getAASWithSubmodel() {
         AssetAdministrationShellDescriptor aas = DefaultAssetAdministrationShellDescriptor.builder()
                 .idShort("Test1")
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.CUSTOM)
-                        .identifier("TestAAS1")
-                        .build())
-                .description(new LangString("some aas", "en-US"))
-                .displayName(new LangString("Test 1 AAS", "en-US"))
+                .id("TestAAS1")
+                .description(new DefaultLangStringTextType.Builder().text("some aas").language("en-US").build())
+                .displayName(new DefaultLangStringNameType.Builder().text("Test 1 AAS").language("en-US").build())
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .revision("1")
                         .version("1.1")
                         .build())
-                .specificAssetIds(new ArrayList<>(Arrays.asList(new DefaultIdentifierKeyValuePair.Builder()
+                .specificAssetIds(new ArrayList<>(Arrays.asList(new DefaultSpecificAssetId.Builder()
+                        .name("TestKey")
+                        .value("ValueTest")
                         .externalSubjectId(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .idType(KeyType.IRI)
-                                        .type(KeyElements.ASSET)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://example.org/aasTest1")
                                         .build())
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                 .build())
                         .semanticId(new DefaultReference.Builder()
-                                .key(new DefaultKey.Builder()
-                                        .idType(KeyType.IRI)
-                                        .type(KeyElements.ASSET)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
                                         .value("http://example.org/aasTest1")
                                         .build())
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
                                 .build())
-                        .key("TestKey")
-                        .value("ValueTest")
                         .build())))
-                .globalAssetId(new DefaultReference.Builder()
-                        .key(new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.ASSET)
-                                .value("http://example.org/aasTest1")
-                                .build())
-                        .build())
+                .globalAssetId("http://example.org/aasTest1")
                 .endpoint(DefaultEndpoint.builder()
                         .interfaceInformation("http")
                         .protocolInformation(DefaultProtocolInformation.builder()
@@ -128,18 +115,15 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         List<SubmodelDescriptor> submodels = new ArrayList<>();
         submodels.add(DefaultSubmodelDescriptor.builder()
                 .idShort("Submodel1")
-                .identification(new DefaultIdentifier.Builder()
-                        .idType(IdentifierType.CUSTOM)
-                        .identifier("TestSubmodel1")
-                        .build())
-                .description(new LangString("some submodel", "en-US"))
-                .displayName(new LangString("Submodel 1 Name", "en-US"))
+                .id("TestSubmodel1")
+                .description(new DefaultLangStringTextType.Builder().text("some submodel").language("en-US").build())
+                .displayName(new DefaultLangStringNameType.Builder().text("Submodel 1 Name").language("en-US").build())
                 .semanticId(new DefaultReference.Builder()
-                        .key(new DefaultKey.Builder()
-                                .idType(KeyType.IRI)
-                                .type(KeyElements.SUBMODEL)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.SUBMODEL)
                                 .value("http://example.org/smTest1")
                                 .build())
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
                         .build())
                 .administration(new DefaultAdministrativeInformation.Builder()
                         .revision("1")
@@ -189,7 +173,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         aas.setIdShort("NewIdShort");
         aas.getSubmodels().get(0).setIdShort("NewSubmodelIdShort");
         repository.update(aasId, aas);
-        aas = repository.getAAS(aas.getIdentification().getIdentifier());
+        aas = repository.getAAS(aas.getId());
         Assert.assertEquals("NewIdShort", aas.getIdShort());
         Assert.assertEquals("NewSubmodelIdShort", aas.getSubmodels().get(0).getIdShort());
     }
@@ -217,8 +201,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         SubmodelDescriptor submodel = getSubmodel();
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         repository.create(aas);
-        repository.addSubmodel(aas.getIdentification().getIdentifier(), submodel);
-        compareSubmodel(submodel, repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
+        repository.addSubmodel(aas.getId(), submodel);
+        compareSubmodel(submodel, repository.getSubmodel(aas.getId(), submodel.getId()));
     }
 
 
@@ -240,8 +224,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
         SubmodelDescriptor findSubmodel;
         // Ensure, submodel of the AAS is not registered
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodels().get(0).getIdentification().getIdentifier()));
-        findSubmodel = repository.getSubmodel(submodel.getIdentification().getIdentifier());
+        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodels().get(0).getId()));
+        findSubmodel = repository.getSubmodel(submodel.getId());
         Assert.assertNotNull(findSubmodel);
     }
 
@@ -251,9 +235,9 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         SubmodelDescriptor submodel = getSubmodel();
         repository.create(getAASWithSubmodel());
-        repository.addSubmodel(aas.getIdentification().getIdentifier(), submodel);
+        repository.addSubmodel(aas.getId(), submodel);
 
-        SubmodelDescriptor findSubmodel = repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier());
+        SubmodelDescriptor findSubmodel = repository.getSubmodel(aas.getId(), submodel.getId());
         Assert.assertNotNull(findSubmodel);
     }
 
@@ -262,10 +246,10 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void deleteStandAloneSubmodel() throws Exception {
         SubmodelDescriptor submodel = getSubmodel();
         repository.addSubmodel(submodel);
-        compareSubmodel(submodel, repository.getSubmodel(submodel.getIdentification().getIdentifier()));
+        compareSubmodel(submodel, repository.getSubmodel(submodel.getId()));
 
-        repository.deleteSubmodel(submodel.getIdentification().getIdentifier());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(submodel.getIdentification().getIdentifier()));
+        repository.deleteSubmodel(submodel.getId());
+        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(submodel.getId()));
     }
 
 
@@ -274,12 +258,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         SubmodelDescriptor submodel = getSubmodel();
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         repository.create(aas);
-        repository.addSubmodel(aas.getIdentification().getIdentifier(), submodel);
-        compareSubmodel(submodel, repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
+        repository.addSubmodel(aas.getId(), submodel);
+        compareSubmodel(submodel, repository.getSubmodel(aas.getId(), submodel.getId()));
 
-        repository.deleteSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier());
+        repository.deleteSubmodel(aas.getId(), submodel.getId());
 
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getIdentification().getIdentifier(), submodel.getIdentification().getIdentifier()));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getId(), submodel.getId()));
     }
 
 

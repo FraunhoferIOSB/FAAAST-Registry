@@ -25,16 +25,18 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetA
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.impl.DefaultAdministrativeInformation;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifier;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.impl.DefaultKey;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -62,11 +64,13 @@ public class DescriptorMapperConfig {
         resolver.addMapping(AdministrativeInformation.class, DefaultAdministrativeInformation.class);
         resolver.addMapping(Endpoint.class, DefaultEndpoint.class);
         resolver.addMapping(ProtocolInformation.class, DefaultProtocolInformation.class);
-        resolver.addMapping(Identifier.class, DefaultIdentifier.class);
-        resolver.addMapping(IdentifierKeyValuePair.class, DefaultIdentifierKeyValuePair.class);
+        //resolver.addMapping(Identifier.class, DefaultIdentifier.class);
+        resolver.addMapping(SpecificAssetId.class, DefaultSpecificAssetId.class);
         resolver.addMapping(Key.class, DefaultKey.class);
         resolver.addMapping(Reference.class, DefaultReference.class);
         resolver.addMapping(SubmodelDescriptor.class, DefaultSubmodelDescriptor.class);
+        resolver.addMapping(LangStringTextType.class, DefaultLangStringTextType.class);
+        resolver.addMapping(LangStringNameType.class, DefaultLangStringNameType.class);
 
         module.setAbstractTypes(resolver);
         return new Jackson2ObjectMapperBuilder()

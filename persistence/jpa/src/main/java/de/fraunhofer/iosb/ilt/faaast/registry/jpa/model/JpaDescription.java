@@ -15,15 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.builder.ExtendableBuilder;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.LangStringTextTypeBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 
 
 /**
  * Registry Descriptor JPA implementation for Description.
  */
-public class JpaDescription extends LangString {
+public class JpaDescription extends DefaultLangStringTextType {
 
     @JsonIgnore
     private String id;
@@ -68,29 +69,29 @@ public class JpaDescription extends LangString {
     }
 
     public abstract static class AbstractBuilder<T extends JpaDescription, B extends AbstractBuilder<T, B>>
-            extends ExtendableBuilder<JpaDescription, B> {
+            extends LangStringTextTypeBuilder<JpaDescription, B> {
+        //extends ExtendableBuilder<JpaDescription, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }
 
+        //        public B value(String value) {
+        //            getBuildingInstance().setValue(value);
+        //            return getSelf();
+        //        }
+        //
+        //
+        //        public B language(String value) {
+        //            getBuildingInstance().setLanguage(value);
+        //            return getSelf();
+        //        }
 
-        public B value(String value) {
-            getBuildingInstance().setValue(value);
-            return getSelf();
-        }
 
-
-        public B language(String value) {
-            getBuildingInstance().setLanguage(value);
-            return getSelf();
-        }
-
-
-        public B from(LangString other) {
+        public B from(LangStringTextType other) {
             if (Objects.nonNull(other)) {
-                value(other.getValue());
+                text(other.getText());
                 language(other.getLanguage());
             }
             return getSelf();
