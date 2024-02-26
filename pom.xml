@@ -52,7 +52,7 @@
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.io.version>2.15.1</commons.io.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
-        <faaast.service.version>0.6.0-SNAPSHOT</faaast.service.version>
+        <faaast.service.version>1.0.0-SNAPSHOT</faaast.service.version>
         <h2.version>2.2.224</h2.version>
         <hibernate.version>6.4.4.Final</hibernate.version>
         <jackson.version>2.16.1</jackson.version>
@@ -89,7 +89,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.2.2</spring.boot.version>
+        <spring.boot.version>3.2.3</spring.boot.version>
     </properties>
     <dependencies>
         <dependency>
