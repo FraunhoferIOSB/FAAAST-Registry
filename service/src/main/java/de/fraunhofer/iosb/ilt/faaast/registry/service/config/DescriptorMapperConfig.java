@@ -26,12 +26,14 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoi
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
@@ -71,6 +73,7 @@ public class DescriptorMapperConfig {
         resolver.addMapping(SubmodelDescriptor.class, DefaultSubmodelDescriptor.class);
         resolver.addMapping(LangStringTextType.class, DefaultLangStringTextType.class);
         resolver.addMapping(LangStringNameType.class, DefaultLangStringNameType.class);
+        resolver.addMapping(Extension.class, DefaultExtension.class);
 
         module.setAbstractTypes(resolver);
         return new Jackson2ObjectMapperBuilder()
