@@ -191,4 +191,16 @@ public class ShellRegistryController {
             throws ResourceNotFoundException {
         service.deleteSubmodel(aasIdentifier, submodelIdentifier);
     }
+
+    //    /**
+    //     * Exception Handler for no such method error.
+    //     *
+    //     * @param error The error that was thrown.
+    //     * @return error string.
+    //     */
+    //    @ExceptionHandler(NoSuchMethodError.class)
+    //    public String noSuchMethodError(NoSuchMethodError error) {
+    //        LOGGER.error("noSuchMethodError", error);
+    //        return "no such method";
+    //    }
 }
