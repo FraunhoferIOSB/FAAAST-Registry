@@ -10,12 +10,20 @@
         <id name="id"></id>
 
         <property name="idShort"/>
+        <property name="assetType"/>
+        <property name="globalAssetId"/>
 
+        <property name="assetKind" column="assetKind">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.AssetKind</param>
+            </type>
+        </property>
+        
         <!--<many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>-->
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
-        <many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referenceId" lazy="false"></many-to-one>
+        <!--<many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referenceId" lazy="false"></many-to-one>-->
         
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
@@ -123,6 +131,16 @@
         
         <property name="version"/>
         <property name="revision"/>
+        <property name="templateId"/>
+        
+        <many-to-one name="creator" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="creator" lazy="false"></many-to-one>
+
+        <list name="embeddedDataSpecifications" cascade="all" table="admin_info_embed_data_spec">
+            <key column="edsid"/>
+            <index column="index"/>
+            <many-to-many class="JpaEmbeddedDataSpecification"/>
+        </list>
+
     </class>
     
     <class name="JpaKey" table="key_table">
@@ -217,6 +235,15 @@
             <index column="index"/>
             <many-to-many class="JpaDisplayName"/>
         </list>
+    </class>
+
+    <class name="JpaEmbeddedDataSpecification" table="embedded_data_specification">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <many-to-one name="dataSpecification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="dataSpecification" lazy="false"></many-to-one>
+                
     </class>
 
 </hibernate-mapping>
