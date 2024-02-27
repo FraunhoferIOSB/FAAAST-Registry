@@ -55,6 +55,12 @@
             <many-to-many class="JpaSubmodelDescriptor"/>
         </list>
 
+        <list name="extensions" cascade="all" table="asset_administration_shell_extensions">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
+        </list>
+
     </class>
 
     <class name="JpaEndpoint" table="endpoint">
@@ -122,6 +128,13 @@
             <index column="index"/>
             <many-to-many class="JpaDisplayName"/>
         </list>
+
+        <list name="extensions" cascade="all" table="submodel_extensions">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
+        </list>
+                
     </class>
 
     <class name="JpaAdministrativeInformation" table="administrative_information">
@@ -235,6 +248,12 @@
             <index column="index"/>
             <many-to-many class="JpaDisplayName"/>
         </list>
+        
+        <list name="extensions" cascade="all" table="submodel_extensions_standalone">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
+        </list>
     </class>
 
     <class name="JpaEmbeddedDataSpecification" table="embedded_data_specification">
@@ -246,4 +265,33 @@
                 
     </class>
 
+    <class name="JpaExtension" table="extension">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
+
+        <list name="supplementalSemanticIds" cascade="all" table="extension_supp_semantic_id">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+
+        <property name="name"/>
+        <property name="valueType" column="valueType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd</param>
+            </type>
+        </property>
+        <property name="value"/>
+
+        <list name="refersTo" cascade="all" table="extension_refers_to">
+            <key column="rtid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+                
+    </class>
+    
 </hibernate-mapping>

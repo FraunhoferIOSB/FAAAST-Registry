@@ -183,6 +183,22 @@ public class ModelTransformationHelper {
 
 
     /**
+     * Converts Reference to JPAReference.
+     *
+     * @param references The list of References.
+     * @return The converted list of References.
+     */
+    public static List<Reference> convertReferences(List<Reference> references) {
+        if (Objects.isNull(references)) {
+            return null;
+        }
+        return references.stream()
+                .map(x -> new JpaReference.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
      * Converts SubmodelDescriptor to JPASubmodelDescriptor.
      *
      * @param submodel The SubmodelDescriptor.
