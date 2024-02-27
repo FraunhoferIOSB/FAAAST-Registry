@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaExtension;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
@@ -232,6 +234,35 @@ public class ModelTransformationHelper {
         }
         return submodels.stream()
                 .map(x -> new JpaSubmodelDescriptor.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts Extension to JPAExtension.
+     *
+     * @param extension The Extension.
+     * @return The converted JPAExtension.
+     */
+    public static JpaExtension convertExtension(Extension extension) {
+        return new JpaExtension.Builder()
+                .from(extension)
+                .build();
+    }
+
+
+    /**
+     * Converts Extension to JPAExtension.
+     *
+     * @param extensions The list of Extensions.
+     * @return The converted list of Extensions.
+     */
+    public static List<Extension> convertExtensions(List<Extension> extensions) {
+        if (Objects.isNull(extensions)) {
+            return null;
+        }
+        return extensions.stream()
+                .map(x -> new JpaExtension.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 

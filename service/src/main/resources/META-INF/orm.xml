@@ -134,7 +134,13 @@
             <index column="index"/>
             <many-to-many class="JpaExtension"/>
         </list>
-                
+            
+        <list name="supplementalSemanticIds" cascade="all" table="submodel_supp_semantic_id">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+
     </class>
 
     <class name="JpaAdministrativeInformation" table="administrative_information">
@@ -192,6 +198,8 @@
             <index column="keyType"/>
             <one-to-many class="JpaKey"/>
         </list>
+        
+        <many-to-one name="referredSemanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referredSemanticId" lazy="false"></many-to-one>
     </class>
     
     <class name="JpaProtocolInformation" table="protocol_information">
@@ -254,6 +262,13 @@
             <index column="index"/>
             <many-to-many class="JpaExtension"/>
         </list>
+        
+        <list name="supplementalSemanticIds" cascade="all" table="submodel_supp_semantic_id_standalone">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+        
     </class>
 
     <class name="JpaEmbeddedDataSpecification" table="embedded_data_specification">

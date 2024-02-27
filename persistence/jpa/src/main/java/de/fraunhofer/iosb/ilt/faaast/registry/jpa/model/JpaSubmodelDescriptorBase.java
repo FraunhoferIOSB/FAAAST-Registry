@@ -74,15 +74,15 @@ public abstract class JpaSubmodelDescriptorBase extends DefaultSubmodelDescripto
         @Override
         public B from(SubmodelDescriptor other) {
             if (other != null) {
-                //id(other.getIdentification().getIdentifier());
                 id(other.getId());
                 idShort(other.getIdShort());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
                 descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
                 displayNames(ModelTransformationHelper.convertDisplayNames(other.getDisplayNames()));
-                //identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
                 semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
+                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
             }
             return getSelf();
         }

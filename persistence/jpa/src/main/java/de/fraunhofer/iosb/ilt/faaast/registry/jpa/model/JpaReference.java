@@ -81,6 +81,8 @@ public class JpaReference extends DefaultReference {
         public B from(Reference other) {
             if (Objects.nonNull(other)) {
                 keys(ModelTransformationHelper.convertKeys(other.getKeys()));
+                type(other.getType());
+                referredSemanticId(ModelTransformationHelper.convertReference(other.getReferredSemanticId()));
             }
             return getSelf();
         }

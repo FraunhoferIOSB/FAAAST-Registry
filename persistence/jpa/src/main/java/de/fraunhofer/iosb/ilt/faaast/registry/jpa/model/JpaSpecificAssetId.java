@@ -81,10 +81,10 @@ public class JpaSpecificAssetId extends DefaultSpecificAssetId {
         public B from(SpecificAssetId other) {
             if (Objects.nonNull(other)) {
                 semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
-                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
+                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
                 name(other.getName());
                 value(other.getValue());
-                // TODO: supplementalSemanticIds
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
             }
             return getSelf();
         }

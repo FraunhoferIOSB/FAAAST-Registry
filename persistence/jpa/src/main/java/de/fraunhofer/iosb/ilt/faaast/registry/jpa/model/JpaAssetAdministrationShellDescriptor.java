@@ -74,16 +74,15 @@ public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministr
         @Override
         public B from(AssetAdministrationShellDescriptor other) {
             if (Objects.nonNull(other)) {
-                //id(other.getIdentification().getIdentifier());
                 id(other.getId());
                 idShort(other.getIdShort());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
                 descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
                 displayNames(ModelTransformationHelper.convertDisplayNames(other.getDisplayNames()));
-                //identification(ModelTransformationHelper.convertIdentifier(other.getIdentification()));
                 globalAssetId(other.getGlobalAssetId());
                 specificAssetIds(ModelTransformationHelper.convertSpecificAssetIds(other.getSpecificAssetIds()));
+                extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
                 submodels(ModelTransformationHelper.convertSubmodels(other.getSubmodels()));
             }
             return getSelf();
