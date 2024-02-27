@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for the Submodel registry.
  */
 @RestController
-@RequestMapping(value = "/registry/submodel-descriptors")
+@RequestMapping(value = "/api/v3.0/submodel-descriptors")
 public class SubmodelRegistryController {
 
     @Autowired

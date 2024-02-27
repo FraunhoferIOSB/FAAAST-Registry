@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for the Asset Administration Shell registry.
  */
 @RestController
-@RequestMapping("/registry/shell-descriptors")
+@RequestMapping("/api/v3.0/shell-descriptors")
 public class ShellRegistryController {
 
     @Autowired
