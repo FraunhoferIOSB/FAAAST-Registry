@@ -280,7 +280,7 @@
                 
     </class>
 
-    <class name="JpaExtension" table="extension">
+    <class name="JpaExtension" table="aas_extension">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
@@ -293,13 +293,13 @@
             <many-to-many class="JpaReference"/>
         </list>
 
-        <property name="name"/>
+        <property name="name" column="name_col"/>
         <property name="valueType" column="valueType">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd</param>
             </type>
         </property>
-        <property name="value"/>
+        <property name="value" column="value_col"/>
 
         <list name="refersTo" cascade="all" table="extension_refers_to">
             <key column="rtid"/>
