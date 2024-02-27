@@ -18,9 +18,12 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import helper.RegistryHelper;
+import java.net.URI;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 /**
@@ -74,9 +78,13 @@ public class ShellRegistryController {
      * @throws ResourceAlreadyExistsException When the AAS already exists.
      */
     @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
-    public AssetAdministrationShellDescriptor create(@RequestBody AssetAdministrationShellDescriptor resource) throws ResourceAlreadyExistsException {
-        return service.createAAS(resource);
+    public ResponseEntity<AssetAdministrationShellDescriptor> create(@RequestBody AssetAdministrationShellDescriptor resource) throws ResourceAlreadyExistsException {
+        AssetAdministrationShellDescriptor aas = service.createAAS(resource);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(String.format("/%s", RegistryHelper.encode(aas.getId())))
+                .build().toUri();
+        return ResponseEntity.created(location).body(aas);
     }
 
 
@@ -149,11 +157,15 @@ public class ShellRegistryController {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PostMapping(value = "/{aasIdentifier}/submodel-descriptors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public SubmodelDescriptor create(@PathVariable("aasIdentifier") String aasIdentifier,
-                                     @RequestBody SubmodelDescriptor submodel)
+    public ResponseEntity<SubmodelDescriptor> create(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                     @RequestBody SubmodelDescriptor submodel)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        return service.createSubmodel(aasIdentifier, submodel);
+        SubmodelDescriptor descriptor = service.createSubmodel(aasIdentifier, submodel);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(String.format("/%s", RegistryHelper.encode(descriptor.getId())))
+                .build().toUri();
+        return ResponseEntity.created(location).body(descriptor);
     }
 
 
