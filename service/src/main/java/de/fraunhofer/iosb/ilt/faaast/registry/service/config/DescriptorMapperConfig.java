@@ -25,6 +25,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetA
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
@@ -74,6 +77,9 @@ public class DescriptorMapperConfig {
         resolver.addMapping(LangStringTextType.class, DefaultLangStringTextType.class);
         resolver.addMapping(LangStringNameType.class, DefaultLangStringNameType.class);
         resolver.addMapping(Extension.class, DefaultExtension.class);
+
+        ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
+        ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
 
         module.setAbstractTypes(resolver);
         return new Jackson2ObjectMapperBuilder()
