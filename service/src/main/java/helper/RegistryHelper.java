@@ -33,6 +33,9 @@ public class RegistryHelper {
      * @return The decoded value.
      */
     public static String decode(String encoded) {
+        if (encoded == null) {
+            return null;
+        }
         return new String(Base64.getUrlDecoder().decode(encoded));
     }
 

@@ -21,6 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import helper.RegistryHelper;
 import java.net.URI;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,17 +47,24 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/api/v3.0/shell-descriptors")
 public class ShellRegistryController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
+
     @Autowired
     RegistryService service;
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
      * @return The list of all registered Asset Administration Shells.
      */
     @GetMapping()
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return service.getAASs();
+    public List<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
+                                                            @RequestParam(name = "assetKind", required = false) AssetKind assetKind) {
+        // Asset type is Base64URL encoded
+        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetType, assetKind);
+        return service.getAASs(assetType, assetKind);
     }
 
 

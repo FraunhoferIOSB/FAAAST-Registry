@@ -13,7 +13,7 @@
         <file>logs/App.log</file>
         <append>false</append>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>DEBUG</level>
         </filter>
         <encoder>
             <pattern>%date{dd.MM.yyyy HH:mm:ss.SSS} %-5level %logger{55}: %msg%n</pattern>

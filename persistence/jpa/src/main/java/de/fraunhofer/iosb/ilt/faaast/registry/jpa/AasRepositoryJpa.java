@@ -31,6 +31,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.springframework.stereotype.Repository;
 
 
@@ -50,7 +51,8 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs() {
+    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+        // TODO filter results
         return EntityManagerHelper.getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
     }
 

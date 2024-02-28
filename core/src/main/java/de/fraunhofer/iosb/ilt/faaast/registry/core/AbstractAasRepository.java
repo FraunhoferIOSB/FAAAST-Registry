@@ -32,6 +32,12 @@ public abstract class AbstractAasRepository implements AasRepository {
     protected AbstractAasRepository() {}
 
 
+    @Override
+    public List<AssetAdministrationShellDescriptor> getAASs() {
+        return getAASs(null, null);
+    }
+
+
     /**
      * Creates a new {@link ResourceNotFoundException} for the AAS.
      *

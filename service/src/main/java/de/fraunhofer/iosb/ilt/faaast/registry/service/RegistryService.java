@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import helper.RegistryHelper;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +46,12 @@ public class RegistryService {
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
      * @return The list of all registered Asset Administration Shells.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return aasRepository.getAASs();
+    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+        return aasRepository.getAASs(RegistryHelper.decode(assetType), assetKind);
     }
 
 

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 
 
 /**
@@ -32,6 +33,16 @@ public interface AasRepository {
      * @return The list of all registered Asset Administration Shells.
      */
     public List<AssetAdministrationShellDescriptor> getAASs();
+
+
+    /**
+     * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.
+     *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
+     * @return The list of all registered Asset Administration Shells.
+     */
+    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
 
 
     /**

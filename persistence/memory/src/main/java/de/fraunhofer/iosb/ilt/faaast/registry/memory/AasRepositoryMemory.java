@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 
 
 /**
@@ -52,8 +54,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return new ArrayList<>(shellDescriptors.values());
+    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+        return new ArrayList<>(
+                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).collect(Collectors.toList()));
     }
 
 
@@ -182,5 +185,29 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
         return shellDescriptors.getOrDefault(aasId, null);
+    }
+
+
+    private static boolean filterAssetType(AssetAdministrationShellDescriptor aas, String assetType) {
+        boolean retval;
+        if (assetType == null) {
+            retval = true;
+        }
+        else {
+            retval = aas.getAssetType().equals(assetType);
+        }
+        return retval;
+    }
+
+
+    private static boolean filterAssetKind(AssetAdministrationShellDescriptor aas, AssetKind assetKind) {
+        boolean retval;
+        if (assetKind == null) {
+            retval = true;
+        }
+        else {
+            retval = aas.getAssetKind() == assetKind;
+        }
+        return retval;
     }
 }
