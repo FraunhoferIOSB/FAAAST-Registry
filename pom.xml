@@ -48,7 +48,7 @@
     </distributionManagement>
     <properties>
         <assertj.version>3.25.3</assertj.version>
-        <checkstyle.version>10.13.0</checkstyle.version>
+        <checkstyle.version>10.14.0</checkstyle.version>
         <commons.codec.version>1.16.1</commons.codec.version>
         <commons.io.version>2.15.1</commons.io.version>
         <commons.lang3.version>3.14.0</commons.lang3.version>
@@ -57,7 +57,7 @@
         <hibernate.version>6.4.4.Final</hibernate.version>
         <jackson.version>2.16.1</jackson.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.0</logback.version>
+        <logback.version>1.5.1</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.6.0</maven.plugin.assembly.version>
@@ -89,7 +89,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.2.2</spring.boot.version>
+        <spring.boot.version>3.2.3</spring.boot.version>
     </properties>
     <dependencies>
         <dependency>
