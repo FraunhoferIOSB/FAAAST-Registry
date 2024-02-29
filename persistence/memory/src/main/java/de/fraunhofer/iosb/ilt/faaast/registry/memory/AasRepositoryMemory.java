@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 
 
@@ -56,7 +55,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
         return new ArrayList<>(
-                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).collect(Collectors.toList()));
+                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
     }
 
 
