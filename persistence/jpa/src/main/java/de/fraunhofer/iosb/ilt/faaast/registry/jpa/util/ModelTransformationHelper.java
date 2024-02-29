@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
@@ -177,6 +178,17 @@ public class ModelTransformationHelper {
      */
     public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
         return new JpaSubmodelDescriptor.Builder().from(submodel).build();
+    }
+
+
+    /**
+     * Converts SubmodelDescriptor to JPASubmodelDescriptorStandalone.
+     *
+     * @param submodel The SubmodelDescriptor.
+     * @return The converted JPASubmodelDescriptor.
+     */
+    public static JpaSubmodelDescriptorStandalone convertSubmodelStandalone(SubmodelDescriptor submodel) {
+        return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
     }
 
 

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
@@ -107,7 +108,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptor.class, SubmodelDescriptor.class);
+        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class);
     }
 
 
@@ -132,7 +133,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         return submodel;
     }
@@ -157,9 +158,9 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        SubmodelDescriptor submodel = fetchSubmodel(descriptor.getIdentification().getIdentifier());
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(descriptor.getIdentification().getIdentifier());
         Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        submodel = ModelTransformationHelper.convertSubmodel(descriptor);
+        submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
         entityManager.persist(submodel);
         return submodel;
     }
@@ -186,7 +187,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        SubmodelDescriptor submodel = fetchSubmodel(submodelId);
+        SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         entityManager.remove(submodel);
     }
@@ -202,7 +203,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private JpaSubmodelDescriptor fetchSubmodel(String submodelId) {
-        return entityManager.find(JpaSubmodelDescriptor.class, submodelId);
+    private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
+        return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
     }
 }

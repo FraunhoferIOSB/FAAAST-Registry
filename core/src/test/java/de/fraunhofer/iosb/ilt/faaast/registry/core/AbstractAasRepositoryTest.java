@@ -227,7 +227,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         repository.create(getAASWithSubmodel());
         repository.addSubmodel(getSubmodel());
         List<SubmodelDescriptor> submodels = repository.getSubmodels();
-        Assert.assertEquals(2, submodels.size());
+        Assert.assertEquals(1, submodels.size());
     }
 
 
@@ -238,8 +238,9 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         repository.create(getAASWithSubmodel());
         repository.addSubmodel(submodel);
 
-        SubmodelDescriptor findSubmodel = repository.getSubmodel(aas.getSubmodels().get(0).getIdentification().getIdentifier());
-        Assert.assertNotNull(findSubmodel);
+        SubmodelDescriptor findSubmodel;
+        // Ensure, submodel of the AAS is not registered
+        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodels().get(0).getIdentification().getIdentifier()));
         findSubmodel = repository.getSubmodel(submodel.getIdentification().getIdentifier());
         Assert.assertNotNull(findSubmodel);
     }
