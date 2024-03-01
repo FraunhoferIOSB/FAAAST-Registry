@@ -63,6 +63,7 @@ public class ShellRegistryController {
     public List<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
                                                             @RequestParam(name = "assetKind", required = false) AssetKind assetKind) {
         // Asset type is Base64URL encoded
+        // perhaps constraint: @Size(min=1, max=2000) 
         LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetType, assetKind);
         return service.getAASs(assetType, assetKind);
     }

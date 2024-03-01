@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import helper.ConstraintHelper;
 import helper.RegistryHelper;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -36,8 +37,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegistryService {
 
+    public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
-    private static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
@@ -77,6 +78,7 @@ public class RegistryService {
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
         checkShellIdentifiers(aas);
+        ConstraintHelper.validate(aas);
         LOGGER.debug("createAAS: {}", aas.getId());
         if (aas.getSubmodels() != null) {
             aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
