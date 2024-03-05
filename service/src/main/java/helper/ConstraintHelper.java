@@ -17,6 +17,8 @@ package helper;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,6 +34,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec6136
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
@@ -50,11 +53,11 @@ public class ConstraintHelper {
     private static final int MAX_ID_LENGTH = 2000;
     private static final int MAX_IDSHORT_LENGTH = 128;
     private static final int MAX_DESCRIPTION_TEXT_LENGTH = 1023;
-    private static final int MAX_NAME_TEXT_LENGTH = 128;
     private static final int MAX_IEC61360_NAME_TEXT_LENGTH = 255;
     private static final int MAX_IEC61360_SHORT_NAME_TEXT_LENGTH = 18;
     private static final int MAX_VALUE_LENGTH = 2000;
     private static final int MAX_VERSION_LENGTH = 4;
+    private static final int MAX_STRING_2048_LENGTH = 2048;
 
     private ConstraintHelper() {}
 
@@ -72,6 +75,8 @@ public class ConstraintHelper {
         checkDisplayNames(aas.getDisplayNames());
         checkExtensions(aas.getExtensions());
         checkAdministrativeInformation(aas.getAdministration());
+        checkText(aas.getAssetType(), MAX_ID_LENGTH, false, "Asset Type");
+        checkEndpoints(aas.getEndpoints());
     }
 
 
@@ -121,7 +126,7 @@ public class ConstraintHelper {
     private static void checkDisplayName(LangStringNameType name) {
         if (name != null) {
             checkLanguage(name.getLanguage(), "display name language");
-            checkText(name.getText(), MAX_NAME_TEXT_LENGTH, true, "isplay name text");
+            checkText(name.getText(), MAX_IDSHORT_LENGTH, true, "display name text");
         }
     }
 
@@ -137,7 +142,7 @@ public class ConstraintHelper {
 
     private static void checkExtension(Extension extension) {
         if (extension != null) {
-            checkText(extension.getName(), MAX_NAME_TEXT_LENGTH, true, "extension name");
+            checkText(extension.getName(), MAX_IDSHORT_LENGTH, true, "extension name");
             checkReference(extension.getSemanticId());
             checkReferences(extension.getSupplementalSemanticIds());
             checkReferences(extension.getRefersTo());
@@ -228,7 +233,6 @@ public class ConstraintHelper {
 
 
     private static void checkDataSpecificationIec61360(DataSpecificationIec61360 dataSpec) {
-        // modelType missing in model
         checkIec61360Names(dataSpec.getPreferredName());
         checkIec61360ShortNames(dataSpec.getShortName());
         checkText(dataSpec.getUnit(), 0, false, "IEC 61360: unit");
@@ -364,6 +368,57 @@ public class ConstraintHelper {
             }
             else if (!VERSION_PATTERN.matcher(version).matches()) {
                 raiseConstraintViolatedException(String.format("%s doesn't match the pattern", msg));
+            }
+        }
+    }
+
+
+    private static void checkEndpoints(List<Endpoint> endpoints) {
+        if (endpoints != null) {
+            for (var e: endpoints) {
+                checkEndpoint(e);
+            }
+        }
+    }
+
+
+    private static void checkEndpoint(Endpoint endpoint) {
+        if (endpoint != null) {
+            checkText(endpoint.getInterfaceInformation(), MAX_IDSHORT_LENGTH, true, "Interface Information");
+            checkProtocolInformation(endpoint.getProtocolInformation());
+        }
+    }
+
+
+    private static void checkProtocolInformation(ProtocolInformation protocolInformation) {
+        if (protocolInformation != null) {
+            checkText(protocolInformation.getHref(), MAX_STRING_2048_LENGTH, true, "href");
+            checkText(protocolInformation.getEndpointProtocol(), MAX_IDSHORT_LENGTH, false, "Endpoint Protocol");
+            checkText(protocolInformation.getEndpointProtocolVersion(), MAX_IDSHORT_LENGTH, false, "Endpoint Protocol Version");
+            checkText(protocolInformation.getSubprotocol(), MAX_IDSHORT_LENGTH, false, "Subprotocol");
+            checkText(protocolInformation.getSubprotocolBody(), MAX_IDSHORT_LENGTH, false, "Subprotocol Body");
+            checkText(protocolInformation.getSubprotocolBodyEncoding(), MAX_IDSHORT_LENGTH, false, "Subprotocol Body Encoding");
+            checkSecurityAttributes(protocolInformation.getSecurityAttributes());
+        }
+    }
+
+
+    private static void checkSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
+        if (securityAttributes != null) {
+            for (var s: securityAttributes) {
+                checkSecurityAttribute(s);
+            }
+        }
+    }
+
+
+    private static void checkSecurityAttribute(SecurityAttributeObject securityAttribute) {
+        if (securityAttribute != null) {
+            if (securityAttribute.getKey() == null) {
+                raiseConstraintViolatedException("Key is null");
+            }
+            else if (securityAttribute.getValue() == null) {
+                raiseConstraintViolatedException("Value is null");
             }
         }
     }

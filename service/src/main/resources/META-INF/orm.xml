@@ -207,12 +207,18 @@
             <generator class="uuid"/>
         </id>
         
-        <property name="endpointAddress"/>
+        <property name="href"/>
         <property name="endpointProtocol"/>
         <property name="endpointProtocolVersion"/>
         <property name="subprotocol"/>
         <property name="subprotocolBody"/>
         <property name="subprotocolBodyEncoding"/>
+
+        <list name="securityAttributes" cascade="all" table="protocol_information_security_attributes">
+            <key column="secAtts"/>
+            <index column="secAttsType"/>
+            <many-to-many class="JpaSecurityAttributeObject"/>
+        </list>
     </class>
     
     <!--<class name="JpaIdentifier" table="identifier">
@@ -228,6 +234,21 @@
         </property>
     </class>-->
 
+    <class name="JpaSecurityAttributeObject" table="security_attributes">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="type" column="secAttType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum</param>
+            </type>
+        </property>
+
+        <property name="key" column="secAttKey"/>
+        <property name="value" column="secAttValue"/>
+    </class>
+    
     <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
         <!--<id name="id" type="string"></id>-->
         <id name="id"></id>
