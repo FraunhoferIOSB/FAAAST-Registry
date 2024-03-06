@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -80,6 +81,38 @@ public class ConstraintHelper {
         checkEndpoints(aas.getEndpoints());
         checkText(aas.getGlobalAssetId(), MAX_IDENTIFIER_LENGTH, false, "Global Asset ID");
         checkSpecificAssetIds(aas.getSpecificAssetIds());
+        checkSubmodels(aas.getSubmodels());
+    }
+
+
+    /**
+     * Validate the given AAS Descriptor.
+     *
+     * @param submodel The desired Submodel Descriptor.
+     */
+    public static void validate(SubmodelDescriptor submodel) {
+        checkSubmodel(submodel);
+    }
+
+
+    private static void checkSubmodels(List<SubmodelDescriptor> submodels) {
+        if (submodels != null) {
+            submodels.stream().forEach(ConstraintHelper::checkSubmodel);
+        }
+    }
+
+
+    private static void checkSubmodel(SubmodelDescriptor submodel) {
+        Ensure.requireNonNull(submodel, RegistryService.SUBMODEL_NOT_NULL_TXT);
+        checkId(submodel.getId());
+        checkIdShort(submodel.getIdShort());
+        checkDescriptions(submodel.getDescriptions());
+        checkDisplayNames(submodel.getDisplayNames());
+        checkExtensions(submodel.getExtensions());
+        checkAdministrativeInformation(submodel.getAdministration());
+        checkEndpoints(submodel.getEndpoints());
+        checkReference(submodel.getSemanticId());
+        checkReferences(submodel.getSupplementalSemanticIds());
     }
 
 
@@ -102,9 +135,7 @@ public class ConstraintHelper {
 
     private static void checkDescriptions(List<LangStringTextType> descriptions) {
         if (descriptions != null) {
-            for (var d: descriptions) {
-                checkDescription(d);
-            }
+            descriptions.stream().forEach(ConstraintHelper::checkDescription);
         }
     }
 
@@ -119,9 +150,7 @@ public class ConstraintHelper {
 
     private static void checkDisplayNames(List<LangStringNameType> names) {
         if (names != null) {
-            for (var n: names) {
-                checkDisplayName(n);
-            }
+            names.stream().forEach(ConstraintHelper::checkDisplayName);
         }
     }
 
@@ -136,9 +165,7 @@ public class ConstraintHelper {
 
     private static void checkExtensions(List<Extension> extensions) {
         if (extensions != null) {
-            for (var e: extensions) {
-                checkExtension(e);
-            }
+            extensions.stream().forEach(ConstraintHelper::checkExtension);
         }
     }
 
@@ -162,18 +189,14 @@ public class ConstraintHelper {
                 raiseConstraintViolatedException("no keys provided");
             }
 
-            for (var k: reference.getKeys()) {
-                checkKey(k);
-            }
+            reference.getKeys().stream().forEach(ConstraintHelper::checkKey);
         }
     }
 
 
     private static void checkReferences(List<Reference> references) {
         if (references != null) {
-            for (var r: references) {
-                checkReference(r);
-            }
+            references.stream().forEach(ConstraintHelper::checkReference);
         }
     }
 
@@ -207,9 +230,7 @@ public class ConstraintHelper {
 
     private static void checkEmbeddedDataSpecifications(List<EmbeddedDataSpecification> specs) {
         if (specs != null) {
-            for (var s: specs) {
-                checkEmbeddedDataSpecification(s);
-            }
+            specs.stream().forEach(ConstraintHelper::checkEmbeddedDataSpecification);
         }
     }
 
@@ -254,9 +275,7 @@ public class ConstraintHelper {
             raiseConstraintViolatedException("no IEC 61360 Preferred Name provided");
         }
         else {
-            for (var n: names) {
-                checkIec61360Name(n);
-            }
+            names.stream().forEach(ConstraintHelper::checkIec61360Name);
         }
     }
 
@@ -277,9 +296,7 @@ public class ConstraintHelper {
             raiseConstraintViolatedException("no IEC 61360 Short Name provided");
         }
         else {
-            for (var n: names) {
-                checkIec61360ShortName(n);
-            }
+            names.stream().forEach(ConstraintHelper::checkIec61360ShortName);
         }
     }
 
@@ -294,9 +311,7 @@ public class ConstraintHelper {
 
     private static void checkIec61360Definitions(List<LangStringDefinitionTypeIec61360> definitions) {
         if (definitions != null) {
-            for (var d: definitions) {
-                checkIec61360Definition(d);
-            }
+            definitions.stream().forEach(ConstraintHelper::checkIec61360Definition);
         }
     }
 
@@ -346,9 +361,7 @@ public class ConstraintHelper {
 
     private static void checkValueReferencePairs(List<ValueReferencePair> pairs) {
         if (pairs != null) {
-            for (var p: pairs) {
-                checkValueReferencePair(p);
-            }
+            pairs.stream().forEach(ConstraintHelper::checkValueReferencePair);
         }
     }
 
@@ -378,9 +391,7 @@ public class ConstraintHelper {
 
     private static void checkEndpoints(List<Endpoint> endpoints) {
         if (endpoints != null) {
-            for (var e: endpoints) {
-                checkEndpoint(e);
-            }
+            endpoints.stream().forEach(ConstraintHelper::checkEndpoint);
         }
     }
 
@@ -408,9 +419,7 @@ public class ConstraintHelper {
 
     private static void checkSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
         if (securityAttributes != null) {
-            for (var s: securityAttributes) {
-                checkSecurityAttribute(s);
-            }
+            securityAttributes.stream().forEach(ConstraintHelper::checkSecurityAttribute);
         }
     }
 
@@ -429,9 +438,7 @@ public class ConstraintHelper {
 
     private static void checkSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
         if (specificAssetIds != null) {
-            for (var s: specificAssetIds) {
-                checkSpecificAssetId(s);
-            }
+            specificAssetIds.stream().forEach(ConstraintHelper::checkSpecificAssetId);
         }
     }
 

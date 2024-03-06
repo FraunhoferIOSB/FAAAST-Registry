@@ -38,8 +38,8 @@ import org.springframework.stereotype.Service;
 public class RegistryService {
 
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
+    public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
-    private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
     private AasRepository aasRepository;
@@ -76,8 +76,6 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the AAS already exists.
      */
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
-        Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        checkShellIdentifiers(aas);
         ConstraintHelper.validate(aas);
         LOGGER.debug("createAAS: {}", aas.getId());
         if (aas.getSubmodels() != null) {
@@ -202,8 +200,7 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        checkSubmodelIdentifiers(submodel);
+        ConstraintHelper.validate(submodel);
         if (aasId == null) {
             LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
             return aasRepository.addSubmodel(submodel);
