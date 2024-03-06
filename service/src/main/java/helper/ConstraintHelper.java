@@ -35,6 +35,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
@@ -50,14 +51,14 @@ public class ConstraintHelper {
     private static final Pattern TEXT_PATTERN = Pattern
             .compile("^([\\t\\n\\r -퟿-�]|\\ud800[\\udc00-\\udfff]|[\\ud801-\\udbfe][\\udc00-\\udfff]|\\udbff[\\udc00-\\udfff])*$");
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(0|[1-9][0-9]*)$");
-    private static final int MAX_ID_LENGTH = 2000;
+    private static final int MAX_IDENTIFIER_LENGTH = 2000;
     private static final int MAX_IDSHORT_LENGTH = 128;
     private static final int MAX_DESCRIPTION_TEXT_LENGTH = 1023;
     private static final int MAX_IEC61360_NAME_TEXT_LENGTH = 255;
     private static final int MAX_IEC61360_SHORT_NAME_TEXT_LENGTH = 18;
-    private static final int MAX_VALUE_LENGTH = 2000;
     private static final int MAX_VERSION_LENGTH = 4;
     private static final int MAX_STRING_2048_LENGTH = 2048;
+    private static final int MAX_LABEL_LENGTH = 64;
 
     private ConstraintHelper() {}
 
@@ -75,8 +76,10 @@ public class ConstraintHelper {
         checkDisplayNames(aas.getDisplayNames());
         checkExtensions(aas.getExtensions());
         checkAdministrativeInformation(aas.getAdministration());
-        checkText(aas.getAssetType(), MAX_ID_LENGTH, false, "Asset Type");
+        checkText(aas.getAssetType(), MAX_IDENTIFIER_LENGTH, false, "Asset Type");
         checkEndpoints(aas.getEndpoints());
+        checkText(aas.getGlobalAssetId(), MAX_IDENTIFIER_LENGTH, false, "Global Asset ID");
+        checkSpecificAssetIds(aas.getSpecificAssetIds());
     }
 
 
@@ -84,7 +87,7 @@ public class ConstraintHelper {
         if ((id == null) || (id.length() == 0)) {
             raiseConstraintViolatedException("no Id provided");
         }
-        else if (id.length() > MAX_ID_LENGTH) {
+        else if (id.length() > MAX_IDENTIFIER_LENGTH) {
             raiseConstraintViolatedException("ID too long.");
         }
     }
@@ -187,7 +190,7 @@ public class ConstraintHelper {
         if (key.getType() == null) {
             raiseConstraintViolatedException("no key type provided");
         }
-        checkText(key.getValue(), MAX_VALUE_LENGTH, true, "key value");
+        checkText(key.getValue(), MAX_IDENTIFIER_LENGTH, true, "key value");
     }
 
 
@@ -197,7 +200,7 @@ public class ConstraintHelper {
             checkVersion(adminInfo.getVersion(), "Version");
             checkVersion(adminInfo.getRevision(), "Revision");
             checkReference(adminInfo.getCreator());
-            checkText(adminInfo.getTemplateId(), MAX_VALUE_LENGTH, false, "templateId");
+            checkText(adminInfo.getTemplateId(), MAX_IDENTIFIER_LENGTH, false, "templateId");
         }
     }
 
@@ -242,7 +245,7 @@ public class ConstraintHelper {
         checkIec61360Definitions(dataSpec.getDefinition());
         checkText(dataSpec.getValueFormat(), 0, false, "IEC 61360: value format");
         checkValueList(dataSpec.getValueList());
-        checkText(dataSpec.getValue(), MAX_VALUE_LENGTH, false, "IEC 61360: value");
+        checkText(dataSpec.getValue(), MAX_IDENTIFIER_LENGTH, false, "IEC 61360: value");
     }
 
 
@@ -352,7 +355,7 @@ public class ConstraintHelper {
 
     private static void checkValueReferencePair(ValueReferencePair pair) {
         if (pair != null) {
-            checkText(pair.getValue(), MAX_VALUE_LENGTH, true, "ValueReferencePair value");
+            checkText(pair.getValue(), MAX_IDENTIFIER_LENGTH, true, "ValueReferencePair value");
             checkReference(pair.getValueId());
         }
     }
@@ -420,6 +423,26 @@ public class ConstraintHelper {
             else if (securityAttribute.getValue() == null) {
                 raiseConstraintViolatedException("Value is null");
             }
+        }
+    }
+
+
+    private static void checkSpecificAssetIds(List<SpecificAssetId> specificAssetIds) {
+        if (specificAssetIds != null) {
+            for (var s: specificAssetIds) {
+                checkSpecificAssetId(s);
+            }
+        }
+    }
+
+
+    private static void checkSpecificAssetId(SpecificAssetId specificAssetId) {
+        if (specificAssetId != null) {
+            checkReference(specificAssetId.getSemanticId());
+            checkReferences(specificAssetId.getSupplementalSemanticIds());
+            checkText(specificAssetId.getName(), MAX_LABEL_LENGTH, true, "Specific Asset ID Name");
+            checkText(specificAssetId.getValue(), MAX_IDENTIFIER_LENGTH, true, "Specific Asset ID value");
+            checkReference(specificAssetId.getExternalSubjectId());
         }
     }
 
