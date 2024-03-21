@@ -16,11 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import helper.RegistryHelper;
 import java.net.URI;
-import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,15 +58,24 @@ public class ShellRegistryController {
      *
      * @param assetType The desired Asset Type.
      * @param assetKind The desired Asset Kind.
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of all registered Asset Administration Shells.
      */
     @GetMapping()
-    public List<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
-                                                            @RequestParam(name = "assetKind", required = false) AssetKind assetKind) {
+    //public List<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
+    public Page<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
+                                                            @RequestParam(name = "assetKind", required = false) AssetKind assetKind,
+                                                            @RequestParam(name = "limit", required = false) Long limit,
+                                                            @RequestParam(name = "cursor", required = false) String cursor) {
         // Asset type is Base64URL encoded
         // perhaps constraint: @Size(min=1, max=2000) 
-        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetType, assetKind);
-        return service.getAASs(assetType, assetKind);
+        LOGGER.debug("getAASs: AssetType {}; AssetKind {}, Limit: {}, Cursor: {}", assetType, assetKind, limit, cursor);
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            pageBuilder.limit(limit);
+        }
+        return service.getAASs(assetType, assetKind, pageBuilder.build());
     }
 
 
@@ -134,12 +144,21 @@ public class ShellRegistryController {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasIdentifier The ID of the desired Asset Administration Shell.
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     @GetMapping(value = "/{aasIdentifier}/submodel-descriptors")
-    public List<SubmodelDescriptor> getSubmodelsOfAAS(@PathVariable("aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
-        return service.getSubmodels(aasIdentifier);
+    public Page<SubmodelDescriptor> getSubmodelsOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                      @RequestParam(name = "limit", required = false) Long limit,
+                                                      @RequestParam(name = "cursor", required = false) String cursor)
+            throws ResourceNotFoundException {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            pageBuilder.limit(limit);
+        }
+        return service.getSubmodels(aasIdentifier, pageBuilder.build());
     }
 
 

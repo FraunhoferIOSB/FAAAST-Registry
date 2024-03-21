@@ -16,10 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import helper.RegistryHelper;
 import java.net.URI;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -48,12 +50,19 @@ public class SubmodelRegistryController {
     /**
      * Retrieves a list of all registered Submodels.
      *
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the Submodel was not found.
      */
     @GetMapping()
-    public List<SubmodelDescriptor> getSubmodels() throws ResourceNotFoundException {
-        return service.getSubmodels();
+    public Page<SubmodelDescriptor> getSubmodels(@RequestParam(name = "limit", required = false) Long limit, @RequestParam(name = "cursor", required = false) String cursor)
+            throws ResourceNotFoundException {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            pageBuilder.limit(limit);
+        }
+        return service.getSubmodels(pageBuilder.build());
     }
 
 

@@ -18,12 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import helper.ConstraintHelper;
 import helper.RegistryHelper;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +55,16 @@ public class RegistryService {
      *
      * @param assetType The desired Asset Type.
      * @param assetKind The desired Asset Kind.
+     * @param paging The paging information.
      * @return The list of all registered Asset Administration Shells.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return aasRepository.getAASs(RegistryHelper.decode(assetType), assetKind);
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
+        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(RegistryHelper.decode(assetType), assetKind);
+        return preparePagedResult(list.stream(), paging);
+        //return Page.<AssetAdministrationShellDescriptor> builder()
+        //        .metadata(PagingMetadata.builder().build())
+        //        .result(list)
+        //        .build();
     }
 
 
@@ -119,11 +131,12 @@ public class RegistryService {
     /**
      * Retrieves a list of all registered Submodels.
      *
+     * @param paging The paging information.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    public List<SubmodelDescriptor> getSubmodels() throws ResourceNotFoundException {
-        return getSubmodels(null);
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) throws ResourceNotFoundException {
+        return getSubmodels(null, paging);
     }
 
 
@@ -131,17 +144,20 @@ public class RegistryService {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasId The ID of the desired Asset Administration Shell.
+     * @param paging The paging information.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+        List<SubmodelDescriptor> list;
         if (aasId == null) {
-            return aasRepository.getSubmodels();
+            list = aasRepository.getSubmodels();
         }
         else {
             String aasIdDecoded = RegistryHelper.decode(aasId);
-            return aasRepository.getSubmodels(aasIdDecoded);
+            list = aasRepository.getSubmodels(aasIdDecoded);
         }
+        return preparePagedResult(list.stream(), paging);
     }
 
 
@@ -298,5 +314,54 @@ public class RegistryService {
         if ((aas.getId() == null) || (aas.getId().length() == 0)) {
             throw new BadRequestException("no AAS Identification provided");
         }
+    }
+
+
+    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
+        Stream<T> result = input;
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
+        }
+        List<T> temp = result.collect(Collectors.toList());
+        return Page.<T> builder()
+                .result(temp.stream()
+                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                        .collect(Collectors.toList()))
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
+    }
+
+
+    private static long readCursor(String cursor) {
+        return Long.parseLong(cursor);
+    }
+
+
+    private static String writeCursor(long index) {
+        return Long.toString(index);
+    }
+
+
+    private static String nextCursor(PagingInfo paging, int resultCount) {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
+    }
+
+
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
+        if (!hasMoreData) {
+            return null;
+        }
+        if (!paging.hasLimit()) {
+            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+        }
+        if (Objects.isNull(paging.getCursor())) {
+            return writeCursor(paging.getLimit());
+        }
+        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
     }
 }

@@ -17,6 +17,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
@@ -83,6 +85,7 @@ public class DescriptorMapperConfig {
 
         module.setAbstractTypes(resolver);
         return new Jackson2ObjectMapperBuilder()
-                .modules(module);
+                .modules(module)
+                .mixIn(Page.class, PageMixin.class);
     }
 }
