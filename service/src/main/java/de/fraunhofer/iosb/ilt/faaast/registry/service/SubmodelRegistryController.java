@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -60,6 +61,9 @@ public class SubmodelRegistryController {
             throws ResourceNotFoundException {
         PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
         if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
             pageBuilder.limit(limit);
         }
         return service.getSubmodels(pageBuilder.build());

@@ -59,12 +59,13 @@ public class RegistryService {
      * @return The list of all registered Asset Administration Shells.
      */
     public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
-        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(RegistryHelper.decode(assetType), assetKind);
+        // Asset type is Base64URL encoded
+        String assetTypeDecoded = RegistryHelper.decode(assetType);
+        if ((assetTypeDecoded != null) && (assetTypeDecoded.length() > ConstraintHelper.MAX_IDENTIFIER_LENGTH)) {
+            throw new BadRequestException("AssetType too long");
+        }
+        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
         return preparePagedResult(list.stream(), paging);
-        //return Page.<AssetAdministrationShellDescriptor> builder()
-        //        .metadata(PagingMetadata.builder().build())
-        //        .result(list)
-        //        .build();
     }
 
 

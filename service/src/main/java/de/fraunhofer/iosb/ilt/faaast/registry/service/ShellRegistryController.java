@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -68,11 +69,12 @@ public class ShellRegistryController {
                                                             @RequestParam(name = "assetKind", required = false) AssetKind assetKind,
                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                             @RequestParam(name = "cursor", required = false) String cursor) {
-        // Asset type is Base64URL encoded
-        // perhaps constraint: @Size(min=1, max=2000) 
         LOGGER.debug("getAASs: AssetType {}; AssetKind {}, Limit: {}, Cursor: {}", assetType, assetKind, limit, cursor);
         PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
         if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
             pageBuilder.limit(limit);
         }
         return service.getAASs(assetType, assetKind, pageBuilder.build());
@@ -156,6 +158,9 @@ public class ShellRegistryController {
             throws ResourceNotFoundException {
         PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
         if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
             pageBuilder.limit(limit);
         }
         return service.getSubmodels(aasIdentifier, pageBuilder.build());
