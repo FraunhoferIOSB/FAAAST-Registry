@@ -25,51 +25,10 @@ import java.util.Objects;
  */
 public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
 
-    //@JsonIgnore
-    //private String id;
-
-    public JpaAssetAdministrationShellDescriptor() {
-        //id = null;
-    }
-
-    //public String getId() {
-    //    return id;
-    //}
-
-    //public void setId(String id) {
-    //    this.id = id;
-    //}
-
-    //@Override
-    //public int hashCode() {
-    //    return Objects.hash(super.hashCode(), id);
-    //}
-
-    //@Override
-    //public boolean equals(Object obj) {
-    //    if (this == obj) {
-    //        return true;
-    //    }
-    //    else if (obj == null) {
-    //        return false;
-    //    }
-    //    else if (this.getClass() != obj.getClass()) {
-    //        return false;
-    //    }
-    //    else {
-    //        JpaAssetAdministrationShellDescriptor other = (JpaAssetAdministrationShellDescriptor) obj;
-    //        return super.equals(obj)
-    //                && Objects.equals(this.id, other.id);
-    //    }
-    //}
+    public JpaAssetAdministrationShellDescriptor() {}
 
     public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
             extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JpaAssetAdministrationShellDescriptor, B> {
-
-        //public B id(String value) {
-        //    getBuildingInstance().setId(value);
-        //    return getSelf();
-        //}
 
         @Override
         public B from(AssetAdministrationShellDescriptor other) {

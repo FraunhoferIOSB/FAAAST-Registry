@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.EmbeddedDataSpecificationBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification;
@@ -30,8 +31,12 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
     @JsonIgnore
     private String id;
 
+    @JsonIgnore
+    private DataSpecificationIec61360 contentIec6360;
+
     public JpaEmbeddedDataSpecification() {
         id = null;
+        contentIec6360 = null;
     }
 
 
@@ -45,9 +50,25 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
     }
 
 
+    public DataSpecificationIec61360 getDataSpecificationContentIec61360() {
+        return contentIec6360;
+    }
+
+
+    /**
+     * Set DataSpecificationContentIec61360.
+     *
+     * @param value The desired DataSpecificationContentIec61360.
+     */
+    public void setDataSpecificationContentIec61360(DataSpecificationIec61360 value) {
+        contentIec6360 = value;
+        setDataSpecificationContent(value);
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode(), id, contentIec6360);
     }
 
 
@@ -65,7 +86,8 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
         else {
             JpaEmbeddedDataSpecification other = (JpaEmbeddedDataSpecification) obj;
             return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
+                    && Objects.equals(this.id, other.id)
+                    && Objects.equals(contentIec6360, other.contentIec6360);
         }
     }
 
@@ -78,10 +100,20 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
         }
 
 
+        public B dataSpecificationContentIec61360(DataSpecificationIec61360 value) {
+            getBuildingInstance().setDataSpecificationContentIec61360(value);
+            return getSelf();
+        }
+
+
         public B from(EmbeddedDataSpecification other) {
             if (Objects.nonNull(other)) {
                 dataSpecification(ModelTransformationHelper.convertReference(other.getDataSpecification()));
-                // TODO: dataSpecificationContent
+                //dataSpecificationContent(ModelTransformationHelper.convertDataSpecificationContent(other.getDataSpecificationContent()));
+                
+                if (other.getDataSpecificationContent() instanceof DataSpecificationIec61360 iec61360) {
+                    dataSpecificationContentIec61360(ModelTransformationHelper.convertDataSpecificationIec61360(iec61360));
+                }
             }
             return getSelf();
         }

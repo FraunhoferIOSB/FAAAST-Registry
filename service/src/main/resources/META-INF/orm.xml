@@ -6,7 +6,6 @@
 <hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
     <class name="JpaAssetAdministrationShellDescriptor" table="asset_administration_shell">
         
-        <!--<id name="id" type="string"></id>-->
         <id name="id"></id>
 
         <property name="idShort"/>
@@ -19,12 +18,8 @@
             </type>
         </property>
         
-        <!--<many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>-->
-
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
-        <!--<many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referenceId" lazy="false"></many-to-one>-->
-        
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
             <index column="index"/>
@@ -43,11 +38,11 @@
             <many-to-many class="JpaDisplayName"/>
         </list>
 
-        <!--<list name="specificAssetIds" cascade="all">
+        <list name="specificAssetIds" cascade="all" table="asset_administration_shell_specific_asset_ids">
             <key column="sid"/>
             <index column="index"/>
-            <one-to-many class="JpaIdentifierKeyValuePair"/>
-        </list>-->
+            <many-to-many class="JpaSpecificAssetId"/>
+        </list>
 
         <list name="submodels" cascade="all" table="asset_administration_shell_submodels">
             <key column="sdid"/>
@@ -88,26 +83,22 @@
         <property name="text" column="text_col"/> 
     </class>
 
-    <!--<class name="JpaIdentifierKeyValuePair" table="identifier_key_value_pair">
+    <class name="JpaSpecificAssetId" table="specific_asset_id">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
         
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
         <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
-        <property name="key" column="key_vol"/>
+        <property name="name" column="name_col"/>
         <property name="value" column="value_col"/> 
-    </class>-->
+    </class>
 
     <class name="JpaSubmodelDescriptor" table="submodel">
-        <!--<id name="id" type="string"></id>-->
         <id name="id"></id>
         <property name="idShort"/>
 
-        <!--<many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>-->
-
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
-        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all"></one-to-one> -->
 
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
@@ -167,12 +158,6 @@
             <generator class="uuid"/>
         </id>
 
-        <!--<property name="idType" column="idType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.adminshell.aas.v3.model.KeyType</param>
-            </type>
-        </property>-->
-        
         <property name="type">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes</param>
@@ -221,19 +206,6 @@
         </list>
     </class>
     
-    <!--<class name="JpaIdentifier" table="identifier">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        
-        <property name="identifier"/>
-        <property name="idType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.adminshell.aas.v3.model.IdentifierType</param>
-            </type>
-        </property>
-    </class>-->
-
     <class name="JpaSecurityAttributeObject" table="security_attributes">
         <id name="id" type="string">
             <generator class="uuid"/>
@@ -250,11 +222,8 @@
     </class>
     
     <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
-        <!--<id name="id" type="string"></id>-->
         <id name="id"></id>
         <property name="idShort"/>
-
-        <!--<many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>-->
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
@@ -298,7 +267,8 @@
         </id>
 
         <many-to-one name="dataSpecification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="dataSpecification" lazy="false"></many-to-one>
-                
+        <many-to-one name="dataSpecificationContentIec61360" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDataSpecificationIec61360" cascade="all" column="dataSpecificationContentIec61360" lazy="false"></many-to-one>
+
     </class>
 
     <class name="JpaExtension" table="aas_extension">
@@ -328,6 +298,112 @@
             <many-to-many class="JpaReference"/>
         </list>
                 
+    </class>
+    
+    <class name="JpaDataSpecificationIec61360" table="data_specification_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="unit"/>
+        <property name="sourceOfDefinition"/>
+        <property name="symbol"/>
+        <property name="valueFormat"/>
+        <property name="value"/>
+
+        <property name="dataType" column="dataType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360</param>
+            </type>
+        </property>
+
+        <!--<property name="levelType" column="levelType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.LevelType</param>
+            </type>
+        </property>-->
+        
+        <many-to-one name="unitId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="unit_id" lazy="false"></many-to-one>
+        <many-to-one name="valueList" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="value_list" lazy="false"></many-to-one>
+        <many-to-one name="levelType" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLevelType" cascade="all" column="level_type" lazy="false"></many-to-one>
+
+        <list name="preferredName" cascade="all" table="data_specification_iec_61360_preferred_name">
+            <key column="prefid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringPreferredNameTypeIec61360"/>
+        </list>
+                
+        <list name="shortName" cascade="all" table="data_specification_iec_61360_short_name">
+            <key column="shortid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringShortNameTypeIec61360"/>
+        </list>
+                
+        <list name="definition" cascade="all" table="data_specification_iec_61360_definition">
+            <key column="defid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringDefinitionTypeIec61360"/>
+        </list>
+                
+    </class>
+
+    <class name="JpaLangStringShortNameTypeIec61360" table="short_name_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaLangStringPreferredNameTypeIec61360" table="preferred_name_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaLangStringDefinitionTypeIec61360" table="definition_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaValueList" table="value_list">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <list name="valueReferencePairs" cascade="all" table="value_list_reference_pairs">
+            <key column="refPairId"/>
+            <index column="index"/>
+            <many-to-many class="JpaValueReferencePair"/>
+        </list>
+                
+    </class>
+    
+    <class name="JpaValueReferencePair" table="reference_pair">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <property name="value"/>        
+
+        <many-to-one name="valueId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="valueId" lazy="false"></many-to-one>
+                
+    </class>
+    
+    <class name="JpaLevelType" table="level_type">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="min"/>
+        <property name="max"/>
+        <property name="nom"/>
+        <property name="typ"/>
     </class>
     
 </hibernate-mapping>
