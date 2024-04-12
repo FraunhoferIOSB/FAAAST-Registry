@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.AdministrativeInformationBuilder;
@@ -75,7 +76,7 @@ public class JpaAdministrativeInformation extends DefaultAdministrativeInformati
             if (Objects.nonNull(other)) {
                 version(other.getVersion());
                 revision(other.getRevision());
-                embeddedDataSpecifications(other.getEmbeddedDataSpecifications());
+                embeddedDataSpecifications(ModelTransformationHelper.convertEmbeddedDataSpecifications(other.getEmbeddedDataSpecifications()));
             }
             return getSelf();
         }

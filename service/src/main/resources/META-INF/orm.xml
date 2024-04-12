@@ -324,7 +324,7 @@
         </property>-->
         
         <many-to-one name="unitId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="unit_id" lazy="false"></many-to-one>
-        <many-to-one name="valueList" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="value_list" lazy="false"></many-to-one>
+        <many-to-one name="valueList" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueList" cascade="all" column="value_list" lazy="false"></many-to-one>
         <many-to-one name="levelType" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLevelType" cascade="all" column="level_type" lazy="false"></many-to-one>
 
         <list name="preferredName" cascade="all" table="data_specification_iec_61360_preferred_name">

@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationSh
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDataSpecificationIec61360;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEmbeddedDataSpecification;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaExtension;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
@@ -42,6 +43,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringDefinitionTypeIec61360;
@@ -71,6 +73,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAAssetAdministrationShellDescriptor.
      */
     public static JpaAssetAdministrationShellDescriptor convertAAS(AssetAdministrationShellDescriptor aas) {
+        if (aas == null) {
+            return null;
+        }
         return new JpaAssetAdministrationShellDescriptor.Builder()
                 .from(aas)
                 .build();
@@ -84,6 +89,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAAdministrativeInformation.
      */
     public static JpaAdministrativeInformation convertAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+        if (administrativeInformation == null) {
+            return null;
+        }
         return new JpaAdministrativeInformation.Builder()
                 .from(administrativeInformation)
                 .build();
@@ -181,6 +189,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAProtocolInformation.
      */
     public static JpaProtocolInformation convertProtocolInformation(ProtocolInformation protocolInformation) {
+        if (protocolInformation == null) {
+            return null;
+        }
         return new JpaProtocolInformation.Builder().from(protocolInformation).build();
     }
 
@@ -192,6 +203,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAReference.
      */
     public static JpaReference convertReference(Reference reference) {
+        if (reference == null) {
+            return null;
+        }
         return new JpaReference.Builder()
                 .from(reference)
                 .build();
@@ -221,6 +235,9 @@ public class ModelTransformationHelper {
      * @return The converted JPASubmodelDescriptor.
      */
     public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
+        if (submodel == null) {
+            return null;
+        }
         return new JpaSubmodelDescriptor.Builder().from(submodel).build();
     }
 
@@ -232,6 +249,9 @@ public class ModelTransformationHelper {
      * @return The converted JPASubmodelDescriptor.
      */
     public static JpaSubmodelDescriptorStandalone convertSubmodelStandalone(SubmodelDescriptor submodel) {
+        if (submodel == null) {
+            return null;
+        }
         return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
     }
 
@@ -259,6 +279,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAExtension.
      */
     public static JpaExtension convertExtension(Extension extension) {
+        if (extension == null) {
+            return null;
+        }
         return new JpaExtension.Builder()
                 .from(extension)
                 .build();
@@ -340,6 +363,9 @@ public class ModelTransformationHelper {
      * @return The converted ValueList.
      */
     public static ValueList convertValueList(ValueList value) {
+        if (value == null) {
+            return null;
+        }
         return new JpaValueList.Builder()
                 .from(value)
                 .build();
@@ -353,6 +379,9 @@ public class ModelTransformationHelper {
      * @return The converted JPA DataSpecificationIec61360.
      */
     public static DataSpecificationIec61360 convertDataSpecificationIec61360(DataSpecificationIec61360 iec) {
+        if (iec == null) {
+            return null;
+        }
         return new JpaDataSpecificationIec61360.Builder().from(iec).build();
     }
 
@@ -364,8 +393,40 @@ public class ModelTransformationHelper {
      * @return The converted LevelType.
      */
     public static JpaLevelType convertLevelType(LevelType levelType) {
+        if (levelType == null) {
+            return null;
+        }
         return new JpaLevelType.Builder()
                 .from(levelType)
                 .build();
+    }
+
+
+    /**
+     * Convert EmbeddedDataSpecification to JpaEmbeddedDataSpecification.
+     *
+     * @param embeddedDataSpecification The EmbeddedDataSpecification.
+     * @return The converted EmbeddedDataSpecification.
+     */
+    public static EmbeddedDataSpecification convertEmbeddedDataSpecification(EmbeddedDataSpecification embeddedDataSpecification) {
+        if (embeddedDataSpecification == null) {
+            return null;
+        }
+        return new JpaEmbeddedDataSpecification.Builder()
+                .from(embeddedDataSpecification)
+                .build();
+    }
+
+
+    /**
+     * Convert a list of EmbeddedDataSpecifications to a list of JpaEmbeddedDataSpecification.
+     *
+     * @param embeddedDataSpecifications The list of EmbeddedDataSpecifications.
+     * @return The converted list of EmbeddedDataSpecifications.
+     */
+    public static List<EmbeddedDataSpecification> convertEmbeddedDataSpecifications(List<EmbeddedDataSpecification> embeddedDataSpecifications) {
+        return embeddedDataSpecifications.stream()
+                .map(x -> new JpaEmbeddedDataSpecification.Builder().from(x).build())
+                .collect(Collectors.toList());
     }
 }

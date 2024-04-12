@@ -32,11 +32,11 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
     private String id;
 
     @JsonIgnore
-    private DataSpecificationIec61360 contentIec6360;
+    private DataSpecificationIec61360 dataSpecificationContentIec61360;
 
     public JpaEmbeddedDataSpecification() {
         id = null;
-        contentIec6360 = null;
+        dataSpecificationContentIec61360 = null;
     }
 
 
@@ -51,7 +51,7 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
 
 
     public DataSpecificationIec61360 getDataSpecificationContentIec61360() {
-        return contentIec6360;
+        return dataSpecificationContentIec61360;
     }
 
 
@@ -61,14 +61,14 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
      * @param value The desired DataSpecificationContentIec61360.
      */
     public void setDataSpecificationContentIec61360(DataSpecificationIec61360 value) {
-        contentIec6360 = value;
+        dataSpecificationContentIec61360 = value;
         setDataSpecificationContent(value);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, contentIec6360);
+        return Objects.hash(super.hashCode(), id, dataSpecificationContentIec61360);
     }
 
 
@@ -87,7 +87,7 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
             JpaEmbeddedDataSpecification other = (JpaEmbeddedDataSpecification) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id)
-                    && Objects.equals(contentIec6360, other.contentIec6360);
+                    && Objects.equals(dataSpecificationContentIec61360, other.dataSpecificationContentIec61360);
         }
     }
 
