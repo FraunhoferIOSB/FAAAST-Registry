@@ -54,7 +54,7 @@
         <hibernate.version>6.4.4.Final</hibernate.version>
         <jackson.version>2.17.0</jackson.version>
         <junit.version>4.13.2</junit.version>
-        <logback.version>1.5.4</logback.version>
+        <logback.version>1.5.5</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
@@ -64,7 +64,7 @@
         <maven.plugin.failsafe.version>3.2.5</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.2.3</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
-        <maven.plugin.jar.version>3.3.0</maven.plugin.jar.version>
+        <maven.plugin.jar.version>3.4.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.6.3</maven.plugin.javadoc.version>
         <maven.plugin.nexus-staging.version>1.6.13</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>9.1.0</maven.plugin.owasp.version>
@@ -76,9 +76,10 @@
         <postgres.version>42.7.3</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>2.0.12</slf4j.version>
+        <slf4j.version>2.0.13</slf4j.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <spring.boot.version>3.2.4</spring.boot.version>
+        <spring.web.version>6.1.6</spring.web.version>
     </properties>
     <dependencies>
         <dependency>
