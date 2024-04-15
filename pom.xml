@@ -90,6 +90,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spring.boot.version>3.2.4</spring.boot.version>
+        <spring.web.version>6.1.6</spring.web.version>
     </properties>
     <dependencies>
         <dependency>
