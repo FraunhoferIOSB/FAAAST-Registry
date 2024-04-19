@@ -309,9 +309,9 @@
         <property name="sourceOfDefinition"/>
         <property name="symbol"/>
         <property name="valueFormat"/>
-        <property name="value"/>
+        <property name="value" column="value_col"/>
 
-        <property name="dataType" column="dataType">
+        <property name="dataType" column="dataType_col">
             <type name="org.hibernate.type.EnumType">
                 <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360</param>
             </type>
@@ -389,7 +389,7 @@
             <generator class="uuid"/>
         </id>
 
-        <property name="value"/>        
+        <property name="value" column="value_col"/>
 
         <many-to-one name="valueId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="valueId" lazy="false"></many-to-one>
                 
