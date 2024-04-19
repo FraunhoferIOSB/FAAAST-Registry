@@ -76,6 +76,8 @@ public class JpaAdministrativeInformation extends DefaultAdministrativeInformati
             if (Objects.nonNull(other)) {
                 version(other.getVersion());
                 revision(other.getRevision());
+                creator(ModelTransformationHelper.convertReference(other.getCreator()));
+                templateId(other.getTemplateId());
                 embeddedDataSpecifications(ModelTransformationHelper.convertEmbeddedDataSpecifications(other.getEmbeddedDataSpecifications()));
             }
             return getSelf();

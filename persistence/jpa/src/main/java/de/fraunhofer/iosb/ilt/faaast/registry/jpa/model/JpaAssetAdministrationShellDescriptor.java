@@ -35,6 +35,8 @@ public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministr
             if (Objects.nonNull(other)) {
                 id(other.getId());
                 idShort(other.getIdShort());
+                assetkind(other.getAssetKind());
+                assetType(other.getAssetType());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
                 descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
