@@ -14,10 +14,15 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 
 
 /**
@@ -58,6 +63,37 @@ public class EntityManagerHelper {
         var query = entityManager.createQuery(queryCriteria);
         return query.getResultList().stream()
                 .map(returnType::cast)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
+     *
+     * @param entityManager The entityManager to use.
+     * @param assetType The desired assetType.
+     * @param assetKind The desired assetKind.
+     * @return All instances matching the given criteria.
+     */
+    public static List<AssetAdministrationShellDescriptor> getAllAas(EntityManager entityManager, String assetType, AssetKind assetKind) {
+        if ((assetKind == null) && (assetType == null)) {
+            return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
+        }
+
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        var root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if (assetType != null) {
+            predicates.add(builder.equal(root.get("assetType"), assetType));
+        }
+        if (assetKind != null) {
+            predicates.add(builder.equal(root.get("assetKind"), assetKind));
+        }
+        queryCriteria.select(root).where(predicates.toArray(Predicate[]::new));
+        var query = entityManager.createQuery(queryCriteria);
+        return query.getResultList().stream()
+                .map(AssetAdministrationShellDescriptor.class::cast)
                 .collect(Collectors.toList());
     }
 }

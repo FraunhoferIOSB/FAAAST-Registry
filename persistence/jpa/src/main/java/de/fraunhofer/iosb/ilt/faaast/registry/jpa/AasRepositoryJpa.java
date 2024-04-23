@@ -52,8 +52,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        // TODO filter results
-        return EntityManagerHelper.getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
+        return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
     }
 
 
