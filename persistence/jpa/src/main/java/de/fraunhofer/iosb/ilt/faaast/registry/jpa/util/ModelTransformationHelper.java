@@ -29,6 +29,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringShortNameTy
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLevelType;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSecurityAttributeObject;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSpecificAssetId;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
@@ -53,6 +54,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LevelType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
@@ -138,16 +140,6 @@ public class ModelTransformationHelper {
                 .map(x -> new JpaEndpoint.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
-
-    //    /**
-    //     * Converts Identifier to JPAIdentifier.
-    //     *
-    //     * @param identifier The Identifier.
-    //     * @return The converted JPAIdentifier.
-    //     */
-    //    public static Identifier convertIdentifier(Identifier identifier) {
-    //        return new JpaIdentifier.Builder().from(identifier).build();
-    //    }
 
 
     /**
@@ -427,6 +419,19 @@ public class ModelTransformationHelper {
     public static List<EmbeddedDataSpecification> convertEmbeddedDataSpecifications(List<EmbeddedDataSpecification> embeddedDataSpecifications) {
         return embeddedDataSpecifications.stream()
                 .map(x -> new JpaEmbeddedDataSpecification.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Convert a list of SecurityAttributeObjects to a list of JpaSecurityAttributeObjects.
+     *
+     * @param securityAttributes The list of SecurityAttributeObject.
+     * @return The converted list of SecurityAttributeObjects.
+     */
+    public static List<SecurityAttributeObject> convertSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
+        return securityAttributes.stream()
+                .map(x -> new JpaSecurityAttributeObject.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 }

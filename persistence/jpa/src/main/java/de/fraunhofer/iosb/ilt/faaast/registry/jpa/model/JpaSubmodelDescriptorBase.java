@@ -24,52 +24,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmod
  */
 public abstract class JpaSubmodelDescriptorBase extends DefaultSubmodelDescriptor {
 
-    //@JsonIgnore
-    //private String id;
-
-    protected JpaSubmodelDescriptorBase() {
-        //    id = null;
-    }
-
-    //public String getId() {
-    //    return id;
-    //}
-
-    //public void setId(String id) {
-    //    this.id = id;
-    //}
-
-    //    @Override
-    //    public int hashCode() {
-    //        return Objects.hash(super.hashCode(), id);
-    //    }
-    //
-    //
-    //    @Override
-    //    public boolean equals(Object obj) {
-    //        if (this == obj) {
-    //            return true;
-    //        }
-    //        else if (obj == null) {
-    //            return false;
-    //        }
-    //        else if (this.getClass() != obj.getClass()) {
-    //            return false;
-    //        }
-    //        else {
-    //            JpaSubmodelDescriptorBase other = (JpaSubmodelDescriptorBase) obj;
-    //            return super.equals(obj)
-    //                    && Objects.equals(this.id, other.id);
-    //        }
-    //    }
+    protected JpaSubmodelDescriptorBase() {}
 
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptorBase, B extends AbstractBuilder<T, B>>
             extends DefaultSubmodelDescriptor.AbstractBuilder<T, B> {
-
-        //public B id(String value) {
-        //    getBuildingInstance().setId(value);
-        //    return getSelf();
-        //}
 
         @Override
         public B from(SubmodelDescriptor other) {

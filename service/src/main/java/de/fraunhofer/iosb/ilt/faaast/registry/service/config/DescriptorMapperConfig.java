@@ -45,6 +45,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LevelType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
@@ -60,6 +61,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTyp
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
@@ -90,7 +92,6 @@ public class DescriptorMapperConfig {
         resolver.addMapping(AdministrativeInformation.class, DefaultAdministrativeInformation.class);
         resolver.addMapping(Endpoint.class, DefaultEndpoint.class);
         resolver.addMapping(ProtocolInformation.class, DefaultProtocolInformation.class);
-        //resolver.addMapping(Identifier.class, DefaultIdentifier.class);
         resolver.addMapping(SpecificAssetId.class, DefaultSpecificAssetId.class);
         resolver.addMapping(Key.class, DefaultKey.class);
         resolver.addMapping(Reference.class, DefaultReference.class);
@@ -107,6 +108,7 @@ public class DescriptorMapperConfig {
         resolver.addMapping(ValueReferencePair.class, DefaultValueReferencePair.class);
         resolver.addMapping(LevelType.class, DefaultLevelType.class);
         resolver.addMapping(DataSpecificationContent.class, DataSpecificationIec61360.class);
+        resolver.addMapping(SecurityAttributeObject.class, DefaultSecurityAttributeObject.class);
 
         ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
         ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));

@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import java.util.Objects;
@@ -78,7 +79,13 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
 
         @Override
         public B from(ProtocolInformation other) {
-            super.from(other);
+            endpointProtocol(other.getEndpointProtocol());
+            endpointProtocolVersion(other.getEndpointProtocolVersion());
+            href(other.getHref());
+            securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
+            subprotocol(other.getSubprotocol());
+            subprotocolBody(other.getSubprotocolBody());
+            subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
             return getSelf();
         }
     }

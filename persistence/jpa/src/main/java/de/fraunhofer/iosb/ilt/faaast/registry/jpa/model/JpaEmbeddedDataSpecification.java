@@ -109,7 +109,6 @@ public class JpaEmbeddedDataSpecification extends DefaultEmbeddedDataSpecificati
         public B from(EmbeddedDataSpecification other) {
             if (Objects.nonNull(other)) {
                 dataSpecification(ModelTransformationHelper.convertReference(other.getDataSpecification()));
-                //dataSpecificationContent(ModelTransformationHelper.convertDataSpecificationContent(other.getDataSpecificationContent()));
                 
                 if (other.getDataSpecificationContent() instanceof DataSpecificationIec61360 iec61360) {
                     dataSpecificationContentIec61360(ModelTransformationHelper.convertDataSpecificationIec61360(iec61360));

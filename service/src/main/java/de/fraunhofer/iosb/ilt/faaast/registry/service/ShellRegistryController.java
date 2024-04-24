@@ -64,7 +64,6 @@ public class ShellRegistryController {
      * @return The list of all registered Asset Administration Shells.
      */
     @GetMapping()
-    //public List<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
     public Page<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
                                                             @RequestParam(name = "assetKind", required = false) AssetKind assetKind,
                                                             @RequestParam(name = "limit", required = false) Long limit,
@@ -239,16 +238,4 @@ public class ShellRegistryController {
             throws ResourceNotFoundException {
         service.deleteSubmodel(aasIdentifier, submodelIdentifier);
     }
-
-    //    /**
-    //     * Exception Handler for no such method error.
-    //     *
-    //     * @param error The error that was thrown.
-    //     * @return error string.
-    //     */
-    //    @ExceptionHandler(NoSuchMethodError.class)
-    //    public String noSuchMethodError(NoSuchMethodError error) {
-    //        LOGGER.error("noSuchMethodError", error);
-    //        return "no such method";
-    //    }
 }
