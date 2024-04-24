@@ -97,6 +97,10 @@ public class ConstraintHelper {
         checkExtensions(submodel.getExtensions());
         checkAdministrativeInformation(submodel.getAdministration());
         EndpointConstraintHelper.checkEndpoints(submodel.getEndpoints());
+        // Submodel must have at least one endpoint
+        if ((submodel.getEndpoints() == null) || (submodel.getEndpoints().isEmpty())) {
+            CommonConstraintHelper.raiseConstraintViolatedException("submodel doesn't have an endpoint");
+        }
         CommonConstraintHelper.checkReference(submodel.getSemanticId());
         CommonConstraintHelper.checkReferences(submodel.getSupplementalSemanticIds());
     }
