@@ -21,4 +21,18 @@
 		<packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-(core|websocket)@.*$</packageUrl>
 		<cve>CVE-2023-41080</cve>
 	</suppress>
+	<suppress>
+		<notes><![CDATA[Does not apply because vulnerable functionality is not used]]></notes>
+		<packageUrl regex="true">^pkg:maven/io\.admin\-shell\.aas/dataformat\-xml@.*$</packageUrl>
+		<cve>CVE-2016-4570</cve>
+		<cve>CVE-2016-4571</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4570</cve>
+	</suppress>
+	<suppress>
+		<notes><![CDATA[False positive]]></notes>
+		<cve>CVE-2016-4571</cve>
+	</suppress>
 </suppressions>
