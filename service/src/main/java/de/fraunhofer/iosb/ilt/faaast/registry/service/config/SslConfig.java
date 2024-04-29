@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
-import helper.CertificateHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CertificateHelper;
 import java.security.KeyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

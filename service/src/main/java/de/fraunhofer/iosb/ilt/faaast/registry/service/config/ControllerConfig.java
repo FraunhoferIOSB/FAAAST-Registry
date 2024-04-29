@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
-import helper.AssetKindConverter;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.AssetKindConverter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

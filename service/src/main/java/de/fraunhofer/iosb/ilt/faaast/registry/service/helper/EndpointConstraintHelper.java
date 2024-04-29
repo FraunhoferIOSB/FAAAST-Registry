@@ -12,9 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package helper;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
-import static helper.ConstraintHelper.MAX_IDSHORT_LENGTH;
+import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper.MAX_IDSHORT_LENGTH;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;

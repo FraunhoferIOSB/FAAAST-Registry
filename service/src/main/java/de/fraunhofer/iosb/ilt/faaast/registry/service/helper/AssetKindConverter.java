@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package helper;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.springframework.core.convert.converter.Converter;

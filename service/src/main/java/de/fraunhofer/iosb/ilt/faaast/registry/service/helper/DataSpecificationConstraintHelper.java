@@ -12,9 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package helper;
-
-import static helper.ConstraintHelper.MAX_IDENTIFIER_LENGTH;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
@@ -152,7 +150,7 @@ public class DataSpecificationConstraintHelper {
 
     private static void checkValueReferencePair(ValueReferencePair pair) {
         if (pair != null) {
-            CommonConstraintHelper.checkText(pair.getValue(), MAX_IDENTIFIER_LENGTH, true, "ValueReferencePair value");
+            CommonConstraintHelper.checkText(pair.getValue(), ConstraintHelper.MAX_IDENTIFIER_LENGTH, true, "ValueReferencePair value");
             CommonConstraintHelper.checkReference(pair.getValueId());
         }
     }
