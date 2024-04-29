@@ -25,8 +25,6 @@ import java.util.Objects;
  */
 public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
 
-    public JpaAssetAdministrationShellDescriptor() {}
-
     public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
             extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JpaAssetAdministrationShellDescriptor, B> {
 
