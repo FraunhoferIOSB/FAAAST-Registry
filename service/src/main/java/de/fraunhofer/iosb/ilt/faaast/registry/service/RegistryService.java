@@ -28,7 +28,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.slf4j.Logger;
@@ -64,6 +63,7 @@ public class RegistryService {
         if ((assetTypeDecoded != null) && (assetTypeDecoded.length() > ConstraintHelper.MAX_IDENTIFIER_LENGTH)) {
             throw new BadRequestException("AssetType too long");
         }
+        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetTypeDecoded, assetKind);
         List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
         return preparePagedResult(list.stream(), paging);
     }
@@ -326,11 +326,11 @@ public class RegistryService {
         if (paging.hasLimit()) {
             result = result.limit(paging.getLimit() + 1);
         }
-        List<T> temp = result.collect(Collectors.toList());
+        List<T> temp = result.toList();
         return Page.<T> builder()
                 .result(temp.stream()
                         .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                        .collect(Collectors.toList()))
+                        .toList())
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor(paging, temp.size()))
                         .build())

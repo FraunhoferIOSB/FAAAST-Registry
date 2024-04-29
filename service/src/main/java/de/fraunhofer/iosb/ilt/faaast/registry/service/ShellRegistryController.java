@@ -68,7 +68,6 @@ public class ShellRegistryController {
                                                             @RequestParam(name = "assetKind", required = false) AssetKind assetKind,
                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                             @RequestParam(name = "cursor", required = false) String cursor) {
-        LOGGER.debug("getAASs: AssetType {}; AssetKind {}, Limit: {}, Cursor: {}", assetType, assetKind, limit, cursor);
         PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
         if (limit != null) {
             if (limit == 0) {

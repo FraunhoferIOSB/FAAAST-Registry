@@ -70,23 +70,11 @@ public class JpaDescription extends DefaultLangStringTextType {
 
     public abstract static class AbstractBuilder<T extends JpaDescription, B extends AbstractBuilder<T, B>>
             extends LangStringTextTypeBuilder<JpaDescription, B> {
-        //extends ExtendableBuilder<JpaDescription, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
             return getSelf();
         }
-
-        //        public B value(String value) {
-        //            getBuildingInstance().setValue(value);
-        //            return getSelf();
-        //        }
-        //
-        //
-        //        public B language(String value) {
-        //            getBuildingInstance().setLanguage(value);
-        //            return getSelf();
-        //        }
 
 
         public B from(LangStringTextType other) {

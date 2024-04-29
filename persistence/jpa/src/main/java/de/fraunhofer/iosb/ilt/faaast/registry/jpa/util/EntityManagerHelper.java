@@ -94,6 +94,6 @@ public class EntityManagerHelper {
         var query = entityManager.createQuery(queryCriteria);
         return query.getResultList().stream()
                 .map(AssetAdministrationShellDescriptor.class::cast)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

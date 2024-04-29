@@ -39,6 +39,7 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -212,7 +213,7 @@ public class ModelTransformationHelper {
      */
     public static List<Reference> convertReferences(List<Reference> references) {
         if (Objects.isNull(references)) {
-            return null;
+            return new ArrayList<>();
         }
         return references.stream()
                 .map(x -> new JpaReference.Builder().from(x).build())
@@ -288,7 +289,7 @@ public class ModelTransformationHelper {
      */
     public static List<Extension> convertExtensions(List<Extension> extensions) {
         if (Objects.isNull(extensions)) {
-            return null;
+            return new ArrayList<>();
         }
         return extensions.stream()
                 .map(x -> new JpaExtension.Builder().from(x).build())
