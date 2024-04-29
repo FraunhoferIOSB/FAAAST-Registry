@@ -15,14 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 /**
- * Registry Descriptor JPA implementation for Submodel of an AAS.
+ * Registry Descriptor JPA implementation for standalone Submodel.
  */
-public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
+public class JpaSubmodelDescriptorStandalone extends JpaSubmodelDescriptorBase {
 
-    public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
-            extends JpaSubmodelDescriptorBase.AbstractBuilder<JpaSubmodelDescriptor, B> {}
+    public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptorStandalone, B extends AbstractBuilder<T, B>>
+            extends JpaSubmodelDescriptorBase.AbstractBuilder<JpaSubmodelDescriptorStandalone, B> {}
 
-    public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSubmodelDescriptorStandalone, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -31,8 +31,8 @@ public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
 
 
         @Override
-        protected JpaSubmodelDescriptor newBuildingInstance() {
-            return new JpaSubmodelDescriptor();
+        protected JpaSubmodelDescriptorStandalone newBuildingInstance() {
+            return new JpaSubmodelDescriptorStandalone();
         }
     }
 }
