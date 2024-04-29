@@ -78,6 +78,12 @@
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.13</slf4j.version>
         <snakeyaml.version>2.2</snakeyaml.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.language>java</sonar.language>
+        <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spring.boot.version>3.2.5</spring.boot.version>
         <spring.web.version>6.1.6</spring.web.version>
     </properties>
