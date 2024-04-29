@@ -48,7 +48,7 @@
     </distributionManagement>
     <properties>
         <assertj.version>3.25.3</assertj.version>
-        <checkstyle.version>10.15.0</checkstyle.version>
+        <checkstyle.version>10.16.0</checkstyle.version>
         <faaast.service.version>1.0.1</faaast.service.version>
         <h2.version>2.2.224</h2.version>
         <hibernate.version>6.4.4.Final</hibernate.version>
