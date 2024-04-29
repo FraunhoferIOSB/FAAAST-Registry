@@ -24,8 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministratio
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import java.net.URI;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,8 +46,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/v3.0/shell-descriptors")
 public class ShellRegistryController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
 
     @Autowired
     RegistryService service;

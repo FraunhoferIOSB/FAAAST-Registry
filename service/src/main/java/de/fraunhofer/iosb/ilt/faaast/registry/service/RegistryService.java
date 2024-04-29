@@ -63,7 +63,10 @@ public class RegistryService {
         if ((assetTypeDecoded != null) && (assetTypeDecoded.length() > ConstraintHelper.MAX_IDENTIFIER_LENGTH)) {
             throw new BadRequestException("AssetType too long");
         }
-        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetTypeDecoded, assetKind);
+        if (assetType != null) {
+            assetType = assetType.replaceAll("[\n\r]", "_");
+        }
+        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetType, assetKind);
         List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
         return preparePagedResult(list.stream(), paging);
     }

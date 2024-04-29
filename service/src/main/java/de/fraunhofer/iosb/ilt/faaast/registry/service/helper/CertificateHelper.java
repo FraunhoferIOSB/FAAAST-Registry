@@ -44,6 +44,9 @@ public class CertificateHelper {
             .organizationUnit("ILT")
             .build();
 
+    private CertificateHelper() {}
+
+
     /**
      * Create a KeyStore with a self-signed certificate.
      *
