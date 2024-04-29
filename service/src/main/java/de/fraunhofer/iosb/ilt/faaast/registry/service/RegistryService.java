@@ -65,8 +65,11 @@ public class RegistryService {
         }
         if (assetType != null) {
             assetType = assetType.replaceAll("[\n\r]", "_");
+            LOGGER.debug("getAASs: AssetType {}", assetType);
         }
-        LOGGER.debug("getAASs: AssetType {}; AssetKind {}", assetType, assetKind);
+        if (assetKind != null) {
+            LOGGER.debug("getAASs: AssetKind {}", assetKind);
+        }
         List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
         return preparePagedResult(list.stream(), paging);
     }
