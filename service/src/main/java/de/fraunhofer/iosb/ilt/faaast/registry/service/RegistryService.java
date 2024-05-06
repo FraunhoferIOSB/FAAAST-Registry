@@ -64,7 +64,7 @@ public class RegistryService {
             throw new BadRequestException("AssetType too long");
         }
         if (assetType != null) {
-            LOGGER.debug("getAASs: AssetType {}", assetType.replaceAll("[\n\r]", "_"));
+            LOGGER.atDebug().log("getAASs: AssetType {}", assetType.replaceAll("[\n\r]", "_"));
         }
         if (assetKind != null) {
             LOGGER.debug("getAASs: AssetKind {}", assetKind);
