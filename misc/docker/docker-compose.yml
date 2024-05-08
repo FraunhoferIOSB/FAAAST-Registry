@@ -1,7 +1,6 @@
 version: '3.4'
 services:
-  FA3STRegistry:
-    image: fraunhoferiosb/faaast-registry
+  fa3stregistry:
     volumes:
       - ../examples/:/app/resources/
     environment:
@@ -12,6 +11,8 @@ services:
       - spring.datasource.username=postgres
       - spring.datasource.password=admin
       - service.port=8090
+    build:
+      context: ../../
     ports:
       - 8090:8090
     depends_on:
@@ -24,4 +25,4 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     ports:
-      - 5432:5432
+      - 8092:5432
