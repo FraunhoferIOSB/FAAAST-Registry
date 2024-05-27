@@ -43,6 +43,7 @@ mvn clean install
 ## Example
 
 This example shows how to start a FA³ST Registry with in-memory persistence.
+If you have built the Registry from Source, you can find the file 'service-0.1.0-SNAPSHOT.jar' in the subdirectory 'service/target'.
 
 ### Via Command-line Interface (CLI)
 
