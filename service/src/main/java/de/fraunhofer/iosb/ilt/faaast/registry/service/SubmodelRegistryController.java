@@ -14,12 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.RegistryHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import java.util.List;
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,15 +32,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 /**
  * REST controller for the Submodel registry.
  */
 @RestController
-@RequestMapping(value = "/registry/submodel-descriptors")
+@RequestMapping(value = "/api/v3.0/submodel-descriptors")
 public class SubmodelRegistryController {
 
     @Autowired
@@ -44,12 +51,22 @@ public class SubmodelRegistryController {
     /**
      * Retrieves a list of all registered Submodels.
      *
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the Submodel was not found.
      */
     @GetMapping()
-    public List<SubmodelDescriptor> getSubmodels() throws ResourceNotFoundException {
-        return service.getSubmodels();
+    public Page<SubmodelDescriptor> getSubmodels(@RequestParam(name = "limit", required = false) Long limit, @RequestParam(name = "cursor", required = false) String cursor)
+            throws ResourceNotFoundException {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
+            pageBuilder.limit(limit);
+        }
+        return service.getSubmodels(pageBuilder.build());
     }
 
 
@@ -75,9 +92,13 @@ public class SubmodelRegistryController {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public SubmodelDescriptor createSubmodel(@RequestBody SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        return service.createSubmodel(submodel);
+    public ResponseEntity<SubmodelDescriptor> createSubmodel(@RequestBody SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        SubmodelDescriptor descriptor = service.createSubmodel(submodel);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(String.format("/%s", RegistryHelper.encode(descriptor.getId())))
+                .build().toUri();
+        return ResponseEntity.created(location).body(descriptor);
     }
 
 

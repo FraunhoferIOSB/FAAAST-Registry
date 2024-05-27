@@ -18,11 +18,18 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.RegistryHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +42,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegistryService {
 
+    public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
+    public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
-    private static final String AAS_NOT_NULL_TXT = "aas must be non-null";
-    private static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
     private AasRepository aasRepository;
@@ -45,10 +52,25 @@ public class RegistryService {
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
+     * @param paging The paging information.
      * @return The list of all registered Asset Administration Shells.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return aasRepository.getAASs();
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
+        // Asset type is Base64URL encoded
+        String assetTypeDecoded = RegistryHelper.decode(assetType);
+        if ((assetTypeDecoded != null) && (assetTypeDecoded.length() > ConstraintHelper.MAX_IDENTIFIER_LENGTH)) {
+            throw new BadRequestException("AssetType too long");
+        }
+        if (assetType != null) {
+            LOGGER.atDebug().log("getAASs: AssetType {}", assetType.replaceAll("[\n\r]", "_"));
+        }
+        if (assetKind != null) {
+            LOGGER.debug("getAASs: AssetKind {}", assetKind);
+        }
+        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
+        return preparePagedResult(list.stream(), paging);
     }
 
 
@@ -60,7 +82,7 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
-        return aasRepository.getAAS(decode(id));
+        return aasRepository.getAAS(RegistryHelper.decode(id));
     }
 
 
@@ -72,9 +94,8 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the AAS already exists.
      */
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
-        Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        checkShellIdentifiers(aas);
-        LOGGER.debug("createAAS: {}", aas.getIdentification().getIdentifier());
+        ConstraintHelper.validate(aas);
+        LOGGER.debug("createAAS: {}", aas.getId());
         if (aas.getSubmodels() != null) {
             aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
         }
@@ -89,7 +110,7 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     public void deleteAAS(String id) throws ResourceNotFoundException {
-        String idDecoded = decode(id);
+        String idDecoded = RegistryHelper.decode(id);
         LOGGER.debug("deleteAAS: AAS {}", idDecoded);
         aasRepository.deleteAAS(idDecoded);
     }
@@ -105,7 +126,7 @@ public class RegistryService {
      */
     public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor aas) throws ResourceNotFoundException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        String idDecoded = decode(id);
+        String idDecoded = RegistryHelper.decode(id);
         LOGGER.debug("updateAAS: {}", idDecoded);
         checkShellIdentifiers(aas);
         aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
@@ -116,11 +137,12 @@ public class RegistryService {
     /**
      * Retrieves a list of all registered Submodels.
      *
+     * @param paging The paging information.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    public List<SubmodelDescriptor> getSubmodels() throws ResourceNotFoundException {
-        return getSubmodels(null);
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) throws ResourceNotFoundException {
+        return getSubmodels(null, paging);
     }
 
 
@@ -128,17 +150,20 @@ public class RegistryService {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasId The ID of the desired Asset Administration Shell.
+     * @param paging The paging information.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
+        List<SubmodelDescriptor> list;
         if (aasId == null) {
-            return aasRepository.getSubmodels();
+            list = aasRepository.getSubmodels();
         }
         else {
-            String aasIdDecoded = decode(aasId);
-            return aasRepository.getSubmodels(aasIdDecoded);
+            String aasIdDecoded = RegistryHelper.decode(aasId);
+            list = aasRepository.getSubmodels(aasIdDecoded);
         }
+        return preparePagedResult(list.stream(), paging);
     }
 
 
@@ -163,12 +188,12 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS or Submodel was not found.
      */
     public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
-        String submodelIdDecoded = decode(submodelId);
+        String submodelIdDecoded = RegistryHelper.decode(submodelId);
         if (aasId == null) {
             return aasRepository.getSubmodel(submodelIdDecoded);
         }
         else {
-            String aasIdDecoded = decode(aasId);
+            String aasIdDecoded = RegistryHelper.decode(aasId);
             return aasRepository.getSubmodel(aasIdDecoded, submodelIdDecoded);
         }
     }
@@ -197,15 +222,14 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        checkSubmodelIdentifiers(submodel);
+        ConstraintHelper.validate(submodel);
         if (aasId == null) {
-            LOGGER.debug("createSubmodel: Submodel {}", submodel.getIdentification().getIdentifier());
+            LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
             return aasRepository.addSubmodel(submodel);
         }
         else {
-            String aasIdDecoded = decode(aasId);
-            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getIdentification().getIdentifier());
+            String aasIdDecoded = RegistryHelper.decode(aasId);
+            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getId());
             return aasRepository.addSubmodel(aasIdDecoded, submodel);
         }
     }
@@ -230,13 +254,13 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the Submodel was not found.
      */
     public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
-        String submodelIdDecoded = decode(submodelId);
+        String submodelIdDecoded = RegistryHelper.decode(submodelId);
         if (aasId == null) {
             LOGGER.debug("deleteSubmodel: Submodel {}", submodelIdDecoded);
             aasRepository.deleteSubmodel(submodelIdDecoded);
         }
         else {
-            String aasIdDecoded = decode(aasId);
+            String aasIdDecoded = RegistryHelper.decode(aasId);
             LOGGER.debug("deleteSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
             aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         }
@@ -254,7 +278,7 @@ public class RegistryService {
      */
     public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        String submodelIdDecoded = decode(submodelId);
+        String submodelIdDecoded = RegistryHelper.decode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: Submodel {}", submodelIdDecoded);
         aasRepository.deleteSubmodel(submodelIdDecoded);
@@ -274,8 +298,8 @@ public class RegistryService {
      */
     public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        String aasIdDecoded = decode(aasId);
-        String submodelIdDecoded = decode(submodelId);
+        String aasIdDecoded = RegistryHelper.decode(aasId);
+        String submodelIdDecoded = RegistryHelper.decode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
         aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
@@ -283,14 +307,9 @@ public class RegistryService {
     }
 
 
-    private static String decode(String encoded) {
-        return new String(Base64.getUrlDecoder().decode(encoded));
-    }
-
-
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        if ((submodel.getIdentification() == null) || (submodel.getIdentification().getIdentifier() == null) || (submodel.getIdentification().getIdentifier().length() == 0)) {
+        if ((submodel.getId() == null) || (submodel.getId().length() == 0)) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
@@ -298,8 +317,57 @@ public class RegistryService {
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        if ((aas.getIdentification() == null) || (aas.getIdentification().getIdentifier() == null) || (aas.getIdentification().getIdentifier().length() == 0)) {
+        if ((aas.getId() == null) || (aas.getId().length() == 0)) {
             throw new BadRequestException("no AAS Identification provided");
         }
+    }
+
+
+    private static <T> Page<T> preparePagedResult(Stream<T> input, PagingInfo paging) {
+        Stream<T> result = input;
+        if (Objects.nonNull(paging.getCursor())) {
+            result = result.skip(readCursor(paging.getCursor()));
+        }
+        if (paging.hasLimit()) {
+            result = result.limit(paging.getLimit() + 1);
+        }
+        List<T> temp = result.toList();
+        return Page.<T> builder()
+                .result(temp.stream()
+                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
+                        .toList())
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor(paging, temp.size()))
+                        .build())
+                .build();
+    }
+
+
+    private static long readCursor(String cursor) {
+        return Long.parseLong(cursor);
+    }
+
+
+    private static String writeCursor(long index) {
+        return Long.toString(index);
+    }
+
+
+    private static String nextCursor(PagingInfo paging, int resultCount) {
+        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
+    }
+
+
+    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
+        if (!hasMoreData) {
+            return null;
+        }
+        if (!paging.hasLimit()) {
+            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+        }
+        if (Objects.isNull(paging.getCursor())) {
+            return writeCursor(paging.getLimit());
+        }
+        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
     }
 }

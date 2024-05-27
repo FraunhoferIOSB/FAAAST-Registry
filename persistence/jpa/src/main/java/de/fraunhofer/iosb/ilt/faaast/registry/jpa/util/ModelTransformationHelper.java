@@ -16,28 +16,49 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDataSpecificationIec61360;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEmbeddedDataSpecification;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifierKeyValuePair;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaExtension;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringDefinitionTypeIec61360;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringPreferredNameTypeIec61360;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringShortNameTypeIec61360;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLevelType;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSecurityAttributeObject;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSpecificAssetId;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueList;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueReferencePair;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import io.adminshell.aas.v3.model.AdministrativeInformation;
-import io.adminshell.aas.v3.model.Identifier;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.Key;
-import io.adminshell.aas.v3.model.LangString;
-import io.adminshell.aas.v3.model.Reference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.Key;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringDefinitionTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.LevelType;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
 
 /**
@@ -55,6 +76,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAAssetAdministrationShellDescriptor.
      */
     public static JpaAssetAdministrationShellDescriptor convertAAS(AssetAdministrationShellDescriptor aas) {
+        if (aas == null) {
+            return null;
+        }
         return new JpaAssetAdministrationShellDescriptor.Builder()
                 .from(aas)
                 .build();
@@ -68,6 +92,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAAdministrativeInformation.
      */
     public static JpaAdministrativeInformation convertAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+        if (administrativeInformation == null) {
+            return null;
+        }
         return new JpaAdministrativeInformation.Builder()
                 .from(administrativeInformation)
                 .build();
@@ -75,14 +102,27 @@ public class ModelTransformationHelper {
 
 
     /**
-     * Converts a list of LangString to a list of JPADescription.
+     * Converts a list of LangStringTextType to a list of JPALangStringTextType.
      *
-     * @param descriptions The list of LangString.
-     * @return The converted list of JPADescription.
+     * @param descriptions The list of descriptions.
+     * @return The converted list of descriptions.
      */
-    public static List<LangString> convertDescriptions(List<LangString> descriptions) {
+    public static List<LangStringTextType> convertDescriptions(List<LangStringTextType> descriptions) {
         return descriptions.stream()
                 .map(x -> new JpaDescription.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of LangStringNameType to a list of JPALangStringNameType.
+     *
+     * @param names The list of names.
+     * @return The converted list of names.
+     */
+    public static List<LangStringNameType> convertDisplayNames(List<LangStringNameType> names) {
+        return names.stream()
+                .map(x -> new JpaDisplayName.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -104,28 +144,17 @@ public class ModelTransformationHelper {
 
 
     /**
-     * Converts Identifier to JPAIdentifier.
+     * Converts a list of SpecificAssetIds to a list of JPASpecificAssetId.
      *
-     * @param identifier The Identifier.
-     * @return The converted JPAIdentifier.
+     * @param pairs The list of SpecificAssetId.
+     * @return The converted list of JPASpecificAssetId.
      */
-    public static Identifier convertIdentifier(Identifier identifier) {
-        return new JpaIdentifier.Builder().from(identifier).build();
-    }
-
-
-    /**
-     * Converts a list of IdentifierKeyValuePair to a list of JPAIdentifierKeyValuePair.
-     *
-     * @param pairs The list of IdentifierKeyValuePair.
-     * @return The converted list of JPAIdentifierKeyValuePair.
-     */
-    public static List<IdentifierKeyValuePair> convertIdentifierKeyValuePairs(List<IdentifierKeyValuePair> pairs) {
+    public static List<SpecificAssetId> convertSpecificAssetIds(List<SpecificAssetId> pairs) {
         if (Objects.isNull(pairs)) {
             return null;
         }
         return pairs.stream()
-                .map(x -> new JpaIdentifierKeyValuePair.Builder().from(x).build())
+                .map(x -> new JpaSpecificAssetId.Builder().from(x).build())
                 .collect(Collectors.toList());
     }
 
@@ -153,6 +182,9 @@ public class ModelTransformationHelper {
      * @return The converted JPAProtocolInformation.
      */
     public static JpaProtocolInformation convertProtocolInformation(ProtocolInformation protocolInformation) {
+        if (protocolInformation == null) {
+            return null;
+        }
         return new JpaProtocolInformation.Builder().from(protocolInformation).build();
     }
 
@@ -164,9 +196,28 @@ public class ModelTransformationHelper {
      * @return The converted JPAReference.
      */
     public static JpaReference convertReference(Reference reference) {
+        if (reference == null) {
+            return null;
+        }
         return new JpaReference.Builder()
                 .from(reference)
                 .build();
+    }
+
+
+    /**
+     * Converts Reference to JPAReference.
+     *
+     * @param references The list of References.
+     * @return The converted list of References.
+     */
+    public static List<Reference> convertReferences(List<Reference> references) {
+        if (Objects.isNull(references)) {
+            return new ArrayList<>();
+        }
+        return references.stream()
+                .map(x -> new JpaReference.Builder().from(x).build())
+                .collect(Collectors.toList());
     }
 
 
@@ -177,6 +228,9 @@ public class ModelTransformationHelper {
      * @return The converted JPASubmodelDescriptor.
      */
     public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
+        if (submodel == null) {
+            return null;
+        }
         return new JpaSubmodelDescriptor.Builder().from(submodel).build();
     }
 
@@ -188,6 +242,9 @@ public class ModelTransformationHelper {
      * @return The converted JPASubmodelDescriptor.
      */
     public static JpaSubmodelDescriptorStandalone convertSubmodelStandalone(SubmodelDescriptor submodel) {
+        if (submodel == null) {
+            return null;
+        }
         return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
     }
 
@@ -207,4 +264,175 @@ public class ModelTransformationHelper {
                 .collect(Collectors.toList());
     }
 
+
+    /**
+     * Converts Extension to JPAExtension.
+     *
+     * @param extension The Extension.
+     * @return The converted JPAExtension.
+     */
+    public static JpaExtension convertExtension(Extension extension) {
+        if (extension == null) {
+            return null;
+        }
+        return new JpaExtension.Builder()
+                .from(extension)
+                .build();
+    }
+
+
+    /**
+     * Converts Extension to JPAExtension.
+     *
+     * @param extensions The list of Extensions.
+     * @return The converted list of Extensions.
+     */
+    public static List<Extension> convertExtensions(List<Extension> extensions) {
+        if (Objects.isNull(extensions)) {
+            return new ArrayList<>();
+        }
+        return extensions.stream()
+                .map(x -> new JpaExtension.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of LangStringPreferredNameTypeIec61360 to a list of JpaLangStringPreferredNameTypeIec61360.
+     *
+     * @param names The list of names.
+     * @return The converted list of names.
+     */
+    public static List<LangStringPreferredNameTypeIec61360> convertPreferredNameIec61360(List<LangStringPreferredNameTypeIec61360> names) {
+        return names.stream()
+                .map(x -> new JpaLangStringPreferredNameTypeIec61360.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of LangStringShortNameTypeIec61360 to a list of JpaLangStringShortNameTypeIec61360.
+     *
+     * @param names The list of names.
+     * @return The converted list of names.
+     */
+    public static List<LangStringShortNameTypeIec61360> convertShortNameIec61360(List<LangStringShortNameTypeIec61360> names) {
+        return names.stream()
+                .map(x -> new JpaLangStringShortNameTypeIec61360.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of LangStringDefinitionTypeIec61360 to a list of JpaLangStringDefinitionTypeIec61360.
+     *
+     * @param names The list of names.
+     * @return The converted list of names.
+     */
+    public static List<LangStringDefinitionTypeIec61360> convertDefinitionIec61360(List<LangStringDefinitionTypeIec61360> names) {
+        return names.stream()
+                .map(x -> new JpaLangStringDefinitionTypeIec61360.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a list of ValueReferencePair to a list of JpaValueReferencePair.
+     *
+     * @param pairs The list of pairs.
+     * @return The converted list of pairs.
+     */
+    public static List<ValueReferencePair> convertValueReferencePairs(List<ValueReferencePair> pairs) {
+        return pairs.stream()
+                .map(x -> new JpaValueReferencePair.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Converts a ValueList to a JpaValueList.
+     *
+     * @param value the desired ValueList.
+     * @return The converted ValueList.
+     */
+    public static ValueList convertValueList(ValueList value) {
+        if (value == null) {
+            return null;
+        }
+        return new JpaValueList.Builder()
+                .from(value)
+                .build();
+    }
+
+
+    /**
+     * Converts a DataSpecificationIec61360 into JpaDataSpecificationIec61360.
+     *
+     * @param iec The desired DataSpecificationIec61360.
+     * @return The converted JPA DataSpecificationIec61360.
+     */
+    public static DataSpecificationIec61360 convertDataSpecificationIec61360(DataSpecificationIec61360 iec) {
+        if (iec == null) {
+            return null;
+        }
+        return new JpaDataSpecificationIec61360.Builder().from(iec).build();
+    }
+
+
+    /**
+     * Converts LevelType to JpaLevelType.
+     *
+     * @param levelType The LevelType.
+     * @return The converted LevelType.
+     */
+    public static JpaLevelType convertLevelType(LevelType levelType) {
+        if (levelType == null) {
+            return null;
+        }
+        return new JpaLevelType.Builder()
+                .from(levelType)
+                .build();
+    }
+
+
+    /**
+     * Convert EmbeddedDataSpecification to JpaEmbeddedDataSpecification.
+     *
+     * @param embeddedDataSpecification The EmbeddedDataSpecification.
+     * @return The converted EmbeddedDataSpecification.
+     */
+    public static EmbeddedDataSpecification convertEmbeddedDataSpecification(EmbeddedDataSpecification embeddedDataSpecification) {
+        if (embeddedDataSpecification == null) {
+            return null;
+        }
+        return new JpaEmbeddedDataSpecification.Builder()
+                .from(embeddedDataSpecification)
+                .build();
+    }
+
+
+    /**
+     * Convert a list of EmbeddedDataSpecifications to a list of JpaEmbeddedDataSpecification.
+     *
+     * @param embeddedDataSpecifications The list of EmbeddedDataSpecifications.
+     * @return The converted list of EmbeddedDataSpecifications.
+     */
+    public static List<EmbeddedDataSpecification> convertEmbeddedDataSpecifications(List<EmbeddedDataSpecification> embeddedDataSpecifications) {
+        return embeddedDataSpecifications.stream()
+                .map(x -> new JpaEmbeddedDataSpecification.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Convert a list of SecurityAttributeObjects to a list of JpaSecurityAttributeObjects.
+     *
+     * @param securityAttributes The list of SecurityAttributeObject.
+     * @return The converted list of SecurityAttributeObjects.
+     */
+    public static List<SecurityAttributeObject> convertSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
+        return securityAttributes.stream()
+                .map(x -> new JpaSecurityAttributeObject.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
 }

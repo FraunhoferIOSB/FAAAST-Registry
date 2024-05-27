@@ -16,20 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.LangStringPreferredNameTypeIec61360Builder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for LangStringPreferredNameTypeIec61360.
  */
-public class JpaKey extends DefaultKey {
+public class JpaLangStringPreferredNameTypeIec61360 extends DefaultLangStringPreferredNameTypeIec61360 {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaLangStringPreferredNameTypeIec61360() {
         id = null;
     }
 
@@ -62,14 +62,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaLangStringPreferredNameTypeIec61360 other = (JpaLangStringPreferredNameTypeIec61360) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaLangStringPreferredNameTypeIec61360, B extends AbstractBuilder<T, B>>
+            extends LangStringPreferredNameTypeIec61360Builder<JpaLangStringPreferredNameTypeIec61360, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +77,16 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(LangStringPreferredNameTypeIec61360 other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
-                value(other.getValue());
+                text(other.getText());
+                language(other.getLanguage());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaLangStringPreferredNameTypeIec61360, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +95,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaLangStringPreferredNameTypeIec61360 newBuildingInstance() {
+            return new JpaLangStringPreferredNameTypeIec61360();
         }
     }
 }

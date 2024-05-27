@@ -15,21 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ValueListBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for ValueList.
  */
-public class JpaKey extends DefaultKey {
+public class JpaValueList extends DefaultValueList {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaValueList() {
         id = null;
     }
 
@@ -62,14 +63,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaValueList other = (JpaValueList) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaValueList, B extends AbstractBuilder<T, B>>
+            extends ValueListBuilder<JpaValueList, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,15 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(ValueList other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
-                value(other.getValue());
+                valueReferencePairs(ModelTransformationHelper.convertValueReferencePairs(other.getValueReferencePairs()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaValueList, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +95,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaValueList newBuildingInstance() {
+            return new JpaValueList();
         }
     }
 }

@@ -14,13 +14,19 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.RegistryHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import java.util.List;
+import java.net.URI;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,15 +34,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
 /**
  * REST controller for the Asset Administration Shell registry.
  */
 @RestController
-@RequestMapping("/registry/shell-descriptors")
+@RequestMapping("/api/v3.0/shell-descriptors")
 public class ShellRegistryController {
 
     @Autowired
@@ -45,11 +53,25 @@ public class ShellRegistryController {
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of all registered Asset Administration Shells.
      */
     @GetMapping()
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return service.getAASs();
+    public Page<AssetAdministrationShellDescriptor> getAASs(@RequestParam(name = "assetType", required = false) String assetType,
+                                                            @RequestParam(name = "assetKind", required = false) AssetKind assetKind,
+                                                            @RequestParam(name = "limit", required = false) Long limit,
+                                                            @RequestParam(name = "cursor", required = false) String cursor) {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
+            pageBuilder.limit(limit);
+        }
+        return service.getAASs(assetType, assetKind, pageBuilder.build());
     }
 
 
@@ -74,9 +96,13 @@ public class ShellRegistryController {
      * @throws ResourceAlreadyExistsException When the AAS already exists.
      */
     @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
-    public AssetAdministrationShellDescriptor create(@RequestBody AssetAdministrationShellDescriptor resource) throws ResourceAlreadyExistsException {
-        return service.createAAS(resource);
+    public ResponseEntity<AssetAdministrationShellDescriptor> create(@RequestBody AssetAdministrationShellDescriptor resource) throws ResourceAlreadyExistsException {
+        AssetAdministrationShellDescriptor aas = service.createAAS(resource);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(String.format("/%s", RegistryHelper.encode(aas.getId())))
+                .build().toUri();
+        return ResponseEntity.created(location).body(aas);
     }
 
 
@@ -114,12 +140,24 @@ public class ShellRegistryController {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasIdentifier The ID of the desired Asset Administration Shell.
+     * @param limit The limit value.
+     * @param cursor The cursor value.
      * @return The list of Submodels.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     @GetMapping(value = "/{aasIdentifier}/submodel-descriptors")
-    public List<SubmodelDescriptor> getSubmodelsOfAAS(@PathVariable("aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
-        return service.getSubmodels(aasIdentifier);
+    public Page<SubmodelDescriptor> getSubmodelsOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                      @RequestParam(name = "limit", required = false) Long limit,
+                                                      @RequestParam(name = "cursor", required = false) String cursor)
+            throws ResourceNotFoundException {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
+            pageBuilder.limit(limit);
+        }
+        return service.getSubmodels(aasIdentifier, pageBuilder.build());
     }
 
 
@@ -149,11 +187,15 @@ public class ShellRegistryController {
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PostMapping(value = "/{aasIdentifier}/submodel-descriptors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public SubmodelDescriptor create(@PathVariable("aasIdentifier") String aasIdentifier,
-                                     @RequestBody SubmodelDescriptor submodel)
+    public ResponseEntity<SubmodelDescriptor> create(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                     @RequestBody SubmodelDescriptor submodel)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        return service.createSubmodel(aasIdentifier, submodel);
+        SubmodelDescriptor descriptor = service.createSubmodel(aasIdentifier, submodel);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path(String.format("/%s", RegistryHelper.encode(descriptor.getId())))
+                .build().toUri();
+        return ResponseEntity.created(location).body(descriptor);
     }
 
 

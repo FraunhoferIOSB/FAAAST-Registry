@@ -16,10 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import io.adminshell.aas.v3.model.Reference;
-import io.adminshell.aas.v3.model.builder.ReferenceBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultReference;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ReferenceBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 
 
 /**
@@ -81,6 +81,8 @@ public class JpaReference extends DefaultReference {
         public B from(Reference other) {
             if (Objects.nonNull(other)) {
                 keys(ModelTransformationHelper.convertKeys(other.getKeys()));
+                type(other.getType());
+                referredSemanticId(ModelTransformationHelper.convertReference(other.getReferredSemanticId()));
             }
             return getSelf();
         }

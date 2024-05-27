@@ -16,20 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.LevelType;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.LevelTypeBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for LevelType.
  */
-public class JpaKey extends DefaultKey {
+public class JpaLevelType extends DefaultLevelType {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaLevelType() {
         id = null;
     }
 
@@ -62,14 +62,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaLevelType other = (JpaLevelType) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaLevelType, B extends AbstractBuilder<T, B>>
+            extends LevelTypeBuilder<JpaLevelType, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +77,18 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(LevelType other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
-                value(other.getValue());
+                min(other.getMin());
+                max(other.getMax());
+                nom(other.getNom());
+                typ(other.getTyp());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaLevelType, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +97,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaLevelType newBuildingInstance() {
+            return new JpaLevelType();
         }
     }
 }

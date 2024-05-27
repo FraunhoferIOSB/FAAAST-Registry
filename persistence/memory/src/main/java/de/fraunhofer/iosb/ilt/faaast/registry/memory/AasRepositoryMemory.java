@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 
 
 /**
@@ -52,8 +53,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return new ArrayList<>(shellDescriptors.values());
+    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+        return new ArrayList<>(
+                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
     }
 
 
@@ -69,9 +71,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getIdentification().getIdentifier());
-        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
+        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -93,7 +95,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
         }
-        shellDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -140,8 +142,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getIdentification().getIdentifier()).isPresent()) {
-            throw buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier());
+        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getId()).isPresent()) {
+            throw buildSubmodelAlreadyExistsException(descriptor.getId());
         }
         aas.getSubmodels().add(descriptor);
         return descriptor;
@@ -152,9 +154,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
         Ensure.require(
-                !submodelDescriptors.containsKey(descriptor.getIdentification().getIdentifier()),
-                buildSubmodelAlreadyExistsException(descriptor.getIdentification().getIdentifier()));
-        submodelDescriptors.put(descriptor.getIdentification().getIdentifier(), descriptor);
+                !submodelDescriptors.containsKey(descriptor.getId()),
+                buildSubmodelAlreadyExistsException(descriptor.getId()));
+        submodelDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -165,7 +167,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getIdentification().getIdentifier(), submodelId));
+        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
     }
@@ -182,5 +184,29 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
         return shellDescriptors.getOrDefault(aasId, null);
+    }
+
+
+    private static boolean filterAssetType(AssetAdministrationShellDescriptor aas, String assetType) {
+        boolean retval;
+        if (assetType == null) {
+            retval = true;
+        }
+        else {
+            retval = aas.getAssetType().equals(assetType);
+        }
+        return retval;
+    }
+
+
+    private static boolean filterAssetKind(AssetAdministrationShellDescriptor aas, AssetKind assetKind) {
+        boolean retval;
+        if (assetKind == null) {
+            retval = true;
+        }
+        else {
+            retval = aas.getAssetKind() == assetKind;
+        }
+        return retval;
     }
 }

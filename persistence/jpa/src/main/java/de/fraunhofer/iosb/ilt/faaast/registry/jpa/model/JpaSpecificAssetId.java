@@ -16,21 +16,21 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import io.adminshell.aas.v3.model.IdentifierKeyValuePair;
-import io.adminshell.aas.v3.model.builder.IdentifierKeyValuePairBuilder;
-import io.adminshell.aas.v3.model.impl.DefaultIdentifierKeyValuePair;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SpecificAssetIdBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 
 
 /**
- * Registry Descriptor JPA implementation for IdentifierKeyValuePair.
+ * Registry Descriptor JPA implementation for SpecificAssetId.
  */
-public class JpaIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
+public class JpaSpecificAssetId extends DefaultSpecificAssetId {
 
     @JsonIgnore
     private String id;
 
-    public JpaIdentifierKeyValuePair() {
+    public JpaSpecificAssetId() {
         id = null;
     }
 
@@ -63,14 +63,14 @@ public class JpaIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
             return false;
         }
         else {
-            JpaIdentifierKeyValuePair other = (JpaIdentifierKeyValuePair) obj;
+            JpaSpecificAssetId other = (JpaSpecificAssetId) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaIdentifierKeyValuePair, B extends AbstractBuilder<T, B>>
-            extends IdentifierKeyValuePairBuilder<JpaIdentifierKeyValuePair, B> {
+    public abstract static class AbstractBuilder<T extends JpaSpecificAssetId, B extends AbstractBuilder<T, B>>
+            extends SpecificAssetIdBuilder<JpaSpecificAssetId, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -78,18 +78,19 @@ public class JpaIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
         }
 
 
-        public B from(IdentifierKeyValuePair other) {
+        public B from(SpecificAssetId other) {
             if (Objects.nonNull(other)) {
                 semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
-                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
-                key(other.getKey());
+                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
+                name(other.getName());
                 value(other.getValue());
+                externalSubjectId(ModelTransformationHelper.convertReference(other.getExternalSubjectId()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaIdentifierKeyValuePair, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSpecificAssetId, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -98,8 +99,8 @@ public class JpaIdentifierKeyValuePair extends DefaultIdentifierKeyValuePair {
 
 
         @Override
-        protected JpaIdentifierKeyValuePair newBuildingInstance() {
-            return new JpaIdentifierKeyValuePair();
+        protected JpaSpecificAssetId newBuildingInstance() {
+            return new JpaSpecificAssetId();
         }
     }
 }

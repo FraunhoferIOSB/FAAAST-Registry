@@ -15,21 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtensionBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for Extension.
  */
-public class JpaKey extends DefaultKey {
+public class JpaExtension extends DefaultExtension {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaExtension() {
         id = null;
     }
 
@@ -62,14 +63,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaExtension other = (JpaExtension) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaExtension, B extends AbstractBuilder<T, B>>
+            extends ExtensionBuilder<JpaExtension, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,20 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(Extension other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
+                semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
+                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
+                name(other.getName());
+                valueType(other.getValueType());
                 value(other.getValue());
+                refersTo(ModelTransformationHelper.convertReferences(other.getRefersTo()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaExtension, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +100,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaExtension newBuildingInstance() {
+            return new JpaExtension();
         }
     }
 }

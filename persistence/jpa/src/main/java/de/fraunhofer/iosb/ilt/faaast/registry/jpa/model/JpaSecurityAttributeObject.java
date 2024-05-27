@@ -16,20 +16,20 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SecurityAttributeObjectBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for SecurityAttributeObject.
  */
-public class JpaKey extends DefaultKey {
+public class JpaSecurityAttributeObject extends DefaultSecurityAttributeObject {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaSecurityAttributeObject() {
         id = null;
     }
 
@@ -62,14 +62,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaSecurityAttributeObject other = (JpaSecurityAttributeObject) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaSecurityAttributeObject, B extends AbstractBuilder<T, B>>
+            extends SecurityAttributeObjectBuilder<JpaSecurityAttributeObject, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +77,17 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(SecurityAttributeObject other) {
             if (Objects.nonNull(other)) {
                 type(other.getType());
+                key(other.getKey());
                 value(other.getValue());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaSecurityAttributeObject, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +96,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaSecurityAttributeObject newBuildingInstance() {
+            return new JpaSecurityAttributeObject();
         }
     }
 }

@@ -15,21 +15,22 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.DataSpecificationIec61360Builder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for DataSpecificationIec61360.
  */
-public class JpaKey extends DefaultKey {
+public class JpaDataSpecificationIec61360 extends DefaultDataSpecificationIec61360 {
 
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaDataSpecificationIec61360() {
         id = null;
     }
 
@@ -62,14 +63,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaDataSpecificationIec61360 other = (JpaDataSpecificationIec61360) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaDataSpecificationIec61360, B extends AbstractBuilder<T, B>>
+            extends DataSpecificationIec61360Builder<JpaDataSpecificationIec61360, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +78,26 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(DataSpecificationIec61360 other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
+                preferredName(ModelTransformationHelper.convertPreferredNameIec61360(other.getPreferredName()));
+                shortName(ModelTransformationHelper.convertShortNameIec61360(other.getShortName()));
+                unit(other.getUnit());
+                unitId(ModelTransformationHelper.convertReference(other.getUnitId()));
+                sourceOfDefinition(other.getSourceOfDefinition());
+                symbol(other.getSymbol());
+                dataType(other.getDataType());
+                definition(ModelTransformationHelper.convertDefinitionIec61360(other.getDefinition()));
+                valueFormat(other.getValueFormat());
+                valueList(ModelTransformationHelper.convertValueList(other.getValueList()));
                 value(other.getValue());
+                levelType(ModelTransformationHelper.convertLevelType(other.getLevelType()));
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaDataSpecificationIec61360, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +106,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaDataSpecificationIec61360 newBuildingInstance() {
+            return new JpaDataSpecificationIec61360();
         }
     }
 }

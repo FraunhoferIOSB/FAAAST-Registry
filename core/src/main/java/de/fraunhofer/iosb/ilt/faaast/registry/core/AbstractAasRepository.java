@@ -32,6 +32,12 @@ public abstract class AbstractAasRepository implements AasRepository {
     protected AbstractAasRepository() {}
 
 
+    @Override
+    public List<AssetAdministrationShellDescriptor> getAASs() {
+        return getAASs(null, null);
+    }
+
+
     /**
      * Creates a new {@link ResourceNotFoundException} for the AAS.
      *
@@ -96,8 +102,7 @@ public abstract class AbstractAasRepository implements AasRepository {
      */
     protected static void ensureDescriptorId(AssetAdministrationShellDescriptor descriptor) {
         Ensure.requireNonNull(descriptor, "descriptor must be non-null");
-        Ensure.requireNonNull(descriptor.getIdentification(), "descriptor.identification must be non-null");
-        Ensure.requireNonNull(descriptor.getIdentification().getIdentifier(), "descriptor id must be non-null");
+        Ensure.requireNonNull(descriptor.getId(), "descriptor id must be non-null");
     }
 
 
@@ -109,8 +114,7 @@ public abstract class AbstractAasRepository implements AasRepository {
      */
     protected static void ensureDescriptorId(SubmodelDescriptor descriptor) {
         Ensure.requireNonNull(descriptor, "descriptor must be non-null");
-        Ensure.requireNonNull(descriptor.getIdentification(), "descriptor.identification must be non-null");
-        Ensure.requireNonNull(descriptor.getIdentification().getIdentifier(), "descriptor id must be non-null");
+        Ensure.requireNonNull(descriptor.getId(), "descriptor id must be non-null");
     }
 
 
@@ -145,11 +149,9 @@ public abstract class AbstractAasRepository implements AasRepository {
      */
     protected static Optional<SubmodelDescriptor> getSubmodelInternal(List<SubmodelDescriptor> submodels, String submodelId) {
         return submodels.stream()
-                .filter(x -> Objects.nonNull(x.getIdentification())
-                        && Objects.nonNull(x.getIdentification().getIdentifier())
-                        && Objects.equals(x.getIdentification().getIdentifier(), submodelId))
+                .filter(x -> Objects.nonNull(x.getId())
+                        && Objects.equals(x.getId(), submodelId))
                 .findAny();
-
     }
 
 }

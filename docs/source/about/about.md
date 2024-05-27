@@ -1,6 +1,6 @@
 # About the Project
 
-This project provides an implemetation of the Registry for the [Asset Administration Shell (AAS)](https://www.plattform-i40.de/SiteGlobals/IP/Forms/Listen/Downloads/EN/Downloads_Formular.html?cl2Categories_TechnologieAnwendungsbereich_name=Verwaltungsschale).
+This project provides an implemetation of the Registry for the [Asset Administration Shell (AAS)](https://industrialdigitaltwin.org/content-hub/downloads).
 The Registry provides information about registered AASs, including the endpoint of the AASs.
 
 ## Contact

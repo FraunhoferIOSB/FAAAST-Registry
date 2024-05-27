@@ -16,20 +16,19 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
-import org.eclipse.digitaltwin.aas4j.v3.model.Key;
-import org.eclipse.digitaltwin.aas4j.v3.model.builder.KeyBuilder;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.LangStringNameTypeBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
 
 
 /**
- * Registry Descriptor JPA implementation for Key.
+ * Registry Descriptor JPA implementation for Display Name.
  */
-public class JpaKey extends DefaultKey {
-
+public class JpaDisplayName extends DefaultLangStringNameType {
     @JsonIgnore
     private String id;
 
-    public JpaKey() {
+    public JpaDisplayName() {
         id = null;
     }
 
@@ -62,14 +61,14 @@ public class JpaKey extends DefaultKey {
             return false;
         }
         else {
-            JpaKey other = (JpaKey) obj;
+            JpaDisplayName other = (JpaDisplayName) obj;
             return super.equals(obj)
                     && Objects.equals(this.id, other.id);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaKey, B extends AbstractBuilder<T, B>>
-            extends KeyBuilder<JpaKey, B> {
+    public abstract static class AbstractBuilder<T extends JpaDisplayName, B extends AbstractBuilder<T, B>>
+            extends LangStringNameTypeBuilder<JpaDisplayName, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -77,16 +76,16 @@ public class JpaKey extends DefaultKey {
         }
 
 
-        public B from(Key other) {
+        public B from(LangStringNameType other) {
             if (Objects.nonNull(other)) {
-                type(other.getType());
-                value(other.getValue());
+                text(other.getText());
+                language(other.getLanguage());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaKey, Builder> {
+    public static class Builder extends AbstractBuilder<JpaDisplayName, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +94,8 @@ public class JpaKey extends DefaultKey {
 
 
         @Override
-        protected JpaKey newBuildingInstance() {
-            return new JpaKey();
+        protected JpaDisplayName newBuildingInstance() {
+            return new JpaDisplayName();
         }
     }
 }

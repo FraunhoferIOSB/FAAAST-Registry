@@ -49,9 +49,3 @@ This example shows how to start a FA³ST Registry with in-memory persistence.
 ```sh
 java -jar service-0.1.0-SNAPSHOT.jar
 ```
-
-or
-
-```sh
-mvn spring-boot:run
-```

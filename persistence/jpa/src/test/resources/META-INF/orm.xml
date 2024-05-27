@@ -6,17 +6,20 @@
 <hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
     <class name="JpaAssetAdministrationShellDescriptor" table="asset_administration_shell">
         
-        <id name="id" type="string">
-        </id>
+        <id name="id"></id>
 
         <property name="idShort"/>
+        <property name="assetType"/>
+        <property name="globalAssetId"/>
 
-        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
-
+        <property name="assetKind" column="assetKind">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.AssetKind</param>
+            </type>
+        </property>
+        
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
-        <many-to-one name="globalAssetId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referenceId" lazy="false"></many-to-one>
-        
         <list name="endpoints" cascade="all" table="asset_administration_shell_endpoints">
             <key column="eid"/>
             <index column="index"/>
@@ -32,19 +35,25 @@
         <list name="displayNames" cascade="all" table="asset_administration_shell_display_names">
             <key column="dnid"/>
             <index column="index"/>
-            <many-to-many class="JpaDescription"/>
+            <many-to-many class="JpaDisplayName"/>
         </list>
 
-        <list name="specificAssetIds" cascade="all">
+        <list name="specificAssetIds" cascade="all" table="asset_administration_shell_specific_asset_ids">
             <key column="sid"/>
             <index column="index"/>
-            <one-to-many class="JpaIdentifierKeyValuePair"/>
+            <many-to-many class="JpaSpecificAssetId"/>
         </list>
 
         <list name="submodels" cascade="all" table="asset_administration_shell_submodels">
             <key column="sdid"/>
             <index column="index"/>
             <many-to-many class="JpaSubmodelDescriptor"/>
+        </list>
+
+        <list name="extensions" cascade="all" table="asset_administration_shell_extensions">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
         </list>
 
     </class>
@@ -63,29 +72,33 @@
             <generator class="uuid"/>
         </id>
         <property name="language"/>
-        <property name="value" column="value_col"/> 
+        <property name="text" column="text_col"/> 
     </class>
 
-    <class name="JpaIdentifierKeyValuePair" table="identifier_key_value_pair">
+    <class name="JpaDisplayName" table="display_name">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaSpecificAssetId" table="specific_asset_id">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
         
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
         <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
-        <property name="key" column="key_vol"/>
+        <property name="name" column="name_col"/>
         <property name="value" column="value_col"/> 
     </class>
 
     <class name="JpaSubmodelDescriptor" table="submodel">
-        <id name="id" type="string">
-        </id>
+        <id name="id"></id>
         <property name="idShort"/>
 
-        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
-
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
-        <!-- <one-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all"></one-to-one> -->
 
         <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
 
@@ -104,8 +117,21 @@
         <list name="displayNames" cascade="all" table="submodel_displaynames">
             <key column="dnid"/>
             <index column="index"/>
-            <many-to-many class="JpaDescription"/>
+            <many-to-many class="JpaDisplayName"/>
         </list>
+
+        <list name="extensions" cascade="all" table="submodel_extensions">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
+        </list>
+            
+        <list name="supplementalSemanticIds" cascade="all" table="submodel_supp_semantic_id">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+
     </class>
 
     <class name="JpaAdministrativeInformation" table="administrative_information">
@@ -115,6 +141,16 @@
         
         <property name="version"/>
         <property name="revision"/>
+        <property name="templateId"/>
+        
+        <many-to-one name="creator" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="creator" lazy="false"></many-to-one>
+
+        <list name="embeddedDataSpecifications" cascade="all" table="admin_info_embed_data_spec">
+            <key column="edsid"/>
+            <index column="index"/>
+            <many-to-many class="JpaEmbeddedDataSpecification"/>
+        </list>
+
     </class>
     
     <class name="JpaKey" table="key_table">
@@ -122,14 +158,9 @@
             <generator class="uuid"/>
         </id>
 
-        <property name="idType" column="idType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.adminshell.aas.v3.model.KeyType</param>
-            </type>
-        </property>
         <property name="type">
             <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.adminshell.aas.v3.model.KeyElements</param>
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes</param>
             </type>
         </property>
         <property name="value" column="value_col"/>
@@ -141,11 +172,19 @@
             <generator class="uuid"/>
         </id>
         
+        <property name="type" column="refType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes</param>
+            </type>
+        </property>
+            
         <list name="keys" cascade="all">
             <key column="kid"/>
             <index column="keyType"/>
             <one-to-many class="JpaKey"/>
         </list>
+        
+        <many-to-one name="referredSemanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referredSemanticId" lazy="false"></many-to-one>
     </class>
     
     <class name="JpaProtocolInformation" table="protocol_information">
@@ -153,33 +192,38 @@
             <generator class="uuid"/>
         </id>
         
-        <property name="endpointAddress"/>
+        <property name="href"/>
         <property name="endpointProtocol"/>
         <property name="endpointProtocolVersion"/>
         <property name="subprotocol"/>
         <property name="subprotocolBody"/>
         <property name="subprotocolBodyEncoding"/>
+
+        <list name="securityAttributes" cascade="all" table="protocol_information_security_attributes">
+            <key column="secAtts"/>
+            <index column="secAttsType"/>
+            <many-to-many class="JpaSecurityAttributeObject"/>
+        </list>
     </class>
     
-    <class name="JpaIdentifier" table="identifier">
+    <class name="JpaSecurityAttributeObject" table="security_attributes">
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
         
-        <property name="identifier"/>
-        <property name="idType">
+        <property name="type" column="secAttType">
             <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">io.adminshell.aas.v3.model.IdentifierType</param>
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum</param>
             </type>
         </property>
+
+        <property name="key" column="secAttKey"/>
+        <property name="value" column="secAttValue"/>
     </class>
-
+    
     <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
-        <id name="id" type="string">
-        </id>
+        <id name="id"></id>
         <property name="idShort"/>
-
-        <many-to-one name="identification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaIdentifier" cascade="all" column="identificationId" lazy="false"></many-to-one>
 
         <many-to-one name="administration" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAdministrativeInformation" cascade="all" column="adminId" lazy="false"></many-to-one>
 
@@ -200,8 +244,166 @@
         <list name="displayNames" cascade="all" table="submodel_displaynames_standalone">
             <key column="dnid"/>
             <index column="index"/>
-            <many-to-many class="JpaDescription"/>
+            <many-to-many class="JpaDisplayName"/>
         </list>
+        
+        <list name="extensions" cascade="all" table="submodel_extensions_standalone">
+            <key column="extid"/>
+            <index column="index"/>
+            <many-to-many class="JpaExtension"/>
+        </list>
+        
+        <list name="supplementalSemanticIds" cascade="all" table="submodel_supp_semantic_id_standalone">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+        
     </class>
 
+    <class name="JpaEmbeddedDataSpecification" table="embedded_data_specification">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <many-to-one name="dataSpecification" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="dataSpecification" lazy="false"></many-to-one>
+        <many-to-one name="dataSpecificationContentIec61360" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDataSpecificationIec61360" cascade="all" column="dataSpecificationContentIec61360" lazy="false"></many-to-one>
+
+    </class>
+
+    <class name="JpaExtension" table="aas_extension">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
+
+        <list name="supplementalSemanticIds" cascade="all" table="extension_supp_semantic_id">
+            <key column="ssid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+
+        <property name="name" column="name_col"/>
+        <property name="valueType" column="valueType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd</param>
+            </type>
+        </property>
+        <property name="value" column="value_col"/>
+
+        <list name="refersTo" cascade="all" table="extension_refers_to">
+            <key column="rtid"/>
+            <index column="index"/>
+            <many-to-many class="JpaReference"/>
+        </list>
+                
+    </class>
+    
+    <class name="JpaDataSpecificationIec61360" table="data_specification_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="unit"/>
+        <property name="sourceOfDefinition"/>
+        <property name="symbol"/>
+        <property name="valueFormat"/>
+        <property name="value" column="value_col"/>
+
+        <property name="dataType" column="dataType_col">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360</param>
+            </type>
+        </property>
+
+        <!--<property name="levelType" column="levelType">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.LevelType</param>
+            </type>
+        </property>-->
+        
+        <many-to-one name="unitId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="unit_id" lazy="false"></many-to-one>
+        <many-to-one name="valueList" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueList" cascade="all" column="value_list" lazy="false"></many-to-one>
+        <many-to-one name="levelType" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLevelType" cascade="all" column="level_type" lazy="false"></many-to-one>
+
+        <list name="preferredName" cascade="all" table="data_specification_iec_61360_preferred_name">
+            <key column="prefid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringPreferredNameTypeIec61360"/>
+        </list>
+                
+        <list name="shortName" cascade="all" table="data_specification_iec_61360_short_name">
+            <key column="shortid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringShortNameTypeIec61360"/>
+        </list>
+                
+        <list name="definition" cascade="all" table="data_specification_iec_61360_definition">
+            <key column="defid"/>
+            <index column="index"/>
+            <many-to-many class="JpaLangStringDefinitionTypeIec61360"/>
+        </list>
+                
+    </class>
+
+    <class name="JpaLangStringShortNameTypeIec61360" table="short_name_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaLangStringPreferredNameTypeIec61360" table="preferred_name_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaLangStringDefinitionTypeIec61360" table="definition_iec_61360">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        <property name="language"/>
+        <property name="text" column="text_col"/> 
+    </class>
+
+    <class name="JpaValueList" table="value_list">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <list name="valueReferencePairs" cascade="all" table="value_list_reference_pairs">
+            <key column="refPairId"/>
+            <index column="index"/>
+            <many-to-many class="JpaValueReferencePair"/>
+        </list>
+                
+    </class>
+    
+    <class name="JpaValueReferencePair" table="reference_pair">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+
+        <property name="value" column="value_col"/>
+
+        <many-to-one name="valueId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="valueId" lazy="false"></many-to-one>
+                
+    </class>
+    
+    <class name="JpaLevelType" table="level_type">
+        <id name="id" type="string">
+            <generator class="uuid"/>
+        </id>
+        
+        <property name="min"/>
+        <property name="max"/>
+        <property name="nom"/>
+        <property name="typ"/>
+    </class>
+    
 </hibernate-mapping>
