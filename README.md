@@ -5,7 +5,7 @@
 
 The **F**raunhofer **A**dvanced **A**sset **A**dministration **S**hell **T**ools (**FA³ST**) Registry.
 
-For more details on FA³ST Registry see the full documenation :blue_book: [here](https://faaast-registry.readthedocs.io/).
+For more details on FA³ST Registry see the full documentation :blue_book: [here](https://faaast-registry.readthedocs.io/).
 
 | FA³ST Registry is still under development. Contributions in form of issues and pull requests are highly welcome. |
 |-----------------------------|

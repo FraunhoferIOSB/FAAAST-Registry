@@ -6,7 +6,7 @@ The In-Memory Persistence keeps the AAS and Submodel Registry in the local memor
 
 ## Configuration
 
-The In-Memory Persistence requires some settings in the `application.properties` (service\src\main\resources\application.properties) file:
+The In-Memory Persistence requires some settings in the `application.properties` (`service\src\main\resources\application.properties`) file:
 
 ```properties
 ##### RDBS via JPA (in-memory H2) #####
