@@ -69,7 +69,7 @@
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>9.2.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
-        <maven.plugin.shade.version>3.5.3</maven.plugin.shade.version>
+        <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
         <picocli.version>4.7.6</picocli.version>
