@@ -229,7 +229,7 @@
         <id name="id" type="string">
             <generator class="uuid"/>
         </id>
-        <property name="value"/>
+        <property name="value" column="versionValue"/>
     </class>
 
     <class name="JpaSubmodelDescriptorStandalone" table="submodel_standalone">
