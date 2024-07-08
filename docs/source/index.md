@@ -23,6 +23,7 @@ The FA³ST Registry contains two separate Registry instances: An AAS Registry fo
 :maxdepth: 3
 gettingstarted/gettingstarted.md
 gettingstarted/configuration.md
+gettingstarted/docker.md
 ```
 
 ```{toctree}
