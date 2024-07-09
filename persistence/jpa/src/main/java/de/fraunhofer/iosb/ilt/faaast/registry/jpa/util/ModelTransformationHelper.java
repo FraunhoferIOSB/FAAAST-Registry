@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEmbeddedDataSpecification;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpointProtocolVersion;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaExtension;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringDefinitionTypeIec61360;
@@ -433,6 +434,19 @@ public class ModelTransformationHelper {
     public static List<SecurityAttributeObject> convertSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
         return securityAttributes.stream()
                 .map(x -> new JpaSecurityAttributeObject.Builder().from(x).build())
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Convert a list of Strings to a list of JpaEndpointProtocolVersion.
+     *
+     * @param versions The list of Strings.
+     * @return The converted list of JpaEndpointProtocolVersion.
+     */
+    public static List<JpaEndpointProtocolVersion> convertEndpointProtocolVersion(List<String> versions) {
+        return versions.stream()
+                .map(x -> new JpaEndpointProtocolVersion.Builder().value(x).build())
                 .collect(Collectors.toList());
     }
 }

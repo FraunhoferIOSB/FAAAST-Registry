@@ -44,7 +44,7 @@ public class EndpointConstraintHelper {
 
     private static void checkEndpoint(Endpoint endpoint) {
         if (endpoint != null) {
-            CommonConstraintHelper.checkText(endpoint.getInterface(), MAX_IDSHORT_LENGTH, true, "Interface Information");
+            CommonConstraintHelper.checkText(endpoint.getInterface(), MAX_IDSHORT_LENGTH, true, "Interface");
             checkProtocolInformation(endpoint.getProtocolInformation());
         }
     }

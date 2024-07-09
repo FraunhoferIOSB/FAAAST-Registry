@@ -198,7 +198,7 @@
         <property name="subprotocolBody"/>
         <property name="subprotocolBodyEncoding"/>
 
-        <list name="endpointProtocolVersion" cascade="all" table="protocol_information_endpoint_protocol_version">
+        <list name="jpaEndpointProtocolVersion" cascade="all" table="protocol_information_endpoint_protocol_version">
             <key column="epvid"/>
             <index column="index"/>
             <many-to-many class="JpaEndpointProtocolVersion"/>

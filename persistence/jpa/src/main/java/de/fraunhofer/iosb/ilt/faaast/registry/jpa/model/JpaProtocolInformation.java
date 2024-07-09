@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -28,6 +30,9 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
 
     @JsonIgnore
     private String id;
+
+    @JsonIgnore
+    private List<JpaEndpointProtocolVersion> jpaEndpointProtocolVersion;
 
     public JpaProtocolInformation() {
         id = null;
@@ -44,9 +49,29 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     }
 
 
+    public List<JpaEndpointProtocolVersion> getJpaEndpointProtocolVersion() {
+        return jpaEndpointProtocolVersion;
+    }
+
+
+    /**
+     * Sets the list of EndpointProtocolVersions.
+     *
+     * @param jpaEndpointProtocolVersion The list of EndpointProtocolVersions.
+     */
+    public void setJpaEndpointProtocolVersion(List<JpaEndpointProtocolVersion> jpaEndpointProtocolVersion) {
+        this.jpaEndpointProtocolVersion = jpaEndpointProtocolVersion;
+        List<String> versions = new ArrayList<>();
+        for (var v: jpaEndpointProtocolVersion) {
+            versions.add(v.getValue());
+        }
+        setEndpointProtocolVersion(versions);
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(super.hashCode(), id, jpaEndpointProtocolVersion);
     }
 
 
@@ -64,7 +89,8 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
         else {
             JpaProtocolInformation other = (JpaProtocolInformation) obj;
             return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
+                    && Objects.equals(this.id, other.id)
+                    && Objects.equals(this.jpaEndpointProtocolVersion, other.jpaEndpointProtocolVersion);
         }
     }
 
@@ -77,10 +103,17 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
         }
 
 
+        public B jpaEndpointProtocolVersion(List<JpaEndpointProtocolVersion> value) {
+            getBuildingInstance().setJpaEndpointProtocolVersion(value);
+            return getSelf();
+        }
+
+
         @Override
         public B from(ProtocolInformation other) {
             endpointProtocol(other.getEndpointProtocol());
-            endpointProtocolVersion(other.getEndpointProtocolVersion());
+            // endpointProtocolVersion is set in jpaEndpointProtocolVersion
+            jpaEndpointProtocolVersion(ModelTransformationHelper.convertEndpointProtocolVersion(other.getEndpointProtocolVersion()));
             href(other.getHref());
             securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
             subprotocol(other.getSubprotocol());
