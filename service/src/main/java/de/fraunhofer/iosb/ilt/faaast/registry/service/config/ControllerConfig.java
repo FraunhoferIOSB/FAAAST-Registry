@@ -15,8 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.AssetKindConverter;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
@@ -26,6 +35,62 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class ControllerConfig implements WebMvcConfigurer {
+
+    @Value("${cors.enabled:false}")
+    private boolean corsEnabled;
+
+    @Value("${cors.allowCredentials:false}")
+    private boolean corsAllowCredentials;
+
+    @Value("${cors.allowedOrigins:}")
+    private List<String> corsAllowedOrigins;
+
+    @Value("${cors.allowedMethods:}")
+    private List<String> corsAllowedMethods;
+
+    @Value("${cors.allowedHeaders:}")
+    private List<String> corsAllowedHeaders;
+
+    @Value("${cors.exposedHeaders:}")
+    private List<String> corsExposedHeaders;
+
+    @Value("${cors.maxAge:1800}")
+    private long corsMaxAge;
+
+    /**
+     * The conversion service.
+     *
+     * @return the conversion service
+     */
+    @Bean
+    protected ConversionService conversionService() {
+        return new DefaultConversionService();
+    }
+
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+        configurer
+                .ignoreAcceptHeader(true)
+                .defaultContentType(MediaType.APPLICATION_JSON);
+    }
+
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        if (!corsEnabled) {
+            return;
+        }
+        CorsRegistration registration = registry.addMapping("/api/v3.0/**");
+        registration.allowedOrigins(corsAllowedOrigins.toArray(String[]::new));
+        registration.allowedMethods(corsAllowedMethods.toArray(String[]::new));
+        registration.allowedHeaders(corsAllowedHeaders.toArray(String[]::new));
+        registration.exposedHeaders(corsExposedHeaders.toArray(String[]::new));
+        registration.allowCredentials(corsAllowCredentials);
+        registration.maxAge(corsMaxAge);
+    }
+
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new AssetKindConverter());
