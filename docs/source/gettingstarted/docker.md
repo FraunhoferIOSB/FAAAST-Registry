@@ -13,7 +13,6 @@ docker-compose up
 
 To modify the configuration edit the file `/misc/docker/docker-compose.yml`.
 You can change the following values using environment variables:
-    
 
 ### Configuration
 
@@ -29,7 +28,7 @@ You can change the following values using environment variables:
 
 ## Docker CLI
 
-To start the FA³ST Registry with default values execute this command.
+To start the FA³ST Registry with default values execute this command. This will start the image of FA³ST Registry from Docker Hub.
 A FA³ST Registry with in-memory database on port 8090 will be started.
 
 ```sh
@@ -40,6 +39,13 @@ To start the FA³ST Registry with your own configuration, override the environme
 
 ```sh
 docker run --rm -P -e "server.port=8091" fraunhoferiosb/faaast-registry
+```
+
+To start the FA³ST Registry from your local configuration, e.g. if you have implemented changes, change to the root folder of the repository and run these command inside it:
+
+```sh
+docker build -t faaast-registry .
+docker run -p 8090:8090 -t faaast-registry
 ```
 
 Similarly to the above examples you can pass more arguments to the FA³ST Registry by using the CLI or an environment file
