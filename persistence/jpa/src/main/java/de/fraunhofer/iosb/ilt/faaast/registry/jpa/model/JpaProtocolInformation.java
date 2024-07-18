@@ -36,6 +36,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
 
     public JpaProtocolInformation() {
         id = null;
+        jpaEndpointProtocolVersion = new ArrayList<>();
     }
 
 
