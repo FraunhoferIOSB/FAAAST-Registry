@@ -46,16 +46,26 @@ public class RegistryControllerAdvice {
 
 
     /**
-     * Handles ResourceAlreadyExistsException and BadRequestException.
+     * Handles ResourceAlreadyExistsException.
      *
      * @param e The desired exception.
      * @return The corresponding response.
      */
-    @ExceptionHandler(value = {
-            ResourceAlreadyExistsException.class,
-            BadRequestException.class
-    })
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<Result> handleResourceAlreadyExistsException(Exception e) {
+        Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
+        return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.CONFLICT);
+    }
+
+
+    /**
+     * Handles BadRequestException.
+     *
+     * @param e The desired exception.
+     * @return The corresponding response.
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Result> handleBadRequestException(Exception e) {
         Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
         return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.BAD_REQUEST);
     }

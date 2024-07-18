@@ -44,7 +44,7 @@ public class EndpointConstraintHelper {
 
     private static void checkEndpoint(Endpoint endpoint) {
         if (endpoint != null) {
-            CommonConstraintHelper.checkText(endpoint.getInterfaceInformation(), MAX_IDSHORT_LENGTH, true, "Interface Information");
+            CommonConstraintHelper.checkText(endpoint.getInterface(), MAX_IDSHORT_LENGTH, true, "Interface");
             checkProtocolInformation(endpoint.getProtocolInformation());
         }
     }
@@ -54,7 +54,7 @@ public class EndpointConstraintHelper {
         if (protocolInformation != null) {
             CommonConstraintHelper.checkText(protocolInformation.getHref(), ConstraintHelper.MAX_STRING_2048_LENGTH, true, "href");
             CommonConstraintHelper.checkText(protocolInformation.getEndpointProtocol(), MAX_IDSHORT_LENGTH, false, "Endpoint Protocol");
-            CommonConstraintHelper.checkText(protocolInformation.getEndpointProtocolVersion(), MAX_IDSHORT_LENGTH, false, "Endpoint Protocol Version");
+            protocolInformation.getEndpointProtocolVersion().forEach(x -> CommonConstraintHelper.checkText(x, MAX_IDSHORT_LENGTH, false, "Endpoint Protocol Version"));
             CommonConstraintHelper.checkText(protocolInformation.getSubprotocol(), MAX_IDSHORT_LENGTH, false, "Subprotocol");
             CommonConstraintHelper.checkText(protocolInformation.getSubprotocolBody(), MAX_IDSHORT_LENGTH, false, "Subprotocol Body");
             CommonConstraintHelper.checkText(protocolInformation.getSubprotocolBodyEncoding(), MAX_IDSHORT_LENGTH, false, "Subprotocol Body Encoding");

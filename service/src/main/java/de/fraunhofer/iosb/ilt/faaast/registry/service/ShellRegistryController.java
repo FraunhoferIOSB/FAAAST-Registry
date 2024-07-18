@@ -17,11 +17,11 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.RegistryHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.net.URI;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +100,7 @@ public class ShellRegistryController {
         AssetAdministrationShellDescriptor aas = service.createAAS(resource);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path(String.format("/%s", RegistryHelper.encode(aas.getId())))
+                .path(String.format("/%s", EncodingHelper.base64UrlEncode(aas.getId())))
                 .build().toUri();
         return ResponseEntity.created(location).body(aas);
     }
@@ -193,7 +193,7 @@ public class ShellRegistryController {
         SubmodelDescriptor descriptor = service.createSubmodel(aasIdentifier, submodel);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path(String.format("/%s", RegistryHelper.encode(descriptor.getId())))
+                .path(String.format("/%s", EncodingHelper.base64UrlEncode(descriptor.getId())))
                 .build().toUri();
         return ResponseEntity.created(location).body(descriptor);
     }

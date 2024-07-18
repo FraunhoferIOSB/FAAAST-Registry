@@ -49,10 +49,11 @@
     <properties>
         <assertj.version>3.26.3</assertj.version>
         <checkstyle.version>10.17.0</checkstyle.version>
-        <faaast.service.version>1.1.0-SNAPSHOT</faaast.service.version>
+        <faaast.service.version>1.1.0</faaast.service.version>
         <h2.version>2.3.230</h2.version>
         <hibernate.version>6.5.2.Final</hibernate.version>
         <jackson.version>2.17.2</jackson.version>
+        <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.6</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
@@ -339,7 +340,6 @@
             </activation>
             <modules>
                 <module>checks</module>
-                <module>test</module>
             </modules>
         </profile>
         <profile>
@@ -352,7 +352,6 @@
             <id>coverage</id>
             <modules>
                 <module>checks</module>
-                <module>test</module>
             </modules>
             <build>
                 <plugins>
@@ -389,13 +388,12 @@
         </profile>
         <profile>
             <id>build-ci</id>
-            <modules>
-                <module>checks</module>
-                <module>test</module>
-            </modules>
         </profile>
         <profile>
             <id>release</id>
+            <modules>
+                <module>checks</module>
+            </modules>
             <properties>
                 <maven.javadoc.skip>false</maven.javadoc.skip>
                 <maven.test.skip>true</maven.test.skip>

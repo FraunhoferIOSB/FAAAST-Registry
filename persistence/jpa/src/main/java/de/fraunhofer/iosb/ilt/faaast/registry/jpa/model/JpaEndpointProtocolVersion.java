@@ -15,21 +15,21 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 
 
 /**
  * Registry Descriptor JPA implementation for Endpoint.
  */
-public class JpaEndpoint extends DefaultEndpoint {
+public class JpaEndpointProtocolVersion {
 
     @JsonIgnore
     private String id;
 
-    public JpaEndpoint() {
+    private String value;
+
+    public JpaEndpointProtocolVersion() {
         id = null;
     }
 
@@ -44,9 +44,19 @@ public class JpaEndpoint extends DefaultEndpoint {
     }
 
 
+    public String getValue() {
+        return value;
+    }
+
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id);
+        return Objects.hash(id, value);
     }
 
 
@@ -62,13 +72,13 @@ public class JpaEndpoint extends DefaultEndpoint {
             return false;
         }
         else {
-            JpaEndpoint other = (JpaEndpoint) obj;
-            return super.equals(obj)
-                    && Objects.equals(this.id, other.id);
+            JpaEndpointProtocolVersion other = (JpaEndpointProtocolVersion) obj;
+            return Objects.equals(this.id, other.id)
+                    && Objects.equals(this.value, other.value);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaEndpoint, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.AbstractBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends JpaEndpointProtocolVersion, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -76,17 +86,22 @@ public class JpaEndpoint extends DefaultEndpoint {
         }
 
 
-        @Override
-        public B from(Endpoint other) {
+        public B value(String value) {
+            getBuildingInstance().setValue(value);
+            return getSelf();
+        }
+
+
+        public B from(JpaEndpointProtocolVersion other) {
             if (other != null) {
-                _interface(other.getInterface());
-                protocolInformation(ModelTransformationHelper.convertProtocolInformation(other.getProtocolInformation()));
+                id(other.getId());
+                value(other.getValue());
             }
             return getSelf();
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaEndpoint, Builder> {
+    public static class Builder extends AbstractBuilder<JpaEndpointProtocolVersion, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -95,8 +110,9 @@ public class JpaEndpoint extends DefaultEndpoint {
 
 
         @Override
-        protected JpaEndpoint newBuildingInstance() {
-            return new JpaEndpoint();
+        protected JpaEndpointProtocolVersion newBuildingInstance() {
+            return new JpaEndpointProtocolVersion();
         }
     }
+
 }
