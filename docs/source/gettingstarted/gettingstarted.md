@@ -9,10 +9,10 @@
 ### From precompiled JAR
 
 <!--start:download-release-->
-<!--end:download-release-->
+{download}`Latest RELEASE version (1.0.0) <https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/registry/service/1.0.0/service-1.0.0.jar>`<!--end:download-release-->
 
 <!--start:download-snapshot-->
-{download}`Latest SNAPSHOT version (0.1.0-SNAPSHOT) <https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.registry&a=service&v=0.1.0-SNAPSHOT>`<!--end:download-snapshot-->
+<!--end:download-snapshot-->
 
 ### As Maven Dependency
 
@@ -20,14 +20,14 @@
 <dependency>
 	<groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
 	<artifactId>service</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 </dependency>
 ```
 
 ### As Gradle Dependency
 
 ```text
-implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:0.1.0-SNAPSHOT'
+implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:1.0.0'
 ```
 
 ## Building from Source
