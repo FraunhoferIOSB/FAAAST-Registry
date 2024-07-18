@@ -26,7 +26,7 @@ You can find a detailed documentation :blue_book: [here](https://faaast-registry
 [Download latest RELEASE version (1.0.0)](https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/registry/service/1.0.0/service-1.0.0.jar)<!--end:download-release-->
 
 <!--start:download-snapshot-->
-<!--end:download-snapshot-->
+[Download latest SNAPSHOT version (1.1.0-SNAPSHOT)](https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=de.fraunhofer.iosb.ilt.faaast.registry&a=service&v=1.1.0-SNAPSHOT)<!--end:download-snapshot-->
 
 ### As Maven Dependency
 
