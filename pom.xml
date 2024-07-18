@@ -388,6 +388,9 @@
         </profile>
         <profile>
             <id>build-ci</id>
+            <modules>
+                <module>checks</module>
+            </modules>
         </profile>
         <profile>
             <id>release</id>
