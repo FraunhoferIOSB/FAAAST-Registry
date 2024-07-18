@@ -37,7 +37,7 @@ function replaceValue()
 	local file=$1
 	local tag=$2
 	local newValue=$3
-	local originalValue=${4:-[^<]*}
+	local originalValue=${4:-.*}
 	local startTag=$(startTag "$tag")
 	local endTag=$(endTag "$tag")
 	sed -r -z "s/$startTag($originalValue)$endTag/$startTag$newValue$endTag/g" -i "$file"
@@ -61,8 +61,8 @@ function replaceVersion()
 	local startTag=$(startTag "$tag")
 	local endTag=$(endTag "$tag")
 	replaceValue "$file" "$TAG_VERSION" "$new_version"
-	sed -r -z 's/(<artifactId>starter<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${new_version}"'\2/g' -i "$file"
-	sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.service:starter:)[^\x27]*\x27/\1'"${new_version}"'\x27/g' -i "$file"
+	sed -r -z 's/(<artifactId>service<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${new_version}"'\2/g' -i "$file"
+	sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.registry:service:)[^\x27]*\x27/\1'"${new_version}"'\x27/g' -i "$file"
 }
 
 
@@ -79,6 +79,7 @@ sed -i 's/<tag>HEAD<\/tag>/<tag>v'"${VERSION}"'<\/tag>/g' pom.xml
 replaceVersion "$README_FILE" "$VERSION"
 replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" ""
 replaceValue "$README_FILE" "$TAG_DOWNLOAD_RELEASE" "$README_LATEST_RELEASE_VERSION_CONTENT"
+replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_SNAPSHOT" ""
 replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_RELEASE" "$INSTALLATION_LATEST_RELEASE_VERSION_CONTENT"
 replaceVersion "$INSTALLATION_FILE" "$VERSION"
 replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## ${VERSION}"
