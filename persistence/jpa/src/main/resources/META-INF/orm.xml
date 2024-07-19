@@ -3,7 +3,122 @@
         "-//Hibernate/Hibernate Mapping DTD//EN"
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
+<entity-mappings 
+  xmlns="http://java.sun.com/xml/ns/persistence/orm"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm orm_2_0.xsd"
+  version="2.0">
+    
+    <package>de.fraunhofer.iosb.ilt.faaast.registry.jpa.model</package>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation">
+        
+        <attributes>
+            <basic name="version"/>
+            <basic name="revision"/>
+            <basic name="templateId"/>
+            
+            <many-to-one name="creator" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+            
+            <transient name="embeddedDataSpecifications"/>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor">
+        
+        <attributes>
+        
+            <id name="id"></id>
+            <basic name="idShort"/>
+            
+            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+            <!--<one-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER" cascade="ALL" />-->
+            
+            <transient name="descriptions"/>
+            <transient name="displayNames"/>
+            <transient name="endpoints"/>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor">
+        
+        <attributes>
+            <basic name="globalAssetId"></basic>
+            
+            <transient name="specificAssetIds"/>
+            <transient name="submodels"/>
+            <transient name="extensions"/>
+        </attributes>
+    </mapped-superclass>
+
+    <entity class="JpaAdministrativeInformation" access="PROPERTY">
+        <table name="administrative_information"/>
+        
+        <attributes>
+            <id name="adminId">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaAssetAdministrationShellDescriptor" access="PROPERTY">
+        <table name="asset_administration_shell"></table>
+        
+        <attributes>
+            <!--<id name="id2">
+                <generated-value strategy="AUTO" />
+            </id>
+            <basic name="idShort2">
+                <column name="idShort2"/>
+            </basic>
+            <basic name="assetType"/>
+            <basic name="globalAssetId"/>-->
+        </attributes>
+    </entity>
+    
+    <entity class="JpaEndpointProtocolVersion">
+        <table name="protocol_information_endpoint_protocol_version"></table>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="AUTO"></generated-value>
+            </id>
+            <basic name="value">
+                <column name="versionValue"/>
+            </basic>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaReference">
+        <table name="reference"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="AUTO"></generated-value>
+            </id>
+            <basic name="type"/>
+            <transient name="keys"/>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaKey">
+        <table name="key_table"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="AUTO"></generated-value>
+            </id>
+            <basic name="type"/>
+            <basic name="value"/>
+        </attributes>
+    </entity>
+</entity-mappings>
+
+<!--<hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
     <class name="JpaAssetAdministrationShellDescriptor" table="asset_administration_shell">
         
         <id name="id"></id>
@@ -411,4 +526,5 @@
         <property name="typ"/>
     </class>
     
-</hibernate-mapping>
+</hibernate-mapping> 
+-->
