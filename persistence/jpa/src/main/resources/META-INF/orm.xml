@@ -12,7 +12,6 @@
     <package>de.fraunhofer.iosb.ilt.faaast.registry.jpa.model</package>
     
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation">
-        
         <attributes>
             <basic name="version"/>
             <basic name="revision"/>
@@ -27,7 +26,6 @@
     </mapped-superclass>
     
     <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor">
-        
         <attributes>
         
             <id name="id"></id>
@@ -36,16 +34,22 @@
             <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
-            <!--<one-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER" cascade="ALL" />-->
             
-            <transient name="descriptions"/>
-            <transient name="displayNames"/>
+            <many-to-many name="descriptions" target-entity="JpaDescription" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            
+            <many-to-many name="displayNames" target-entity="JpaDisplayName" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            
+            <!--<transient name="descriptions"/>
+            <transient name="displayNames"/>-->
             <transient name="endpoints"/>
         </attributes>
     </mapped-superclass>
     
     <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor">
-        
         <attributes>
             <basic name="globalAssetId"></basic>
             
@@ -55,6 +59,24 @@
         </attributes>
     </mapped-superclass>
 
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType">
+        <attributes>
+            <basic name="language"/>
+            <basic name="text">
+                <column>text_col</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType">
+        <attributes>
+            <basic name="language"/>
+            <basic name="text">
+                <column>text_col</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+    
     <entity class="JpaAdministrativeInformation" access="PROPERTY">
         <table name="administrative_information"/>
         
@@ -68,16 +90,6 @@
     <entity class="JpaAssetAdministrationShellDescriptor" access="PROPERTY">
         <table name="asset_administration_shell"></table>
         
-        <attributes>
-            <!--<id name="id2">
-                <generated-value strategy="AUTO" />
-            </id>
-            <basic name="idShort2">
-                <column name="idShort2"/>
-            </basic>
-            <basic name="assetType"/>
-            <basic name="globalAssetId"/>-->
-        </attributes>
     </entity>
     
     <entity class="JpaEndpointProtocolVersion">
@@ -85,7 +97,7 @@
         
         <attributes>
             <id name="id">
-                <generated-value strategy="AUTO"></generated-value>
+                <generated-value strategy="UUID" />
             </id>
             <basic name="value">
                 <column name="versionValue"/>
@@ -98,7 +110,7 @@
         
         <attributes>
             <id name="id">
-                <generated-value strategy="AUTO"></generated-value>
+                <generated-value strategy="UUID" />
             </id>
             <basic name="type"/>
             <transient name="keys"/>
@@ -110,12 +122,33 @@
         
         <attributes>
             <id name="id">
-                <generated-value strategy="AUTO"></generated-value>
+                <generated-value strategy="UUID" />
             </id>
             <basic name="type"/>
             <basic name="value"/>
         </attributes>
     </entity>
+    
+    <entity class="JpaDescription">
+        <table name="description"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaDisplayName">
+        <table name="display_name"/>
+
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+
 </entity-mappings>
 
 <!--<hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">
