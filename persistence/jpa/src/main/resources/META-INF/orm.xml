@@ -54,7 +54,11 @@
         <attributes>
             <basic name="globalAssetId"></basic>
             
-            <transient name="specificAssetIds"/>
+            <many-to-many name="specificAssetIds" target-entity="JpaSpecificAssetId" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            
+            <!--<transient name="specificAssetIds"/>-->
             <transient name="submodels"/>
             <transient name="extensions"/>
         </attributes>
