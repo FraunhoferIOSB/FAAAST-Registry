@@ -43,9 +43,10 @@
                 <cascade><cascade-all/></cascade>
             </many-to-many>
             
-            <!--<transient name="descriptions"/>
-            <transient name="displayNames"/>-->
-            <transient name="endpoints"/>
+            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            
         </attributes>
     </mapped-superclass>
     
@@ -76,6 +77,63 @@
             </basic>
         </attributes>
     </mapped-superclass>
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject">
+        <attributes>
+            <basic name="key">
+                <column>secAttKey</column>
+            </basic>
+            <basic name="value">
+                <column>secAttValue</column>
+            </basic>
+            <basic name="type">
+                <column>secAttType</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation">
+        <attributes>
+            <basic name="endpointProtocol"/>
+            <basic name="href"/>
+            <basic name="subprotocol"/>
+            <basic name="subprotocolBody"/>
+            <basic name="subprotocolBodyEncoding"/>
+
+            <many-to-many name="securityAttributes" target-entity="JpaSecurityAttributeObject" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+                        
+            <transient name="endpointProtocolVersion"/>
+            <!--<transient name="securityAttributes"/>-->
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference">
+        <attributes>
+            <basic name="type"/>
+
+            <many-to-one name="referredSemanticId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+                        
+            <one-to-many name="keys" target-entity="JpaKey" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </one-to-many>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint">
+        <attributes>
+            <basic name="interface">
+                <column>interface_value</column>
+            </basic>
+
+            <many-to-one name="protocolInformation" target-entity="JpaProtocolInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+        </attributes>
+    </mapped-superclass>
     
     <entity class="JpaAdministrativeInformation" access="PROPERTY">
         <table name="administrative_information"/>
@@ -92,15 +150,15 @@
         
     </entity>
     
-    <entity class="JpaEndpointProtocolVersion">
-        <table name="protocol_information_endpoint_protocol_version"></table>
+    <entity class="JpaString">
+        <table name="string_table"></table>
         
         <attributes>
             <id name="id">
                 <generated-value strategy="UUID" />
             </id>
             <basic name="value">
-                <column name="versionValue"/>
+                <column name="stringValue"/>
             </basic>
         </attributes>
     </entity>
@@ -112,8 +170,6 @@
             <id name="id">
                 <generated-value strategy="UUID" />
             </id>
-            <basic name="type"/>
-            <transient name="keys"/>
         </attributes>
     </entity>
     
@@ -149,6 +205,42 @@
         </attributes>
     </entity>
 
+    <entity class="JpaSecurityAttributeObject">
+        <table name="security_attributes"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaProtocolInformation">
+        <table name="protocol_information"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+            
+            <one-to-many name="jpaEndpointProtocolVersion" target-entity="JpaString" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </one-to-many>
+            
+        </attributes>
+    </entity>
+    
+    <entity class="JpaEndpoint">
+        <table name="endpoint"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+            
+        </attributes>
+    </entity>
+    
 </entity-mappings>
 
 <!--<hibernate-mapping package="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model">

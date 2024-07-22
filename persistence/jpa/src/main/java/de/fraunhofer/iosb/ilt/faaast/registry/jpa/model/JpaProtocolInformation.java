@@ -32,7 +32,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     private String id;
 
     @JsonIgnore
-    private List<JpaEndpointProtocolVersion> jpaEndpointProtocolVersion;
+    private List<JpaString> jpaEndpointProtocolVersion;
 
     public JpaProtocolInformation() {
         id = null;
@@ -50,7 +50,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     }
 
 
-    public List<JpaEndpointProtocolVersion> getJpaEndpointProtocolVersion() {
+    public List<JpaString> getJpaEndpointProtocolVersion() {
         return jpaEndpointProtocolVersion;
     }
 
@@ -60,7 +60,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
      *
      * @param jpaEndpointProtocolVersion The list of EndpointProtocolVersions.
      */
-    public void setJpaEndpointProtocolVersion(List<JpaEndpointProtocolVersion> jpaEndpointProtocolVersion) {
+    public void setJpaEndpointProtocolVersion(List<JpaString> jpaEndpointProtocolVersion) {
         this.jpaEndpointProtocolVersion = jpaEndpointProtocolVersion;
         List<String> versions = new ArrayList<>();
         for (var v: jpaEndpointProtocolVersion) {
@@ -104,7 +104,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
         }
 
 
-        public B jpaEndpointProtocolVersion(List<JpaEndpointProtocolVersion> value) {
+        public B jpaEndpointProtocolVersion(List<JpaString> value) {
             getBuildingInstance().setJpaEndpointProtocolVersion(value);
             return getSelf();
         }
@@ -114,7 +114,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
         public B from(ProtocolInformation other) {
             endpointProtocol(other.getEndpointProtocol());
             // endpointProtocolVersion is set in jpaEndpointProtocolVersion
-            jpaEndpointProtocolVersion(ModelTransformationHelper.convertEndpointProtocolVersion(other.getEndpointProtocolVersion()));
+            jpaEndpointProtocolVersion(ModelTransformationHelper.convertStrings(other.getEndpointProtocolVersion()));
             href(other.getHref());
             securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
             subprotocol(other.getSubprotocol());
