@@ -134,6 +134,37 @@
             </many-to-one>
         </attributes>
     </mapped-superclass>
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId">
+        <attributes>
+            <basic name="name">
+                <column>name_col</column>
+            </basic>
+
+            <basic name="value">
+                <column>value_col</column>
+            </basic>
+            
+            <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-one name="externalSubjectId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="supplementalSemanticIds" target-entity="JpaReference" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey">
+        <attributes>
+            <basic name="type"/>
+            <basic name="value"/>
+        </attributes>
+    </mapped-superclass>
     
     <entity class="JpaAdministrativeInformation" access="PROPERTY">
         <table name="administrative_information"/>
@@ -180,8 +211,6 @@
             <id name="id">
                 <generated-value strategy="UUID" />
             </id>
-            <basic name="type"/>
-            <basic name="value"/>
         </attributes>
     </entity>
     
@@ -232,6 +261,17 @@
     
     <entity class="JpaEndpoint">
         <table name="endpoint"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+            
+        </attributes>
+    </entity>
+    
+    <entity class="JpaSpecificAssetId">
+        <table name="specific_asset_id"/>
         
         <attributes>
             <id name="id">
