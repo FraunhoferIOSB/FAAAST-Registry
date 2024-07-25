@@ -58,9 +58,12 @@
                 <cascade><cascade-all/></cascade>
             </many-to-many>
             
-            <!--<transient name="specificAssetIds"/>-->
-            <transient name="submodels"/>
-            <transient name="extensions"/>
+            <many-to-many name="submodels" target-entity="JpaSubmodelDescriptor" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            <many-to-many name="extensions" target-entity="JpaExtension" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
         </attributes>
     </mapped-superclass>
 
@@ -109,7 +112,6 @@
             </many-to-many>
                         
             <transient name="endpointProtocolVersion"/>
-            <!--<transient name="securityAttributes"/>-->
         </attributes>
     </mapped-superclass>
     
@@ -169,8 +171,48 @@
             <basic name="value"/>
         </attributes>
     </mapped-superclass>
+
+    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor">
+        <attributes>
+            <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="supplementalSemanticIds" target-entity="JpaReference" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            <many-to-many name="extensions" target-entity="JpaExtension" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+        </attributes>
+    </mapped-superclass>    
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension">
+        <attributes>
+            <basic name="name">
+                <column>name_col</column>
+            </basic>
+            <basic name="value">
+                <column>value_col</column>
+            </basic>
+            <basic name="valueType"/>
+
+            <many-to-many name="refersTo" target-entity="JpaReference" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="supplementalSemanticIds" target-entity="JpaReference" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+        </attributes>
+    </mapped-superclass>    
     
-    <entity class="JpaAdministrativeInformation" access="PROPERTY">
+    <entity class="JpaAdministrativeInformation">
         <table name="administrative_information"/>
         
         <attributes>
@@ -180,7 +222,7 @@
         </attributes>
     </entity>
     
-    <entity class="JpaAssetAdministrationShellDescriptor" access="PROPERTY">
+    <entity class="JpaAssetAdministrationShellDescriptor">
         <table name="asset_administration_shell"></table>
         
     </entity>
@@ -281,7 +323,24 @@
             <id name="id">
                 <generated-value strategy="UUID" />
             </id>
-            
+        </attributes>
+    </entity>
+    
+    <entity class="JpaSubmodelDescriptor">
+        <table name="submodel"/>
+    </entity>
+    
+    <entity class="JpaSubmodelDescriptorStandalone">
+        <table name="submodel_standalone"/>
+    </entity>
+
+    <entity class="JpaExtension">
+        <table name="aas_extension"/>
+
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
         </attributes>
     </entity>
     
@@ -340,42 +399,6 @@
             <many-to-many class="JpaExtension"/>
         </list>
 
-    </class>
-
-    <class name="JpaEndpoint" table="endpoint">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        <property name="interface"/>
-
-        <many-to-one name="protocolInformation" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation" cascade="all" column="protocolId" lazy="false"></many-to-one>
-    </class>
-
-    <class name="JpaDescription" table="description">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        <property name="language"/>
-        <property name="text" column="text_col"/> 
-    </class>
-
-    <class name="JpaDisplayName" table="display_name">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        <property name="language"/>
-        <property name="text" column="text_col"/> 
-    </class>
-
-    <class name="JpaSpecificAssetId" table="specific_asset_id">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        
-        <many-to-one name="semanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="semanticId" lazy="false"></many-to-one>
-        <many-to-one name="externalSubjectId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="externalSubjectId" lazy="false"></many-to-one>
-        <property name="name" column="name_col"/>
-        <property name="value" column="value_col"/> 
     </class>
 
     <class name="JpaSubmodelDescriptor" table="submodel">
