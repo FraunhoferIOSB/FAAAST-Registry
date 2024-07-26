@@ -21,7 +21,9 @@
                 <cascade><cascade-all/></cascade>
             </many-to-one>
             
-            <transient name="embeddedDataSpecifications"/>
+            <many-to-many name="embeddedDataSpecifications" target-entity="JpaEmbeddedDataSpecification" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
         </attributes>
     </mapped-superclass>
     
@@ -211,6 +213,112 @@
             </many-to-many>
         </attributes>
     </mapped-superclass>    
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification">
+        <attributes>
+            <many-to-one name="dataSpecification" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+            
+            <transient name="dataSpecificationContent"/>
+        </attributes>
+    </mapped-superclass>    
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360">
+        <attributes>
+            <basic name="dataType">
+                <column>dataType_col</column>
+            </basic>
+            <basic name="sourceOfDefinition"/>
+            <basic name="symbol"/>
+            <basic name="unit"/>
+            <basic name="value">
+                <column>value_col</column>
+            </basic>
+            <basic name="valueFormat"/>
+            
+            <many-to-many name="definition" target-entity="JpaLangStringDefinitionTypeIec61360" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-one name="levelType" target-entity="JpaLevelType" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="preferredName" target-entity="JpaLangStringPreferredNameTypeIec61360" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="shortName" target-entity="JpaLangStringShortNameTypeIec61360" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-one name="unitId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-one name="valueList" target-entity="JpaValueList" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+        </attributes>
+    </mapped-superclass>    
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360">
+        <attributes>
+            <basic name="language"/>
+            <basic name="text">
+                <column>text_col</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType">
+        <attributes>
+            <basic name="min"/>
+            <basic name="max"/>
+            <basic name="nom"/>
+            <basic name="typ"/>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360">
+        <attributes>
+            <basic name="language"/>
+            <basic name="text">
+                <column>text_col</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360">
+        <attributes>
+            <basic name="language"/>
+            <basic name="text">
+                <column>text_col</column>
+            </basic>
+        </attributes>
+    </mapped-superclass>
+
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList">
+        <attributes>
+            <many-to-many name="valueReferencePairs" target-entity="JpaValueReferencePair" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+        </attributes>
+    </mapped-superclass>
+    
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair">
+        <attributes>
+            <basic name="value">
+                <column>value_col</column>
+            </basic>
+
+            <many-to-one name="valueId" target-entity="JpaReference" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+        </attributes>
+    </mapped-superclass>
     
     <entity class="JpaAdministrativeInformation">
         <table name="administrative_information"/>
@@ -337,6 +445,84 @@
     <entity class="JpaExtension">
         <table name="aas_extension"/>
 
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaEmbeddedDataSpecification">
+        <table name="embedded_data_specification"/>
+
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+            
+            <many-to-one name="dataSpecificationContentIec61360" target-entity="JpaDataSpecificationIec61360" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+        </attributes>
+    </entity>
+
+    <entity class="JpaDataSpecificationIec61360">
+        <table name="data_specification_iec_61360"/>
+        
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaLangStringDefinitionTypeIec61360">
+        <table>definition_iec_61360</table>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaLevelType">
+        <table>level_type</table>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaLangStringPreferredNameTypeIec61360">
+        <table>preferred_name_iec_61360</table>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaLangStringShortNameTypeIec61360">
+        <table>short_name_iec_61360</table>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaValueList">
+        <table>value_list</table>
+        <attributes>
+            <id name="id">
+                <generated-value strategy="UUID" />
+            </id>
+        </attributes>
+    </entity>
+    
+    <entity class="JpaValueReferencePair">
+        <table>reference_pair</table>
         <attributes>
             <id name="id">
                 <generated-value strategy="UUID" />
@@ -492,44 +678,6 @@
         </list>
         
         <many-to-one name="referredSemanticId" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference" cascade="all" column="referredSemanticId" lazy="false"></many-to-one>
-    </class>
-    
-    <class name="JpaProtocolInformation" table="protocol_information">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        
-        <property name="href"/>
-        <property name="endpointProtocol"/>
-        <property name="subprotocol"/>
-        <property name="subprotocolBody"/>
-        <property name="subprotocolBodyEncoding"/>
-
-        <list name="jpaEndpointProtocolVersion" cascade="all" table="protocol_information_endpoint_protocol_version">
-            <key column="epvid"/>
-            <index column="index"/>
-            <many-to-many class="JpaEndpointProtocolVersion"/>
-        </list>
-        <list name="securityAttributes" cascade="all" table="protocol_information_security_attributes">
-            <key column="secAtts"/>
-            <index column="secAttsType"/>
-            <many-to-many class="JpaSecurityAttributeObject"/>
-        </list>
-    </class>
-    
-    <class name="JpaSecurityAttributeObject" table="security_attributes">
-        <id name="id" type="string">
-            <generator class="uuid"/>
-        </id>
-        
-        <property name="type" column="secAttType">
-            <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum</param>
-            </type>
-        </property>
-
-        <property name="key" column="secAttKey"/>
-        <property name="value" column="secAttValue"/>
     </class>
     
     <class name="JpaEndpointProtocolVersion" table="endpoint_protocol_version">
