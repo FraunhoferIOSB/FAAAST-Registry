@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CertificateHelper;
 import java.security.KeyStore;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,13 +35,13 @@ import org.springframework.stereotype.Component;
 public class SslConfig implements WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SslConfig.class);
-    @Value("${server.ssl.enabled}")
-    private Boolean sslFlag;
+    @Value("${server.ssl.enabled:true}")
+    private boolean sslEnabled;
 
     @Override
     public void customize(TomcatServletWebServerFactory factory) {
         // if no SSL Bundle is provided, we generate a self-signed certificate
-        if (sslFlag && factory.getSsl().getBundle() == null) {
+        if (sslEnabled && Objects.isNull(factory.getSsl().getBundle())) {
             LOGGER.info("Generating self-signed certificate for HTTPS (reason: no SSL-Bundle provided)");
             KeyStore keyStore = CertificateHelper.generateSelfSignedCertificate();
             SslStoreBundle storeBundle = SslStoreBundle.of(keyStore, null, null);
