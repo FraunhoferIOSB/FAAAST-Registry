@@ -65,7 +65,7 @@
         <checkstyle.version>10.17.0</checkstyle.version>
         <faaast.service.version>1.1.0</faaast.service.version>
         <h2.version>2.3.230</h2.version>
-        <hibernate.version>6.5.2.Final</hibernate.version>
+        <hibernate.version>6.6.0.Final</hibernate.version>
         <jackson.version>2.17.2</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
@@ -91,7 +91,7 @@
         <postgres.version>42.7.3</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
-        <slf4j.version>2.0.14</slf4j.version>
+        <slf4j.version>2.0.15</slf4j.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <sonar.coverage.jacoco.xmlReportPaths>${maven.multiModuleProjectDirectory}/test/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
