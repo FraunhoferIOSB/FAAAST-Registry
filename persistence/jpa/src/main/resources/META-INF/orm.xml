@@ -70,7 +70,7 @@
         <attributes>
             <basic name="language"/>
             <basic name="text">
-                <column>text_col</column>
+                <column name="text_col"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -79,7 +79,7 @@
         <attributes>
             <basic name="language"/>
             <basic name="text">
-                <column>text_col</column>
+                <column name="text_col"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -87,13 +87,13 @@
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject">
         <attributes>
             <basic name="key">
-                <column>secAttKey</column>
+                <column name="secAttKey"/>
             </basic>
             <basic name="value">
-                <column>secAttValue</column>
+                <column name="secAttValue"/>
             </basic>
             <basic name="type">
-                <column>secAttType</column>
+                <column name="secAttType"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -116,7 +116,9 @@
     
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference">
         <attributes>
-            <basic name="type"/>
+            <basic name="type">
+                <column name="type_col"/>
+            </basic>
 
             <many-to-one name="referredSemanticId" target-entity="JpaReference" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
@@ -131,7 +133,7 @@
     <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint">
         <attributes>
             <basic name="interface">
-                <column>interface_value</column>
+                <column name="interface_value"/>
             </basic>
 
             <many-to-one name="protocolInformation" target-entity="JpaProtocolInformation" fetch="EAGER">
@@ -143,11 +145,11 @@
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId">
         <attributes>
             <basic name="name">
-                <column>name_col</column>
+                <column name="name_col"/>
             </basic>
 
             <basic name="value">
-                <column>value_col</column>
+                <column name="value_col"/>
             </basic>
             
             <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
@@ -166,8 +168,12 @@
     
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey">
         <attributes>
-            <basic name="type"/>
-            <basic name="value"/>
+            <basic name="type">
+                <column name="type_col"/>
+            </basic>
+            <basic name="value">
+                <column name="value_col"/>
+            </basic>
         </attributes>
     </mapped-superclass>
 
@@ -190,10 +196,10 @@
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension">
         <attributes>
             <basic name="name">
-                <column>name_col</column>
+                <column name="name_col"/>
             </basic>
             <basic name="value">
-                <column>value_col</column>
+                <column name="value_col"/>
             </basic>
             <basic name="valueType"/>
 
@@ -224,13 +230,13 @@
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360">
         <attributes>
             <basic name="dataType">
-                <column>dataType_col</column>
+                <column name="dataType_col"/>
             </basic>
             <basic name="sourceOfDefinition"/>
             <basic name="symbol"/>
             <basic name="unit"/>
             <basic name="value">
-                <column>value_col</column>
+                <column name="value_col"/>
             </basic>
             <basic name="valueFormat"/>
             
@@ -265,7 +271,7 @@
         <attributes>
             <basic name="language"/>
             <basic name="text">
-                <column>text_col</column>
+                <column name="text_col"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -283,7 +289,7 @@
         <attributes>
             <basic name="language"/>
             <basic name="text">
-                <column>text_col</column>
+                <column name="text_col"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -292,7 +298,7 @@
         <attributes>
             <basic name="language"/>
             <basic name="text">
-                <column>text_col</column>
+                <column name="text_col"/>
             </basic>
         </attributes>
     </mapped-superclass>
@@ -308,7 +314,7 @@
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair">
         <attributes>
             <basic name="value">
-                <column>value_col</column>
+                <column name="value_col"/>
             </basic>
 
             <many-to-one name="valueId" target-entity="JpaReference" fetch="EAGER">
