@@ -21,7 +21,6 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDescription;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaDisplayName;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEmbeddedDataSpecification;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaEndpointProtocolVersion;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaExtension;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaKey;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaLangStringDefinitionTypeIec61360;
@@ -32,6 +31,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaReference;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSecurityAttributeObject;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSpecificAssetId;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaString;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueList;
@@ -439,14 +439,14 @@ public class ModelTransformationHelper {
 
 
     /**
-     * Convert a list of Strings to a list of JpaEndpointProtocolVersion.
+     * Convert a list of Strings to a list of JpaStrings.
      *
      * @param versions The list of Strings.
-     * @return The converted list of JpaEndpointProtocolVersion.
+     * @return The converted list of Strings.
      */
-    public static List<JpaEndpointProtocolVersion> convertEndpointProtocolVersion(List<String> versions) {
+    public static List<JpaString> convertStrings(List<String> versions) {
         return versions.stream()
-                .map(x -> new JpaEndpointProtocolVersion.Builder().value(x).build())
+                .map(x -> new JpaString.Builder().value(x).build())
                 .collect(Collectors.toList());
     }
 }

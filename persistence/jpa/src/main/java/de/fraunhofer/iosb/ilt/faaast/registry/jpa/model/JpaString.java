@@ -22,14 +22,14 @@ import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 /**
  * Registry Descriptor JPA implementation for Endpoint.
  */
-public class JpaEndpointProtocolVersion {
+public class JpaString {
 
     @JsonIgnore
     private String id;
 
     private String value;
 
-    public JpaEndpointProtocolVersion() {
+    public JpaString() {
         id = null;
     }
 
@@ -72,13 +72,13 @@ public class JpaEndpointProtocolVersion {
             return false;
         }
         else {
-            JpaEndpointProtocolVersion other = (JpaEndpointProtocolVersion) obj;
+            JpaString other = (JpaString) obj;
             return Objects.equals(this.id, other.id)
                     && Objects.equals(this.value, other.value);
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaEndpointProtocolVersion, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
+    public abstract static class AbstractBuilder<T extends JpaString, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -92,7 +92,7 @@ public class JpaEndpointProtocolVersion {
         }
 
 
-        public B from(JpaEndpointProtocolVersion other) {
+        public B from(JpaString other) {
             if (other != null) {
                 id(other.getId());
                 value(other.getValue());
@@ -101,7 +101,7 @@ public class JpaEndpointProtocolVersion {
         }
     }
 
-    public static class Builder extends AbstractBuilder<JpaEndpointProtocolVersion, Builder> {
+    public static class Builder extends AbstractBuilder<JpaString, Builder> {
 
         @Override
         protected Builder getSelf() {
@@ -110,8 +110,8 @@ public class JpaEndpointProtocolVersion {
 
 
         @Override
-        protected JpaEndpointProtocolVersion newBuildingInstance() {
-            return new JpaEndpointProtocolVersion();
+        protected JpaString newBuildingInstance() {
+            return new JpaString();
         }
     }
 
