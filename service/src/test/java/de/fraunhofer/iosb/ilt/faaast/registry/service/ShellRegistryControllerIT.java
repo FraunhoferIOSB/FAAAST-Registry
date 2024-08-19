@@ -21,7 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoi
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
@@ -67,13 +69,7 @@ public class ShellRegistryControllerIT {
     @Test
     public void testCreateAas() {
         AssetAdministrationShellDescriptor expected = getAas();
-        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
-                AssetAdministrationShellDescriptor.class);
-        Assert.assertNotNull(responsePost);
-        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assert.assertEquals(expected, responsePost.getBody());
-
+        createAas(expected);
         checkGetAas(expected);
 
         ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
@@ -96,12 +92,7 @@ public class ShellRegistryControllerIT {
     public void testUpdateDeleteAas() {
         // create AAS
         AssetAdministrationShellDescriptor original = getAasUpdate();
-        HttpEntity<AssetAdministrationShellDescriptor> entityOriginal = new HttpEntity<>(original);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entityOriginal,
-                AssetAdministrationShellDescriptor.class);
-        Assert.assertNotNull(responsePost);
-        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assert.assertEquals(original, responsePost.getBody());
+        createAas(original);
 
         // update AAS
         AssetAdministrationShellDescriptor expected = getAasUpdate();
@@ -132,6 +123,59 @@ public class ShellRegistryControllerIT {
     }
 
 
+    @Test
+    public void testPageCursorWithAssetType() {
+        Map<String, AssetAdministrationShellDescriptor> expectedMap = new HashMap<>();
+        String assetType = "PageCursorTest";
+        AssetAdministrationShellDescriptor aas1 = getAas();
+        aas1.setId("http://iosb.fraunhofer.de/IntegrationTest/PageCursor/AAS1");
+        aas1.setAssetType(assetType);
+        createAas(aas1);
+        expectedMap.put(aas1.getId(), aas1);
+
+        AssetAdministrationShellDescriptor aas2 = getAas();
+        aas2.setId("http://iosb.fraunhofer.de/IntegrationTest/PageCursor/AAS2");
+        aas2.setAssetType(assetType);
+        createAas(aas2);
+        expectedMap.put(aas2.getId(), aas2);
+
+        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
+                createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType)), HttpMethod.GET, null,
+                new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        var list = response.getBody().getContent();
+        Assert.assertNotNull(list);
+        Assert.assertEquals(1, list.size());
+        var metadata = response.getBody().getMetadata();
+        Assert.assertNotNull(metadata);
+        Assert.assertNotNull(metadata.getCursor());
+        Assert.assertFalse(metadata.getCursor().isEmpty());
+
+        AssetAdministrationShellDescriptor actual = list.get(0);
+        Assert.assertTrue(expectedMap.containsKey(actual.getId()));
+        Assert.assertEquals(expectedMap.get(actual.getId()), actual);
+        expectedMap.remove(actual.getId());
+
+        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
+                createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType) + "&cursor=" + metadata.getCursor()), HttpMethod.GET, null,
+                new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        Assert.assertNotNull(response2);
+        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Assert.assertNotNull(response2.getBody());
+        list = response2.getBody().getContent();
+        Assert.assertNotNull(list);
+        Assert.assertEquals(1, list.size());
+
+        actual = list.get(0);
+        Assert.assertTrue(expectedMap.containsKey(actual.getId()));
+        Assert.assertEquals(expectedMap.get(actual.getId()), actual);
+        expectedMap.remove(actual.getId());
+        Assert.assertTrue(expectedMap.isEmpty());
+    }
+
+
     private void checkGetAas(AssetAdministrationShellDescriptor expected) {
         ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
@@ -152,6 +196,16 @@ public class ShellRegistryControllerIT {
 
     private String createURLWithPort(String uri) {
         return "http://localhost:" + port + "/api/v3.0/shell-descriptors" + uri;
+    }
+
+
+    private void createAas(AssetAdministrationShellDescriptor aas) {
+        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
+        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
+                AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(responsePost);
+        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        Assert.assertEquals(aas, responsePost.getBody());
     }
 
 
