@@ -15,12 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 
 
 /**

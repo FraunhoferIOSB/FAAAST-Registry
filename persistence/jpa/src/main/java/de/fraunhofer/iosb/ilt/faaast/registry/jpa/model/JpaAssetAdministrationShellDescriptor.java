@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 
 
@@ -21,6 +22,18 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShe
  * Registry Descriptor JPA implementation for AssetAdministrationShell.
  */
 public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    @JsonIgnore
+    private String adminId;
 
     public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
             extends DefaultAssetAdministrationShellDescriptor.Builder {

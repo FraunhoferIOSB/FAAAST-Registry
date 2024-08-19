@@ -14,42 +14,18 @@
             <basic name="revision"/>
             <basic name="templateId"/>
             
-            <many-to-one name="creator" target-entity="JpaReference" fetch="EAGER">
+            <many-to-one name="creator" target-entity="JpaReference" fetch="LAZY">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
-            
+
             <many-to-many name="embeddedDataSpecifications" target-entity="JpaEmbeddedDataSpecification" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
         </attributes>
     </mapped-superclass>
+
     
-    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.AbstractIdentifiableDescriptor">
-        <attributes>
-        
-            <id name="id"></id>
-            <basic name="idShort"/>
-            
-            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
-                <cascade><cascade-all/></cascade>
-            </many-to-one>
-            
-            <many-to-many name="descriptions" target-entity="JpaDescription" fetch="EAGER" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-            
-            <many-to-many name="displayNames" target-entity="JpaDisplayName" fetch="EAGER" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-            
-            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="EAGER" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-            
-        </attributes>
-    </mapped-superclass>
-    
-    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor">
         <attributes>
             <basic name="globalAssetId"></basic>
             
@@ -98,7 +74,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation">
         <attributes>
             <basic name="endpointProtocol"/>
             <basic name="href"/>
@@ -130,7 +106,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint">
         <attributes>
             <basic name="interface">
                 <column name="interface_value"/>
@@ -177,7 +153,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor">
         <attributes>
             <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
@@ -328,7 +304,6 @@
         
         <attributes>
             <id name="adminId">
-                <generated-value strategy="UUID" />
             </id>
         </attributes>
     </entity>
@@ -336,6 +311,29 @@
     <entity class="JpaAssetAdministrationShellDescriptor">
         <table name="asset_administration_shell"></table>
 
+        <attributes>
+
+            <id name="adminId"></id>
+            <basic name="id"></basic>
+            <basic name="idShort"/>
+
+            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="description" target-entity="JpaDescription" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+        </attributes>
     </entity>
     
     <entity class="JpaString">
@@ -439,10 +437,39 @@
     
     <entity class="JpaSubmodelDescriptor">
         <table name="submodel"/>
+
+        <attributes>
+
+            <id name="adminId"></id>
+            <basic name="id"></basic>
+            <basic name="idShort"/>
+
+            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="description" target-entity="JpaDescription" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="LAZY" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+        </attributes>
     </entity>
     
     <entity class="JpaSubmodelDescriptorStandalone">
         <table name="submodel_standalone"/>
+
+        <attributes>
+
+            <id name="adminId"></id>
+        </attributes>
     </entity>
 
     <entity class="JpaExtension">
@@ -463,7 +490,7 @@
                 <generated-value strategy="UUID" />
             </id>
             
-            <many-to-one name="dataSpecificationContentIec61360" target-entity="JpaDataSpecificationIec61360" fetch="EAGER">
+            <many-to-one name="dataSpecificationContentIec61360" target-entity="JpaDataSpecificationIec61360" fetch="LAZY">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
         </attributes>

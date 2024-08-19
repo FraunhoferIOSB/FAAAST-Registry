@@ -14,10 +14,25 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+
 /**
  * Registry Descriptor JPA implementation for Submodel of an AAS.
  */
 public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
+
+    public String getAdminId() {
+        return adminId;
+    }
+
+
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    @JsonIgnore
+    private String adminId;
 
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
             extends JpaSubmodelDescriptorBase.AbstractBuilder<JpaSubmodelDescriptor, B> {}
