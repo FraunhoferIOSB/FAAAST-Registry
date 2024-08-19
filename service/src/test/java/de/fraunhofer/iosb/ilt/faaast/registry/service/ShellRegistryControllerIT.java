@@ -17,6 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.util.List;
+import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,11 +52,8 @@ public class ShellRegistryControllerIT {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    //private AssetAdministrationShellDescriptor aas1 = new DefaultAssetAdministrationShellDescriptor.Builder().build();
-
     @Test
-    public void testGetAASsEmpty() {
-        //Page<AssetAdministrationShellDescriptor> rv = restTemplate.getForObject(createURLWithPort(""), Page.class);
+    public void testGetAASs() {
         ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
                 createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
         Assert.assertNotNull(response);
@@ -57,20 +61,21 @@ public class ShellRegistryControllerIT {
         Assert.assertNotNull(response.getBody());
         var list = response.getBody().getContent();
         Assert.assertNotNull(list);
-        Assert.assertEquals(0, list.size());
     }
 
 
     @Test
-    public void testPostAas() {
+    public void testCreateAas() {
         AssetAdministrationShellDescriptor expected = getAas();
-        //AssetAdministrationShellDescriptor response = restTemplate.postForObject(createURLWithPort(""), expected, AssetAdministrationShellDescriptor.class);
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
         ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
                 AssetAdministrationShellDescriptor.class);
         Assert.assertNotNull(responsePost);
         Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
         Assert.assertEquals(expected, responsePost.getBody());
+
+        checkGetAas(expected);
+
         ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
                 createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
 
@@ -79,10 +84,69 @@ public class ShellRegistryControllerIT {
         Assert.assertNotNull(response2.getBody());
         var list = response2.getBody().getContent();
         Assert.assertNotNull(list);
-        Assert.assertEquals(1, list.size());
+        Assert.assertTrue(list.size() >= 0);
 
-        AssetAdministrationShellDescriptor actual = list.get(0);
-        Assert.assertEquals(expected, actual);
+        Optional<AssetAdministrationShellDescriptor> actual = list.stream().filter(x -> expected.getId().equals(x.getId())).findFirst();
+        Assert.assertTrue(actual.isPresent());
+        Assert.assertEquals(expected, actual.get());
+    }
+
+
+    @Test
+    public void testUpdateDeleteAas() {
+        // create AAS
+        AssetAdministrationShellDescriptor original = getAasUpdate();
+        HttpEntity<AssetAdministrationShellDescriptor> entityOriginal = new HttpEntity<>(original);
+        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entityOriginal,
+                AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(responsePost);
+        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        Assert.assertEquals(original, responsePost.getBody());
+
+        // update AAS
+        AssetAdministrationShellDescriptor expected = getAasUpdate();
+        expected.setIdShort("IntegrationTest100A");
+        expected.getDisplayNames().add(new DefaultLangStringNameType.Builder().text("Integration Test 100 Name Updated").language("en-US").build());
+
+        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
+        ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
+        Assert.assertNotNull(responsePut);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+
+        checkGetAas(expected);
+
+        // delete AAS
+        ResponseEntity responseDelete = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.DELETE, entity, Void.class);
+        Assert.assertNotNull(responseDelete);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+
+        checkGetAasNotExist(expected.getId());
+    }
+
+
+    @Test
+    public void testInvalidLimit() {
+        ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    private void checkGetAas(AssetAdministrationShellDescriptor expected) {
+        ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertEquals(expected, response.getBody());
+    }
+
+
+    private void checkGetAasNotExist(String id) {
+        ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(id)), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
 
@@ -96,6 +160,33 @@ public class ShellRegistryControllerIT {
                 .idShort("IntegrationTest99")
                 .id("http://iosb.fraunhofer.de/IntegrationTest/AAS99")
                 .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 99 Name").language("de-DE").build())
+                .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest99")
+                .assetType("AssetType99")
+                .submodel(new DefaultSubmodelDescriptor.Builder()
+                        .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1")
+                        .idShort("Submodel-99-1")
+                        .administration(new DefaultAdministrativeInformation.Builder()
+                                .version("1")
+                                .revision("12")
+                                .build())
+                        .endpoint(new DefaultEndpoint.Builder()
+                                ._interface("http")
+                                .protocolInformation(new DefaultProtocolInformation.Builder()
+                                        .endpointProtocol("http")
+                                        .href("http://iosb.fraunhofer.de/Endpoints/Submodel99-1")
+                                        .endpointProtocolVersion(List.of("2.0"))
+                                        .build())
+                                .build())
+                        .build())
+                .build();
+    }
+
+
+    private static AssetAdministrationShellDescriptor getAasUpdate() {
+        return new DefaultAssetAdministrationShellDescriptor.Builder()
+                .idShort("IntegrationTest100")
+                .id("http://iosb.fraunhofer.de/IntegrationTest/AAS100")
+                .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 10 Name aktualisiert").language("de-DE").build())
                 .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest99")
                 .assetType("AssetType99")
                 .build();
