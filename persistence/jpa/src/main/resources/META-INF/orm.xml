@@ -335,7 +335,7 @@
     
     <entity class="JpaAssetAdministrationShellDescriptor">
         <table name="asset_administration_shell"></table>
-        
+
     </entity>
     
     <entity class="JpaString">

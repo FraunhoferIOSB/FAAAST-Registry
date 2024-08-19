@@ -15,23 +15,23 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
 
     protected DefaultSubmodelDescriptor getSubmodel() {
-        return DefaultSubmodelDescriptor.builder()
+        return new DefaultSubmodelDescriptor.Builder()
                 .idShort("Submodel2")
                 .id("TestSubmodel2")
                 .description(new DefaultLangStringTextType.Builder().text("some submodel").language("en-US").build())
@@ -64,19 +64,20 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                         .revision("1")
                         .version("1.1")
                         .build())
-                .endpoint(DefaultEndpoint.builder()
-                        ._interface("http")
-                        .protocolInformation(DefaultProtocolInformation.builder()
-                                .href("localhost:8080/factory1/submodel2")
-                                .endpointProtocol("http")
+                .endpoints(
+                        new DefaultEndpoint.Builder()
+                                ._interface("http")
+                                .protocolInformation(new DefaultProtocolInformation.Builder()
+                                        .href("localhost:8080/factory1/submodel2")
+                                        .endpointProtocol("http")
+                                        .build())
                                 .build())
-                        .build())
                 .build();
     }
 
 
     protected AssetAdministrationShellDescriptor getAASWithSubmodel() {
-        AssetAdministrationShellDescriptor aas = DefaultAssetAdministrationShellDescriptor.builder()
+        AssetAdministrationShellDescriptor aas = new DefaultAssetAdministrationShellDescriptor.Builder()
                 .idShort("Test1")
                 .id("TestAAS1")
                 .description(new DefaultLangStringTextType.Builder().text("some aas").language("en-US").build())
@@ -104,16 +105,16 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                                 .build())
                         .build())))
                 .globalAssetId("http://example.org/aasTest1")
-                .endpoint(DefaultEndpoint.builder()
+                .endpoints(new DefaultEndpoint.Builder()
                         ._interface("http")
-                        .protocolInformation(DefaultProtocolInformation.builder()
+                        .protocolInformation(new DefaultProtocolInformation.Builder()
                                 .href("localhost:8080/factory1")
                                 .endpointProtocol("http")
                                 .build())
                         .build())
                 .build();
         List<SubmodelDescriptor> submodels = new ArrayList<>();
-        submodels.add(DefaultSubmodelDescriptor.builder()
+        submodels.add(new DefaultSubmodelDescriptor.Builder()
                 .idShort("Submodel1")
                 .id("TestSubmodel1")
                 .description(new DefaultLangStringTextType.Builder().text("some submodel").language("en-US").build())
@@ -129,15 +130,15 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
                         .revision("1")
                         .version("1.1")
                         .build())
-                .endpoint(DefaultEndpoint.builder()
+                .endpoints(new DefaultEndpoint.Builder()
                         ._interface("http")
-                        .protocolInformation(DefaultProtocolInformation.builder()
+                        .protocolInformation(new DefaultProtocolInformation.Builder()
                                 .href("localhost:8080/factory1/submodel")
                                 .endpointProtocol("http")
                                 .build())
                         .build())
                 .build());
-        aas.setSubmodels(submodels);
+        aas.setSubmodelDescriptors(submodels);
         return aas;
     }
 
@@ -171,11 +172,11 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         // We have to create a new AAS here, otherwise the test won't work
         AssetAdministrationShellDescriptor aas = getAASWithSubmodel();
         aas.setIdShort("NewIdShort");
-        aas.getSubmodels().get(0).setIdShort("NewSubmodelIdShort");
+        aas.getSubmodelDescriptors().get(0).setIdShort("NewSubmodelIdShort");
         repository.update(aasId, aas);
         aas = repository.getAAS(aas.getId());
         Assert.assertEquals("NewIdShort", aas.getIdShort());
-        Assert.assertEquals("NewSubmodelIdShort", aas.getSubmodels().get(0).getIdShort());
+        Assert.assertEquals("NewSubmodelIdShort", aas.getSubmodelDescriptors().get(0).getIdShort());
     }
 
 
@@ -224,7 +225,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
         SubmodelDescriptor findSubmodel;
         // Ensure, submodel of the AAS is not registered
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodels().get(0).getId()));
+        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodelDescriptors().get(0).getId()));
         findSubmodel = repository.getSubmodel(submodel.getId());
         Assert.assertNotNull(findSubmodel);
     }

@@ -24,15 +24,5 @@ public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
 
     public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
 
-        @Override
-        protected Builder getSelf() {
-            return this;
-        }
-
-
-        @Override
-        protected JpaSubmodelDescriptor newBuildingInstance() {
-            return new JpaSubmodelDescriptor();
-        }
     }
 }

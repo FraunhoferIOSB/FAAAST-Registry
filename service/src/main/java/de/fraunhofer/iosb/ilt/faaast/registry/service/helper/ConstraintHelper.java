@@ -15,16 +15,16 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
 /**
@@ -59,15 +59,15 @@ public class ConstraintHelper {
         Ensure.requireNonNull(aas, RegistryService.AAS_NOT_NULL_TXT);
         CommonConstraintHelper.checkId(aas.getId());
         CommonConstraintHelper.checkIdShort(aas.getIdShort());
-        checkDescriptions(aas.getDescriptions());
-        checkDisplayNames(aas.getDisplayNames());
+        checkDescriptions(aas.getDescription());
+        checkDisplayNames(aas.getDisplayName());
         checkExtensions(aas.getExtensions());
         checkAdministrativeInformation(aas.getAdministration());
         CommonConstraintHelper.checkText(aas.getAssetType(), MAX_IDENTIFIER_LENGTH, false, "Asset Type");
         EndpointConstraintHelper.checkEndpoints(aas.getEndpoints());
         CommonConstraintHelper.checkText(aas.getGlobalAssetId(), MAX_IDENTIFIER_LENGTH, false, "Global Asset ID");
         checkSpecificAssetIds(aas.getSpecificAssetIds());
-        checkSubmodels(aas.getSubmodels());
+        checkSubmodels(aas.getSubmodelDescriptors());
     }
 
 
@@ -92,8 +92,8 @@ public class ConstraintHelper {
         Ensure.requireNonNull(submodel, RegistryService.SUBMODEL_NOT_NULL_TXT);
         CommonConstraintHelper.checkId(submodel.getId());
         CommonConstraintHelper.checkIdShort(submodel.getIdShort());
-        checkDescriptions(submodel.getDescriptions());
-        checkDisplayNames(submodel.getDisplayNames());
+        checkDescriptions(submodel.getDescription());
+        checkDisplayNames(submodel.getDisplayName());
         checkExtensions(submodel.getExtensions());
         checkAdministrativeInformation(submodel.getAdministration());
         EndpointConstraintHelper.checkEndpoints(submodel.getEndpoints());
@@ -102,7 +102,7 @@ public class ConstraintHelper {
             CommonConstraintHelper.raiseConstraintViolatedException("submodel doesn't have an endpoint");
         }
         CommonConstraintHelper.checkReference(submodel.getSemanticId());
-        CommonConstraintHelper.checkReferences(submodel.getSupplementalSemanticIds());
+        CommonConstraintHelper.checkReferences(submodel.getSupplementalSemanticId());
     }
 
 

@@ -36,17 +36,15 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueList;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaValueReferencePair;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringDefinitionTypeIec61360;
@@ -55,9 +53,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec6136
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LevelType;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair;
 
@@ -80,9 +80,21 @@ public class ModelTransformationHelper {
         if (aas == null) {
             return null;
         }
-        return new JpaAssetAdministrationShellDescriptor.Builder()
-                .from(aas)
-                .build();
+        //TODO: use builder
+        JpaAssetAdministrationShellDescriptor jpaShellDescriptor = new JpaAssetAdministrationShellDescriptor();
+        jpaShellDescriptor.setIdShort(aas.getIdShort());
+        jpaShellDescriptor.setEndpoints(aas.getEndpoints());
+        jpaShellDescriptor.setAdministration(aas.getAdministration());
+        jpaShellDescriptor.setDescription(aas.getDescription());
+        jpaShellDescriptor.setDisplayName(aas.getDisplayName());
+        jpaShellDescriptor.setId(aas.getId());
+        jpaShellDescriptor.setGlobalAssetId(aas.getGlobalAssetId());
+        jpaShellDescriptor.setSpecificAssetIds(aas.getSpecificAssetIds());
+        jpaShellDescriptor.setSubmodelDescriptors(aas.getSubmodelDescriptors());
+        jpaShellDescriptor.setAssetKind(aas.getAssetKind());
+        jpaShellDescriptor.setAssetType(aas.getAssetType());
+        jpaShellDescriptor.setExtensions(aas.getExtensions());
+        return jpaShellDescriptor;
     }
 
 
@@ -186,7 +198,10 @@ public class ModelTransformationHelper {
         if (protocolInformation == null) {
             return null;
         }
-        return new JpaProtocolInformation.Builder().from(protocolInformation).build();
+        JpaProtocolInformation jpaProtocolInformation = new JpaProtocolInformation();
+        //TODO use builder
+        //jpaProtocolInformation.setJpaEndpointProtocolVersion(protocolInformation.getEndpointProtocolVersion());
+        return jpaProtocolInformation;
     }
 
 
@@ -232,7 +247,10 @@ public class ModelTransformationHelper {
         if (submodel == null) {
             return null;
         }
-        return new JpaSubmodelDescriptor.Builder().from(submodel).build();
+        //TODO use builder
+        JpaSubmodelDescriptor jpaSubmodelDescriptor = new JpaSubmodelDescriptor();
+        //return new JpaSubmodelDescriptor.Builder().from(submodel).build();
+        return jpaSubmodelDescriptor;
     }
 
 
@@ -246,23 +264,10 @@ public class ModelTransformationHelper {
         if (submodel == null) {
             return null;
         }
-        return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
-    }
-
-
-    /**
-     * Converts a list of SubmodelDescriptor to a list of JPASubmodelDescriptor.
-     *
-     * @param submodels The list of SubmodelDescriptor.
-     * @return The converted list of JPASubmodelDescriptor.
-     */
-    public static List<SubmodelDescriptor> convertSubmodels(List<SubmodelDescriptor> submodels) {
-        if (Objects.isNull(submodels)) {
-            return null;
-        }
-        return submodels.stream()
-                .map(x -> new JpaSubmodelDescriptor.Builder().from(x).build())
-                .collect(Collectors.toList());
+        //TODO use builder
+        JpaSubmodelDescriptorStandalone standalone = new JpaSubmodelDescriptorStandalone();
+        //return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
+        return standalone;
     }
 
 

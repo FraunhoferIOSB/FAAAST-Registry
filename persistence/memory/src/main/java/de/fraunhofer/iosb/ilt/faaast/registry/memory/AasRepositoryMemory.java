@@ -17,8 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
 /**
@@ -105,7 +105,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return aas.getSubmodels();
+        return aas.getSubmodelDescriptors();
     }
 
 
@@ -121,7 +121,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        List<SubmodelDescriptor> submodels = aas.getSubmodels();
+        List<SubmodelDescriptor> submodels = aas.getSubmodelDescriptors();
         Optional<SubmodelDescriptor> submodel = getSubmodelInternal(submodels, submodelId);
         Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         return submodel.get();
@@ -142,10 +142,10 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        if (getSubmodelInternal(aas.getSubmodels(), descriptor.getId()).isPresent()) {
+        if (getSubmodelInternal(aas.getSubmodelDescriptors(), descriptor.getId()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getId());
         }
-        aas.getSubmodels().add(descriptor);
+        aas.getSubmodelDescriptors().add(descriptor);
         return descriptor;
     }
 
@@ -167,7 +167,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        boolean found = aas.getSubmodels().removeIf(x -> Objects.equals(x.getId(), submodelId));
+        boolean found = aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
     }

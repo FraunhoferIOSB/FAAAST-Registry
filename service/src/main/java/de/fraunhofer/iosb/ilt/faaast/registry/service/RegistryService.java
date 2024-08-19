@@ -22,14 +22,14 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,8 +96,8 @@ public class RegistryService {
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
         ConstraintHelper.validate(aas);
         LOGGER.debug("createAAS: {}", aas.getId());
-        if (aas.getSubmodels() != null) {
-            aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
+        if (aas.getSubmodelDescriptors() != null) {
+            aas.getSubmodelDescriptors().stream().forEach(this::checkSubmodelIdentifiers);
         }
         return aasRepository.create(aas);
     }
@@ -129,7 +129,7 @@ public class RegistryService {
         String idDecoded = EncodingHelper.base64UrlDecode(id);
         LOGGER.debug("updateAAS: {}", idDecoded);
         checkShellIdentifiers(aas);
-        aas.getSubmodels().stream().forEach(this::checkSubmodelIdentifiers);
+        aas.getSubmodelDescriptors().stream().forEach(this::checkSubmodelIdentifiers);
         return aasRepository.update(idDecoded, aas);
     }
 

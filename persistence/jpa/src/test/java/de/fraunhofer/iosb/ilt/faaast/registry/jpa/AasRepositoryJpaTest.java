@@ -17,9 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

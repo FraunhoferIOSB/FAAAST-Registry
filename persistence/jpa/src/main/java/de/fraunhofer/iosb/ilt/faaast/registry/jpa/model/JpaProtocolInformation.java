@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -96,32 +96,8 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     }
 
     public abstract static class AbstractBuilder<T extends JpaProtocolInformation, B extends AbstractBuilder<T, B>>
-            extends DefaultProtocolInformation.AbstractBuilder<JpaProtocolInformation, B> {
+            extends DefaultProtocolInformation.Builder {
 
-        public B id(String value) {
-            getBuildingInstance().setId(value);
-            return getSelf();
-        }
-
-
-        public B jpaEndpointProtocolVersion(List<JpaString> value) {
-            getBuildingInstance().setJpaEndpointProtocolVersion(value);
-            return getSelf();
-        }
-
-
-        @Override
-        public B from(ProtocolInformation other) {
-            endpointProtocol(other.getEndpointProtocol());
-            // endpointProtocolVersion is set in jpaEndpointProtocolVersion
-            jpaEndpointProtocolVersion(ModelTransformationHelper.convertStrings(other.getEndpointProtocolVersion()));
-            href(other.getHref());
-            securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
-            subprotocol(other.getSubprotocol());
-            subprotocolBody(other.getSubprotocolBody());
-            subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
-            return getSelf();
-        }
     }
 
     public static class Builder extends AbstractBuilder<JpaProtocolInformation, Builder> {
