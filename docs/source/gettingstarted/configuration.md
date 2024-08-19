@@ -11,6 +11,7 @@ server.port=8090
 ```
 
 With `server.ssl.enabled` you can turn off SSL. The default value is `true`.
+
 ```properties
 server.ssl.enabled=false
 ```
