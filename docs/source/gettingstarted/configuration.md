@@ -10,6 +10,11 @@ With `server.port` you can change the HTTPS Port of the API. The default value i
 server.port=8090
 ```
 
+With `server.ssl.enabled` you can turn off SSL. The default value is `true`.
+```properties
+server.ssl.enabled=false
+```
+
 ## User-defined configuration file
 
 You can use your own configuration file to use your desired settings. You can use the file `service\src\main\resources\application.properties` as template.
