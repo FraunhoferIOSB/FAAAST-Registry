@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import java.util.Objects;
 import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.EndpointBuilder;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 
 
@@ -67,11 +69,18 @@ public class JpaEndpoint extends DefaultEndpoint {
         }
     }
 
-    public abstract static class AbstractBuilder<T extends JpaEndpoint, B extends AbstractBuilder<T, B>> extends DefaultEndpoint.Builder {
-        public DefaultEndpoint.Builder from(Endpoint other) {
+    public abstract static class AbstractBuilder<T extends JpaEndpoint, B extends AbstractBuilder<T, B>> extends EndpointBuilder<T, B> {
+
+        public B id(String value) {
+            getBuildingInstance().setId(value);
+            return getSelf();
+        }
+
+
+        public B from(Endpoint other) {
             if (other != null) {
                 _interface(other.get_interface());
-                protocolInformation(other.getProtocolInformation());
+                protocolInformation(ModelTransformationHelper.convertProtocolInformation(other.getProtocolInformation()));
             }
             return getSelf();
         }

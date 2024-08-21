@@ -93,18 +93,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         return entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
                 .id(aas.getId())
-                .idShort(aas.getIdShort())
-                .endpoints(aas.getEndpoints())
-                .administration(aas.getAdministration())
-                .description(aas.getDescription())
-                .displayName(aas.getDisplayName())
-                .id(aas.getId())
-                .globalAssetId(aas.getGlobalAssetId())
-                .specificAssetIds(aas.getSpecificAssetIds())
-                .submodelDescriptors(aas.getSubmodelDescriptors())
-                .assetType(aas.getAssetType())
-                .assetKind(aas.getAssetKind())
-                .extensions(aas.getExtensions())
+                .from(descriptor)
                 .build());
     }
 

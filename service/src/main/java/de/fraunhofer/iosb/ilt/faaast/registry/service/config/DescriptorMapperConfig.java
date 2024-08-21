@@ -24,6 +24,11 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.DataSpecificationIec61360Mixin;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.EndpointMixin;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ExtensionMixin;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.KeyMixin;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ReferenceMixin;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent;
@@ -117,6 +122,11 @@ public class DescriptorMapperConfig {
         return new Jackson2ObjectMapperBuilder()
                 .modules(module)
                 .mixIn(Page.class, PageMixin.class)
+                .mixIn(Endpoint.class, EndpointMixin.class)
+                .mixIn(DataSpecificationIec61360.class, DataSpecificationIec61360Mixin.class)
+                .mixIn(Extension.class, ExtensionMixin.class)
+                .mixIn(Key.class, KeyMixin.class)
+                .mixIn(Reference.class, ReferenceMixin.class)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .featuresToEnable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
                 .dateFormat(new StdDateFormat().withColonInTimeZone(true));

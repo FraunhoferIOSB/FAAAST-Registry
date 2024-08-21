@@ -80,21 +80,10 @@ public class ModelTransformationHelper {
         if (aas == null) {
             return null;
         }
-        //TODO: use builder
-        JpaAssetAdministrationShellDescriptor jpaShellDescriptor = new JpaAssetAdministrationShellDescriptor();
-        jpaShellDescriptor.setIdShort(aas.getIdShort());
-        jpaShellDescriptor.setEndpoints(aas.getEndpoints());
-        jpaShellDescriptor.setAdministration(aas.getAdministration());
-        jpaShellDescriptor.setDescription(aas.getDescription());
-        jpaShellDescriptor.setDisplayName(aas.getDisplayName());
-        jpaShellDescriptor.setId(aas.getId());
-        jpaShellDescriptor.setGlobalAssetId(aas.getGlobalAssetId());
-        jpaShellDescriptor.setSpecificAssetIds(aas.getSpecificAssetIds());
-        jpaShellDescriptor.setSubmodelDescriptors(aas.getSubmodelDescriptors());
-        jpaShellDescriptor.setAssetKind(aas.getAssetKind());
-        jpaShellDescriptor.setAssetType(aas.getAssetType());
-        jpaShellDescriptor.setExtensions(aas.getExtensions());
-        return jpaShellDescriptor;
+        JpaAssetAdministrationShellDescriptor retval = new JpaAssetAdministrationShellDescriptor.Builder()
+                .from(aas)
+                .build();
+        return retval;
     }
 
 
@@ -198,10 +187,7 @@ public class ModelTransformationHelper {
         if (protocolInformation == null) {
             return null;
         }
-        JpaProtocolInformation jpaProtocolInformation = new JpaProtocolInformation();
-        //TODO use builder
-        //jpaProtocolInformation.setJpaEndpointProtocolVersion(protocolInformation.getEndpointProtocolVersion());
-        return jpaProtocolInformation;
+        return new JpaProtocolInformation.Builder().from(protocolInformation).build();
     }
 
 
@@ -247,10 +233,7 @@ public class ModelTransformationHelper {
         if (submodel == null) {
             return null;
         }
-        //TODO use builder
-        JpaSubmodelDescriptor jpaSubmodelDescriptor = new JpaSubmodelDescriptor();
-        //return new JpaSubmodelDescriptor.Builder().from(submodel).build();
-        return jpaSubmodelDescriptor;
+        return new JpaSubmodelDescriptor.Builder().from(submodel).build();
     }
 
 
@@ -264,10 +247,23 @@ public class ModelTransformationHelper {
         if (submodel == null) {
             return null;
         }
-        //TODO use builder
-        JpaSubmodelDescriptorStandalone standalone = new JpaSubmodelDescriptorStandalone();
-        //return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
-        return standalone;
+        return new JpaSubmodelDescriptorStandalone.Builder().from(submodel).build();
+    }
+
+
+    /**
+     * Converts a list of SubmodelDescriptor to a list of JPASubmodelDescriptor.
+     *
+     * @param submodels The list of SubmodelDescriptor.
+     * @return The converted list of JPASubmodelDescriptor.
+     */
+    public static List<SubmodelDescriptor> convertSubmodels(List<SubmodelDescriptor> submodels) {
+        if (Objects.isNull(submodels)) {
+            return null;
+        }
+        return submodels.stream()
+                .map(x -> new JpaSubmodelDescriptor.Builder().from(x).build())
+                .collect(Collectors.toList());
     }
 
 

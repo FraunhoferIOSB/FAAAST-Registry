@@ -14,7 +14,7 @@
             <basic name="revision"/>
             <basic name="templateId"/>
             
-            <many-to-one name="creator" target-entity="JpaReference" fetch="LAZY">
+            <many-to-one name="creator" target-entity="JpaReference" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
 
@@ -27,16 +27,35 @@
     
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor">
         <attributes>
+            <id name="id"></id>
+            <basic name="idShort"/>
             <basic name="globalAssetId"></basic>
             
             <many-to-many name="specificAssetIds" target-entity="JpaSpecificAssetId" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
             
-            <many-to-many name="submodels" target-entity="JpaSubmodelDescriptor" fetch="EAGER" >
+            <many-to-many name="submodelDescriptors" target-entity="JpaSubmodelDescriptor" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
+            
             <many-to-many name="extensions" target-entity="JpaExtension" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="description" target-entity="JpaDescription" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
         </attributes>
@@ -108,7 +127,7 @@
     
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint">
         <attributes>
-            <basic name="interface">
+            <basic name="_interface">
                 <column name="interface_value"/>
             </basic>
 
@@ -155,13 +174,33 @@
 
     <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor">
         <attributes>
+            <id name="id"></id>
+            <basic name="idShort"/>
+
+            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
+                <cascade><cascade-all/></cascade>
+            </many-to-one>
+
+            <many-to-many name="description" target-entity="JpaDescription" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+
+            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="EAGER" >
+                <cascade><cascade-all/></cascade>
+            </many-to-many>
+            
             <many-to-one name="semanticId" target-entity="JpaReference" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
 
-            <many-to-many name="supplementalSemanticIds" target-entity="JpaReference" fetch="EAGER" >
+            <many-to-many name="supplementalSemanticId" target-entity="JpaReference" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
+    
             <many-to-many name="extensions" target-entity="JpaExtension" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
@@ -304,36 +343,14 @@
         
         <attributes>
             <id name="adminId">
+                <generated-value strategy="UUID" />
             </id>
         </attributes>
     </entity>
     
     <entity class="JpaAssetAdministrationShellDescriptor">
         <table name="asset_administration_shell"></table>
-
-        <attributes>
-
-            <id name="adminId"></id>
-            <basic name="id"></basic>
-            <basic name="idShort"/>
-
-            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
-                <cascade><cascade-all/></cascade>
-            </many-to-one>
-
-            <many-to-many name="description" target-entity="JpaDescription" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-        </attributes>
+        
     </entity>
     
     <entity class="JpaString">
@@ -437,39 +454,10 @@
     
     <entity class="JpaSubmodelDescriptor">
         <table name="submodel"/>
-
-        <attributes>
-
-            <id name="adminId"></id>
-            <basic name="id"></basic>
-            <basic name="idShort"/>
-
-            <many-to-one name="administration" target-entity="JpaAdministrativeInformation" fetch="EAGER">
-                <cascade><cascade-all/></cascade>
-            </many-to-one>
-
-            <many-to-many name="description" target-entity="JpaDescription" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-            <many-to-many name="displayName" target-entity="JpaDisplayName" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-            <many-to-many name="endpoints" target-entity="JpaEndpoint" fetch="LAZY" >
-                <cascade><cascade-all/></cascade>
-            </many-to-many>
-
-        </attributes>
     </entity>
     
     <entity class="JpaSubmodelDescriptorStandalone">
         <table name="submodel_standalone"/>
-
-        <attributes>
-
-            <id name="adminId"></id>
-        </attributes>
     </entity>
 
     <entity class="JpaExtension">
@@ -490,7 +478,7 @@
                 <generated-value strategy="UUID" />
             </id>
             
-            <many-to-one name="dataSpecificationContentIec61360" target-entity="JpaDataSpecificationIec61360" fetch="LAZY">
+            <many-to-one name="dataSpecificationContentIec61360" target-entity="JpaDataSpecificationIec61360" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
             </many-to-one>
         </attributes>
