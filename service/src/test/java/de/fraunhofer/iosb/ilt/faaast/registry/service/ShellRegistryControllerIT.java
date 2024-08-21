@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -176,6 +178,29 @@ public class ShellRegistryControllerIT {
     }
 
 
+    @Test
+    public void testAddSubmodel() {
+        // create AAS
+        AssetAdministrationShellDescriptor original = getAas101();
+        createAas(original);
+
+        SubmodelDescriptor newSubmodel = getSubmodel2A();
+        checkGetSubmodelNotExist(original.getId(), newSubmodel.getId());
+
+        // update AAS
+        AssetAdministrationShellDescriptor expected = getAas101();
+        expected.getSubmodels().add(newSubmodel);
+
+        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
+        ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
+        Assert.assertNotNull(responsePut);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+
+        checkGetAas(expected);
+        checkGetSubmodel(expected.getId(), newSubmodel);
+    }
+
+
     private void checkGetAas(AssetAdministrationShellDescriptor expected) {
         ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
@@ -189,6 +214,26 @@ public class ShellRegistryControllerIT {
     private void checkGetAasNotExist(String id) {
         ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(id)), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+
+    private void checkGetSubmodel(String aasId, SubmodelDescriptor submodel) {
+        ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodel.getId())), HttpMethod.GET, null,
+                SubmodelDescriptor.class);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertEquals(submodel, response.getBody());
+    }
+
+
+    private void checkGetSubmodelNotExist(String aasId, String submodelId) {
+        ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodelId)), HttpMethod.GET, null,
+                SubmodelDescriptor.class);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -240,9 +285,69 @@ public class ShellRegistryControllerIT {
         return new DefaultAssetAdministrationShellDescriptor.Builder()
                 .idShort("IntegrationTest100")
                 .id("http://iosb.fraunhofer.de/IntegrationTest/AAS100")
-                .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 10 Name aktualisiert").language("de-DE").build())
-                .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest99")
-                .assetType("AssetType99")
+                .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 100 Name aktualisiert").language("de-DE").build())
+                .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest100")
+                .assetType("AssetType100")
+                .build();
+    }
+
+
+    private static AssetAdministrationShellDescriptor getAas101() {
+        return new DefaultAssetAdministrationShellDescriptor.Builder()
+                .idShort("IntegrationTest99")
+                .id("http://iosb.fraunhofer.de/IntegrationTest/AAS101")
+                .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 101 Name").language("de-DE").build())
+                .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest101")
+                .assetType("AssetType101")
+                .submodel(new DefaultSubmodelDescriptor.Builder()
+                        .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel101-1")
+                        .idShort("Submodel-101-1")
+                        .administration(new DefaultAdministrativeInformation.Builder()
+                                .version("2")
+                                .revision("15")
+                                .build())
+                        .endpoint(new DefaultEndpoint.Builder()
+                                ._interface("http")
+                                .protocolInformation(new DefaultProtocolInformation.Builder()
+                                        .endpointProtocol("http")
+                                        .href("http://iosb.fraunhofer.de/Endpoints/Submodel101-1")
+                                        .endpointProtocolVersion(List.of("2.0"))
+                                        .build())
+                                .build())
+                        .displayName(new DefaultLangStringNameType.Builder()
+                                .language("de-DE")
+                                .text("Submodel 101-1")
+                                .build())
+                        .build())
+                .build();
+    }
+
+
+    private static SubmodelDescriptor getSubmodel2A() {
+        return new DefaultSubmodelDescriptor.Builder()
+                .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel101-2")
+                .idShort("Submodel-101-2")
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version("2")
+                        .revision("18")
+                        .templateId("Template101-2")
+                        .build())
+                .endpoint(new DefaultEndpoint.Builder()
+                        ._interface("http")
+                        .protocolInformation(new DefaultProtocolInformation.Builder()
+                                .endpointProtocol("http")
+                                .href("http://iosb.fraunhofer.de/Endpoints/Submodel101-2")
+                                .endpointProtocolVersion(List.of("2.1"))
+                                .build())
+                        .build())
+                .displayName(new DefaultLangStringNameType.Builder()
+                        .language("de-DE")
+                        .text("Submodel 101-2")
+                        .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de-DE")
+                        .text("Submodel 101-2 Beschreibung")
+                        .build())
                 .build();
     }
 }
