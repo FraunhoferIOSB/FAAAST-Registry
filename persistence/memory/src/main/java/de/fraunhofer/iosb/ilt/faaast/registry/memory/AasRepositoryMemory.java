@@ -188,25 +188,21 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     private static boolean filterAssetType(AssetAdministrationShellDescriptor aas, String assetType) {
-        boolean retval;
         if (assetType == null) {
-            retval = true;
+            return true;
         }
         else {
-            retval = aas.getAssetType().equals(assetType);
+            return aas.getAssetType().equals(assetType);
         }
-        return retval;
     }
 
 
     private static boolean filterAssetKind(AssetAdministrationShellDescriptor aas, AssetKind assetKind) {
-        boolean retval;
         if (assetKind == null) {
-            retval = true;
+            return true;
         }
         else {
-            retval = aas.getAssetKind() == assetKind;
+            return aas.getAssetKind() == assetKind;
         }
-        return retval;
     }
 }

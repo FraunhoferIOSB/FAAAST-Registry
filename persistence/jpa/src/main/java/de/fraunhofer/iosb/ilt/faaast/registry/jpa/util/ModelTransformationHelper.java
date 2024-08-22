@@ -80,10 +80,9 @@ public class ModelTransformationHelper {
         if (aas == null) {
             return null;
         }
-        JpaAssetAdministrationShellDescriptor retval = new JpaAssetAdministrationShellDescriptor.Builder()
+        return new JpaAssetAdministrationShellDescriptor.Builder()
                 .from(aas)
                 .build();
-        return retval;
     }
 
 
