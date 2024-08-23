@@ -73,7 +73,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.7.1</maven.plugin.assembly.version>
-        <maven.plugin.checkstyle.version>3.4.0</maven.plugin.checkstyle.version>
+        <maven.plugin.checkstyle.version>3.5.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
         <maven.plugin.failsafe.version>3.4.0</maven.plugin.failsafe.version>
@@ -89,7 +89,7 @@
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.4.0</maven.plugin.surefire.version>
         <picocli.version>4.7.6</picocli.version>
-        <postgres.version>42.7.3</postgres.version>
+        <postgres.version>42.7.4</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.16</slf4j.version>
