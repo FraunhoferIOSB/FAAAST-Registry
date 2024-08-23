@@ -22,13 +22,29 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoi
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -259,8 +275,96 @@ public class ShellRegistryControllerIT {
                 .idShort("IntegrationTest99")
                 .id("http://iosb.fraunhofer.de/IntegrationTest/AAS99")
                 .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 99 Name").language("de-DE").build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("en-US")
+                        .text("AAS 99 Integration Test")
+                        .build())
                 .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest99")
                 .assetType("AssetType99")
+                .assetKind(AssetKind.INSTANCE)
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .creator(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("http://anydomain.com/users/User99-1")
+                                        .build())
+                                .build())
+                        .version("12")
+                        .revision("25")
+                        .embeddedDataSpecifications(new DefaultEmbeddedDataSpecification.Builder()
+                                .dataSpecification(new DefaultReference.Builder()
+                                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                        .keys(new DefaultKey.Builder()
+                                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                                .value("http://iosb.fraunhofer.de/IntegrationTest/AAS99/DataSpecificationIEC61360")
+                                                .build())
+                                        .build())
+                                .dataSpecificationContent(new DefaultDataSpecificationIec61360.Builder()
+                                        .preferredName(Arrays.asList(
+                                                new DefaultLangStringPreferredNameTypeIec61360.Builder().text("AAS 99 Spezifikation").language("de").build(),
+                                                new DefaultLangStringPreferredNameTypeIec61360.Builder().text("AAS 99 Specification").language("en-us").build()))
+                                        .dataType(DataTypeIec61360.REAL_MEASURE)
+                                        .definition(new DefaultLangStringDefinitionTypeIec61360.Builder().text("Dies ist eine Data Specification fuer Integration Test")
+                                                .language("de").build())
+                                        .definition(
+                                                new DefaultLangStringDefinitionTypeIec61360.Builder().text("This is a DataSpecification for integration testing purposes")
+                                                        .language("en-us").build())
+                                        .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text("Test Spezifikation").language("de").build())
+                                        .shortName(new DefaultLangStringShortNameTypeIec61360.Builder().text("Test Spec").language("en-us").build())
+                                        .unit("SpaceUnit")
+                                        .unitId(new DefaultReference.Builder()
+                                                .keys(new DefaultKey.Builder()
+                                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                                        .value("http://iosb.fraunhofer.de/IntegrationTest/Units/TestUnit")
+                                                        .build())
+                                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                                .build())
+                                        .sourceOfDefinition("http://iosb.fraunhofer.de/IntegrationTest/AAS99/DataSpec/ExampleDef")
+                                        .symbol("SU")
+                                        .valueFormat("string")
+                                        .value("TEST")
+                                        .valueList(new DefaultValueList.Builder()
+                                                .valueReferencePairs(new DefaultValueReferencePair.Builder()
+                                                        .value("http://iosb.fraunhofer.de/IntegrationTest/ValueId/ExampleValueId")
+                                                        .valueId(new DefaultReference.Builder()
+                                                                .keys(new DefaultKey.Builder()
+                                                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                                                        .value("http://iosb.fraunhofer.de/IntegrationTest/ExampleValueId")
+                                                                        .build())
+                                                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                                                .build())
+                                                        .build())
+                                                .valueReferencePairs(new DefaultValueReferencePair.Builder()
+                                                        .value("http://iosb.fraunhofer.de/IntegrationTest/ValueId/ExampleValueId2")
+                                                        .valueId(new DefaultReference.Builder()
+                                                                .keys(new DefaultKey.Builder()
+                                                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                                                        .value("http://iosb.fraunhofer.de/IntegrationTest/ValueId/ExampleValueId2")
+                                                                        .build())
+                                                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                                                .build())
+                                                        .build())
+                                                .build())
+                                        .build())
+                                .build())
+                        .build())
+                .endpoint(new DefaultEndpoint.Builder()
+                        ._interface("http")
+                        .protocolInformation(new DefaultProtocolInformation.Builder()
+                                .endpointProtocol("http")
+                                .href("http://iosb.fraunhofer.de/IntegrationTest/Endpoints/AAS99")
+                                .endpointProtocolVersion(List.of("2.1"))
+                                .subprotocol("https")
+                                .subprotocolBody("any body")
+                                .subprotocolBodyEncoding("UTF-8")
+                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                        .type(SecurityTypeEnum.NONE)
+                                        .key("")
+                                        .value("")
+                                        .build())
+                                .build())
+                        .build())
                 .submodel(new DefaultSubmodelDescriptor.Builder()
                         .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1")
                         .idShort("Submodel-99-1")
