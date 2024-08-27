@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
@@ -35,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
@@ -279,6 +281,10 @@ public class ShellRegistryControllerIT {
                         .language("en-US")
                         .text("AAS 99 Integration Test")
                         .build())
+                .description(new DefaultLangStringTextType.Builder()
+                        .language("de-DE")
+                        .text("AAS 99 Integrationstest")
+                        .build())
                 .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest99")
                 .assetType("AssetType99")
                 .assetKind(AssetKind.INSTANCE)
@@ -365,12 +371,45 @@ public class ShellRegistryControllerIT {
                                         .build())
                                 .build())
                         .build())
+                .extension(new DefaultExtension.Builder()
+                        .name("AAS99 Extension Name")
+                        .value("AAS99 Extension Value")
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("http://iosb.fraunhofer.de/IntegrationTest/Extension99/SemanticId1")
+                                        .build())
+                                .build())
+                        .refersTo(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("http://iosb.fraunhofer.de/IntegrationTest/Extension99/RefersTo1")
+                                        .build())
+                                .build())
+                        .valueType(DataTypeDefXsd.STRING)
+                        .supplementalSemanticIds(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("http://iosb.fraunhofer.de/IntegrationTest/Extension99/SupplementalSemanticId1")
+                                        .build())
+                                .build())
+                        .build())
                 .submodel(new DefaultSubmodelDescriptor.Builder()
                         .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1")
                         .idShort("Submodel-99-1")
                         .administration(new DefaultAdministrativeInformation.Builder()
                                 .version("1")
                                 .revision("12")
+                                .build())
+                        .semanticId(new DefaultReference.Builder()
+                                .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                                .keys(new DefaultKey.Builder()
+                                        .type(KeyTypes.GLOBAL_REFERENCE)
+                                        .value("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1/SemanticId")
+                                        .build())
                                 .build())
                         .endpoint(new DefaultEndpoint.Builder()
                                 ._interface("http")
