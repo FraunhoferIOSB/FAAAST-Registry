@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper.MAX_IDSHORT_LENGTH;
 
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.Endpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityAttributeObject;
 
 
@@ -44,7 +44,7 @@ public class EndpointConstraintHelper {
 
     private static void checkEndpoint(Endpoint endpoint) {
         if (endpoint != null) {
-            CommonConstraintHelper.checkText(endpoint.getInterface(), MAX_IDSHORT_LENGTH, true, "Interface");
+            CommonConstraintHelper.checkText(endpoint.get_interface(), MAX_IDSHORT_LENGTH, true, "Interface");
             checkProtocolInformation(endpoint.getProtocolInformation());
         }
     }

@@ -15,9 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.AssetAdministrationShellDescriptorBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 
 
 /**
@@ -26,9 +27,8 @@ import java.util.Objects;
 public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministrationShellDescriptor {
 
     public abstract static class AbstractBuilder<T extends JpaAssetAdministrationShellDescriptor, B extends AbstractBuilder<T, B>>
-            extends DefaultAssetAdministrationShellDescriptor.AbstractBuilder<JpaAssetAdministrationShellDescriptor, B> {
+            extends AssetAdministrationShellDescriptorBuilder<T, B> {
 
-        @Override
         public B from(AssetAdministrationShellDescriptor other) {
             if (Objects.nonNull(other)) {
                 id(other.getId());
@@ -37,12 +37,12 @@ public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministr
                 assetType(other.getAssetType());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
-                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
-                displayNames(ModelTransformationHelper.convertDisplayNames(other.getDisplayNames()));
+                description(ModelTransformationHelper.convertDescriptions(other.getDescription()));
+                displayName(ModelTransformationHelper.convertDisplayNames(other.getDisplayName()));
                 globalAssetId(other.getGlobalAssetId());
                 specificAssetIds(ModelTransformationHelper.convertSpecificAssetIds(other.getSpecificAssetIds()));
                 extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
-                submodels(ModelTransformationHelper.convertSubmodels(other.getSubmodels()));
+                submodelDescriptors(ModelTransformationHelper.convertSubmodels(other.getSubmodelDescriptors()));
             }
             return getSelf();
         }
@@ -60,5 +60,6 @@ public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministr
         protected JpaAssetAdministrationShellDescriptor newBuildingInstance() {
             return new JpaAssetAdministrationShellDescriptor();
         }
+
     }
 }

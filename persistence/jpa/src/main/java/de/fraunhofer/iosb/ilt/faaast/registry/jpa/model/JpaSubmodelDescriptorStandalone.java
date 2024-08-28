@@ -20,7 +20,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 public class JpaSubmodelDescriptorStandalone extends JpaSubmodelDescriptorBase {
 
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptorStandalone, B extends AbstractBuilder<T, B>>
-            extends JpaSubmodelDescriptorBase.AbstractBuilder<JpaSubmodelDescriptorStandalone, B> {}
+            extends JpaSubmodelDescriptorBase.AbstractBuilder<T, B> {}
 
     public static class Builder extends AbstractBuilder<JpaSubmodelDescriptorStandalone, Builder> {
 
