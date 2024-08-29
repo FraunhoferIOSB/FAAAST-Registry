@@ -76,18 +76,18 @@
         <maven.plugin.checkstyle.version>3.5.0</maven.plugin.checkstyle.version>
         <maven.plugin.compiler.version>3.13.0</maven.plugin.compiler.version>
         <maven.plugin.dependency.version>3.8.0</maven.plugin.dependency.version>
-        <maven.plugin.failsafe.version>3.4.0</maven.plugin.failsafe.version>
+        <maven.plugin.failsafe.version>3.5.0</maven.plugin.failsafe.version>
         <maven.plugin.gpg.version>3.2.5</maven.plugin.gpg.version>
         <maven.plugin.jacoco.version>0.8.12</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
-        <maven.plugin.javadoc.version>3.8.0</maven.plugin.javadoc.version>
+        <maven.plugin.javadoc.version>3.10.0</maven.plugin.javadoc.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
         <maven.plugin.owasp.version>10.0.3</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
         <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
-        <maven.plugin.surefire.version>3.4.0</maven.plugin.surefire.version>
+        <maven.plugin.surefire.version>3.5.0</maven.plugin.surefire.version>
         <picocli.version>4.7.6</picocli.version>
         <postgres.version>42.7.4</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

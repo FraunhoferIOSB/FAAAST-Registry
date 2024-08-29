@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.SubmodelDescriptorBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 
 
 /**
@@ -27,22 +29,22 @@ public abstract class JpaSubmodelDescriptorBase extends DefaultSubmodelDescripto
     protected JpaSubmodelDescriptorBase() {}
 
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptorBase, B extends AbstractBuilder<T, B>>
-            extends DefaultSubmodelDescriptor.AbstractBuilder<T, B> {
+            extends SubmodelDescriptorBuilder<T, B> {
 
-        @Override
         public B from(SubmodelDescriptor other) {
-            if (other != null) {
+            if (Objects.nonNull(other)) {
                 id(other.getId());
                 idShort(other.getIdShort());
                 endpoints(ModelTransformationHelper.convertEndpoints(other.getEndpoints()));
                 administration(ModelTransformationHelper.convertAdministrativeInformation(other.getAdministration()));
-                descriptions(ModelTransformationHelper.convertDescriptions(other.getDescriptions()));
-                displayNames(ModelTransformationHelper.convertDisplayNames(other.getDisplayNames()));
+                description(ModelTransformationHelper.convertDescriptions(other.getDescription()));
+                displayName(ModelTransformationHelper.convertDisplayNames(other.getDisplayName()));
                 semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
                 extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
-                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
+                supplementalSemanticId(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticId()));
             }
             return getSelf();
         }
+
     }
 }

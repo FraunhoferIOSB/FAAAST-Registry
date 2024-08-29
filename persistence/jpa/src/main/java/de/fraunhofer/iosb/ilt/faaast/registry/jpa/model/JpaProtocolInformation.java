@@ -16,11 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.ProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.ProtocolInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.builder.ProtocolInformationBuilder;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 
 
 /**
@@ -96,7 +97,7 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     }
 
     public abstract static class AbstractBuilder<T extends JpaProtocolInformation, B extends AbstractBuilder<T, B>>
-            extends DefaultProtocolInformation.AbstractBuilder<JpaProtocolInformation, B> {
+            extends ProtocolInformationBuilder<T, B> {
 
         public B id(String value) {
             getBuildingInstance().setId(value);
@@ -110,16 +111,17 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
         }
 
 
-        @Override
         public B from(ProtocolInformation other) {
-            endpointProtocol(other.getEndpointProtocol());
-            // endpointProtocolVersion is set in jpaEndpointProtocolVersion
-            jpaEndpointProtocolVersion(ModelTransformationHelper.convertStrings(other.getEndpointProtocolVersion()));
-            href(other.getHref());
-            securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
-            subprotocol(other.getSubprotocol());
-            subprotocolBody(other.getSubprotocolBody());
-            subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
+            if (Objects.nonNull(other)) {
+                endpointProtocol(other.getEndpointProtocol());
+                // endpointProtocolVersion is set in jpaEndpointProtocolVersion
+                jpaEndpointProtocolVersion(ModelTransformationHelper.convertStrings(other.getEndpointProtocolVersion()));
+                href(other.getHref());
+                securityAttributes(ModelTransformationHelper.convertSecurityAttributes(other.getSecurityAttributes()));
+                subprotocol(other.getSubprotocol());
+                subprotocolBody(other.getSubprotocolBody());
+                subprotocolBodyEncoding(other.getSubprotocolBodyEncoding());
+            }
             return getSelf();
         }
     }
