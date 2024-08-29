@@ -15,27 +15,25 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.AssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.SubmodelDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultAssetAdministrationShellDescriptor;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultEndpoint;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultProtocolInformation;
-import de.fraunhofer.iosb.ilt.faaast.service.model.descriptor.impl.DefaultSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
 import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360;
@@ -43,8 +41,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 import org.junit.Assert;
@@ -117,7 +117,7 @@ public class ShellRegistryControllerIT {
         // update AAS
         AssetAdministrationShellDescriptor expected = getAasUpdate();
         expected.setIdShort("IntegrationTest100A");
-        expected.getDisplayNames().add(new DefaultLangStringNameType.Builder().text("Integration Test 100 Name Updated").language("en-US").build());
+        expected.getDisplayName().add(new DefaultLangStringNameType.Builder().text("Integration Test 100 Name Updated").language("en-US").build());
 
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
         ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
@@ -207,7 +207,7 @@ public class ShellRegistryControllerIT {
 
         // update AAS
         AssetAdministrationShellDescriptor expected = getAas101();
-        expected.getSubmodels().add(newSubmodel);
+        expected.getSubmodelDescriptors().add(newSubmodel);
 
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
         ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
@@ -355,7 +355,7 @@ public class ShellRegistryControllerIT {
                                         .build())
                                 .build())
                         .build())
-                .endpoint(new DefaultEndpoint.Builder()
+                .endpoints(new DefaultEndpoint.Builder()
                         ._interface("http")
                         .protocolInformation(new DefaultProtocolInformation.Builder()
                                 .endpointProtocol("http")
@@ -364,14 +364,14 @@ public class ShellRegistryControllerIT {
                                 .subprotocol("https")
                                 .subprotocolBody("any body")
                                 .subprotocolBodyEncoding("UTF-8")
-                                .securityAttribute(new DefaultSecurityAttributeObject.Builder()
+                                .securityAttributes(new DefaultSecurityAttributeObject.Builder()
                                         .type(SecurityTypeEnum.NONE)
                                         .key("")
                                         .value("")
                                         .build())
                                 .build())
                         .build())
-                .extension(new DefaultExtension.Builder()
+                .extensions(new DefaultExtension.Builder()
                         .name("AAS99 Extension Name")
                         .value("AAS99 Extension Value")
                         .semanticId(new DefaultReference.Builder()
@@ -397,7 +397,7 @@ public class ShellRegistryControllerIT {
                                         .build())
                                 .build())
                         .build())
-                .submodel(new DefaultSubmodelDescriptor.Builder()
+                .submodelDescriptors(new DefaultSubmodelDescriptor.Builder()
                         .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1")
                         .idShort("Submodel-99-1")
                         .administration(new DefaultAdministrativeInformation.Builder()
@@ -411,7 +411,7 @@ public class ShellRegistryControllerIT {
                                         .value("http://iosb.fraunhofer.de/IntegrationTest/Submodel99-1/SemanticId")
                                         .build())
                                 .build())
-                        .endpoint(new DefaultEndpoint.Builder()
+                        .endpoints(new DefaultEndpoint.Builder()
                                 ._interface("http")
                                 .protocolInformation(new DefaultProtocolInformation.Builder()
                                         .endpointProtocol("http")
@@ -442,14 +442,14 @@ public class ShellRegistryControllerIT {
                 .displayName(new DefaultLangStringNameType.Builder().text("Integration Test 101 Name").language("de-DE").build())
                 .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/IntegrationTest101")
                 .assetType("AssetType101")
-                .submodel(new DefaultSubmodelDescriptor.Builder()
+                .submodelDescriptors(new DefaultSubmodelDescriptor.Builder()
                         .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel101-1")
                         .idShort("Submodel-101-1")
                         .administration(new DefaultAdministrativeInformation.Builder()
                                 .version("2")
                                 .revision("15")
                                 .build())
-                        .endpoint(new DefaultEndpoint.Builder()
+                        .endpoints(new DefaultEndpoint.Builder()
                                 ._interface("http")
                                 .protocolInformation(new DefaultProtocolInformation.Builder()
                                         .endpointProtocol("http")
@@ -475,7 +475,7 @@ public class ShellRegistryControllerIT {
                         .revision("18")
                         .templateId("Template101-2")
                         .build())
-                .endpoint(new DefaultEndpoint.Builder()
+                .endpoints(new DefaultEndpoint.Builder()
                         ._interface("http")
                         .protocolInformation(new DefaultProtocolInformation.Builder()
                                 .endpointProtocol("http")
