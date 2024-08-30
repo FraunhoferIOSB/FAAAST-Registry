@@ -247,6 +247,20 @@ public class ShellRegistryControllerIT {
     }
 
 
+    @Test
+    public void testAddInvalidSubmodel() {
+        AssetAdministrationShellDescriptor aas = getAas();
+        aas.setId("http://iosb.fraunhofer.de/IntegrationTest/Invalid/AAS1");
+        createAas(aas);
+
+        HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(getSubmodelInvalid());
+        ResponseEntity responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
+                HttpMethod.POST, entity, Void.class);
+        Assert.assertNotNull(responsePost);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, responsePost.getStatusCode());
+    }
+
+
     private void checkGetAas(AssetAdministrationShellDescriptor expected) {
         ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
