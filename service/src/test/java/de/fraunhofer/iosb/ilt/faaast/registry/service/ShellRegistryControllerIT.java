@@ -58,6 +58,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -105,6 +106,16 @@ public class ShellRegistryControllerIT {
         Optional<AssetAdministrationShellDescriptor> actual = list.stream().filter(x -> expected.getId().equals(x.getId())).findFirst();
         Assert.assertTrue(actual.isPresent());
         Assert.assertEquals(expected, actual.get());
+
+        // check that an error is reposrted, when an AAS shall be created, that already exists
+        checkCreateAasError(expected, HttpStatus.CONFLICT);
+    }
+
+
+    @Test
+    public void testCreateInvalidAas() {
+        AssetAdministrationShellDescriptor expected = getAasInvalid();
+        checkCreateAasError(expected, HttpStatus.BAD_REQUEST);
     }
 
 
@@ -197,25 +208,42 @@ public class ShellRegistryControllerIT {
 
 
     @Test
-    public void testAddSubmodel() {
+    public void testAddUpdateDeleteSubmodel() {
         // create AAS
-        AssetAdministrationShellDescriptor original = getAas101();
-        createAas(original);
+        AssetAdministrationShellDescriptor aas = getAas101();
+        createAas(aas);
 
         SubmodelDescriptor newSubmodel = getSubmodel2A();
-        checkGetSubmodelNotExist(original.getId(), newSubmodel.getId());
+        checkGetSubmodelError(aas.getId(), newSubmodel.getId(), HttpStatus.NOT_FOUND);
 
-        // update AAS
-        AssetAdministrationShellDescriptor expected = getAas101();
-        expected.getSubmodelDescriptors().add(newSubmodel);
+        // add Submodel
+        HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(newSubmodel);
+        ResponseEntity<SubmodelDescriptor> responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
+                HttpMethod.POST, entity, SubmodelDescriptor.class);
+        Assert.assertNotNull(responsePost);
+        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        Assert.assertEquals(newSubmodel, responsePost.getBody());
 
-        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
-        ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
+        checkGetSubmodel(aas.getId(), newSubmodel);
+
+        // update Submodel
+        newSubmodel.setIdShort("Submodel-101-2 updated");
+        newSubmodel.getDescription().add(new DefaultLangStringTextType.Builder().language("en-US").text("Submodel 101-2 new Description").build());
+        entity = new HttpEntity<>(newSubmodel);
+        ResponseEntity responsePut = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
+                HttpMethod.PUT, entity, Void.class);
         Assert.assertNotNull(responsePut);
         Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        checkGetSubmodel(aas.getId(), newSubmodel);
 
-        checkGetAas(expected);
-        checkGetSubmodel(expected.getId(), newSubmodel);
+        // delete Submodel
+        ResponseEntity responseDelete = restTemplate.exchange(
+                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
+                HttpMethod.DELETE, null, Void.class);
+        Assert.assertNotNull(responseDelete);
+        Assert.assertEquals(HttpStatus.NO_CONTENT, responseDelete.getStatusCode());
+        checkGetSubmodelError(aas.getId(), newSubmodel.getId(), HttpStatus.NOT_FOUND);
     }
 
 
@@ -248,12 +276,12 @@ public class ShellRegistryControllerIT {
     }
 
 
-    private void checkGetSubmodelNotExist(String aasId, String submodelId) {
+    private void checkGetSubmodelError(String aasId, String submodelId, HttpStatusCode statusCode) {
         ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodelId)), HttpMethod.GET, null,
                 SubmodelDescriptor.class);
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assert.assertEquals(statusCode, response.getStatusCode());
     }
 
 
@@ -269,6 +297,15 @@ public class ShellRegistryControllerIT {
         Assert.assertNotNull(responsePost);
         Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
         Assert.assertEquals(aas, responsePost.getBody());
+    }
+
+
+    private void checkCreateAasError(AssetAdministrationShellDescriptor aas, HttpStatusCode statusCode) {
+        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
+        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
+                AssetAdministrationShellDescriptor.class);
+        Assert.assertNotNull(responsePost);
+        Assert.assertEquals(statusCode, responsePost.getStatusCode());
     }
 
 
@@ -490,6 +527,27 @@ public class ShellRegistryControllerIT {
                 .description(new DefaultLangStringTextType.Builder()
                         .language("de-DE")
                         .text("Submodel 101-2 Beschreibung")
+                        .build())
+                .build();
+    }
+
+
+    private static AssetAdministrationShellDescriptor getAasInvalid() {
+        return new DefaultAssetAdministrationShellDescriptor.Builder()
+                .idShort("AasInvalid")
+                .displayName(new DefaultLangStringNameType.Builder().text("AAS Invalid Name").language("en-US").build())
+                .globalAssetId("http://iosb.fraunhofer.de/GlobalAssetId/AasInvalid")
+                .assetType("AssetTypeInvalid")
+                .build();
+    }
+
+
+    private static SubmodelDescriptor getSubmodelInvalid() {
+        return new DefaultSubmodelDescriptor.Builder()
+                .idShort("Submodel-Invalid")
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version("1")
+                        .revision("A")
                         .build())
                 .build();
     }
