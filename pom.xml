@@ -91,6 +91,7 @@
         <picocli.version>4.7.6</picocli.version>
         <postgres.version>42.7.4</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <protobuf.version>4.28.2</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.16</slf4j.version>
         <snakeyaml.version>2.3</snakeyaml.version>
@@ -104,6 +105,12 @@
         <spring.web.version>6.1.13</spring.web.version>
     </properties>
     <dependencies>
+        <!-- Fixes CVE-2024-7254 -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
