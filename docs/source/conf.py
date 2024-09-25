@@ -29,6 +29,9 @@ templates_path = ['_templates']
 
 html_theme = 'sphinx_rtd_theme'
 
+html_show_sphinx = False
+html_show_sourcelink  = False
+
 myst_number_code_blocks = ["json"]
 
 # -- Options for EPUB output
