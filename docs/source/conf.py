@@ -14,8 +14,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'myst_parser',
-    'sphinx_markdown_tables'
+    'myst_parser'
 ]
 
 intersphinx_mapping = {
