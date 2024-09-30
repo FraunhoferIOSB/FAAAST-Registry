@@ -57,6 +57,7 @@ To start FA³ST Registry from command-line you need to run the `service` module 
 | `-v`          | `--verbose`           |                                                                |                                         | Enables verbose logging (*INFO* for FAST packages, *WARN* for all other packages).                                                                       |                  |
 | `-vv`         |                       |                                                                |                                         | Enables very verbose logging (*DEBUG* for FAST packages, *INFO* for all other packages).                                                                 |                  |
 | `-vvv`        |                       |                                                                |                                         | Enables very very verbose logging (*TRACE* for FAST packages, *DEBUG* for all other packages).                                                           |                  |
+:::
 
 ## Example
 

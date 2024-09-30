@@ -14,8 +14,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
-    'myst_parser',
-    'sphinx_markdown_tables'
+    'myst_parser'
 ]
 
 intersphinx_mapping = {
@@ -30,6 +29,11 @@ templates_path = ['_templates']
 
 html_theme = 'sphinx_rtd_theme'
 
+html_show_sphinx = False
+html_show_sourcelink  = False
+
+myst_number_code_blocks = ["json"]
+
 # -- Options for EPUB output
 epub_show_urls = 'footnote'
 
@@ -41,3 +45,5 @@ html_static_path = ['_static']
 html_css_files = [
     'css/custom.css',
 ]
+
+myst_enable_extensions = ["colon_fence"]
