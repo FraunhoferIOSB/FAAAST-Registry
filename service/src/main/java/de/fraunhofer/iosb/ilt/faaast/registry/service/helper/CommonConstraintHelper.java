@@ -18,12 +18,16 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * Helper class for common data for the constraint validation.
  */
 public class CommonConstraintHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommonConstraintHelper.class);
 
     private CommonConstraintHelper() {}
 
@@ -128,6 +132,7 @@ public class CommonConstraintHelper {
      * @param txt The desired text for the exception.
      */
     public static void raiseConstraintViolatedException(String txt) {
+        LOGGER.info("constraint violated: {}", txt);
         throw new BadRequestException(txt);
     }
 
