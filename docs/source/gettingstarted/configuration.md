@@ -57,6 +57,14 @@ With `cors.maxAge` you can configure how long in seconds the response from a pre
 cors.maxAge=3600
 ```
 
+You can find some example settings prepared in comments in `application.properties`.
+
+```properties
+# settings to enable CORS
+#cors.enabled=true
+#cors.allowedOrigins=*
+```
+
 ## User-defined configuration file
 
 You can use your own configuration file to use your desired settings. You can use the file `service\src\main\resources\application.properties` as template.
