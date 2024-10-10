@@ -254,11 +254,11 @@ public class ShellRegistryController {
 
 
     private void logConstraintViolated(String method, String message, AssetAdministrationShellDescriptor aas) {
-        LOGGER.info(CommonConstraintHelper.getLogText(method, message, aas));
+        LOGGER.atInfo().log(CommonConstraintHelper.getLogText(method, message, aas));
     }
 
 
     private void logConstraintViolated(String method, String message, String aasId, SubmodelDescriptor submodel) {
-        LOGGER.info(CommonConstraintHelper.getLogText(method, message, aasId, submodel));
+        LOGGER.atInfo().log(CommonConstraintHelper.getLogText(method, message, aasId, submodel));
     }
 }

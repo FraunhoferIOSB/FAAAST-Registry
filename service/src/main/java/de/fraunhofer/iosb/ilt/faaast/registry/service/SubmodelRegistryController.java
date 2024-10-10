@@ -145,6 +145,6 @@ public class SubmodelRegistryController {
 
 
     private void logConstraintViolated(String method, String message, SubmodelDescriptor submodel) {
-        LOGGER.info(CommonConstraintHelper.getLogText(method, message, null, submodel));
+        LOGGER.atInfo().log(CommonConstraintHelper.getLogText(method, message, null, submodel));
     }
 }
