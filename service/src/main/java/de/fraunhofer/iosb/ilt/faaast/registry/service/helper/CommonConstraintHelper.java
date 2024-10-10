@@ -14,20 +14,18 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.Key;
 import org.eclipse.digitaltwin.aas4j.v3.model.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
 /**
  * Helper class for common data for the constraint validation.
  */
 public class CommonConstraintHelper {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommonConstraintHelper.class);
 
     private CommonConstraintHelper() {}
 
@@ -132,8 +130,65 @@ public class CommonConstraintHelper {
      * @param txt The desired text for the exception.
      */
     public static void raiseConstraintViolatedException(String txt) {
-        LOGGER.info("constraint violated: {}", txt);
-        throw new BadRequestException(txt);
+        throw new ConstraintViolatedException(txt);
+    }
+
+
+    /**
+     * Creates the log text for an AAS constraint violation.
+     *
+     * @param method The desired method name.
+     * @param message The desire dmessage.
+     * @param aas The AAS.
+     * @return The created log text.
+     */
+    public static String getLogText(String method, String message, AssetAdministrationShellDescriptor aas) {
+        StringBuilder txt = new StringBuilder();
+        txt.append(method);
+        txt.append(": ");
+        txt.append("Request for AAS: ");
+        if (aas.getId() != null) {
+            txt.append("'");
+            txt.append(aas.getId());
+            txt.append("' constraint violated: ");
+            txt.append(message);
+        }
+        else {
+            txt.append("no Id given!");
+        }
+        return txt.toString();
+    }
+
+
+    /**
+     * Creates the log text for a Submodel constraint violation.
+     *
+     * @param method The desired method name.
+     * @param message The desire dmessage.
+     * @param aasId The ID of the AAS, or null if not available.
+     * @param submodel The The created log text.
+     * @return The created log text.
+     */
+    public static String getLogText(String method, String message, String aasId, SubmodelDescriptor submodel) {
+        StringBuilder txt = new StringBuilder();
+        txt.append(method);
+        txt.append(": Request for ");
+        if (aasId != null) {
+            txt.append("AAS: '");
+            txt.append(aasId);
+            txt.append("' ");
+        }
+        txt.append("Submodel: ");
+        if (submodel.getId() != null) {
+            txt.append("'");
+            txt.append(submodel.getId());
+            txt.append("' constraint violated: ");
+            txt.append(message);
+        }
+        else {
+            txt.append("no Id given!");
+        }
+        return txt.toString();
     }
 
 

@@ -15,13 +15,17 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.net.URI;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +48,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping(value = "/api/v3.0/submodel-descriptors")
 public class SubmodelRegistryController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelRegistryController.class);
 
     @Autowired
     RegistryService service;
@@ -93,12 +99,18 @@ public class SubmodelRegistryController {
      */
     @PostMapping
     public ResponseEntity<SubmodelDescriptor> createSubmodel(@RequestBody SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        SubmodelDescriptor descriptor = service.createSubmodel(submodel);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path(String.format("/%s", EncodingHelper.base64UrlEncode(descriptor.getId())))
-                .build().toUri();
-        return ResponseEntity.created(location).body(descriptor);
+        try {
+            SubmodelDescriptor descriptor = service.createSubmodel(submodel);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(descriptor.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(descriptor);
+        }
+        catch (ConstraintViolatedException e) {
+            logConstraintViolated("create Submodel", e.getMessage(), submodel);
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
 
@@ -129,5 +141,10 @@ public class SubmodelRegistryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("submodelIdentifier") String submodelIdentifier) throws ResourceNotFoundException {
         service.deleteSubmodel(submodelIdentifier);
+    }
+
+
+    private void logConstraintViolated(String method, String message, SubmodelDescriptor submodel) {
+        LOGGER.info(CommonConstraintHelper.getLogText(method, message, null, submodel));
     }
 }
