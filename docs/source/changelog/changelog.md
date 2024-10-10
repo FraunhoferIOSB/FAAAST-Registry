@@ -12,6 +12,7 @@
 	- Update JPA mapping
 	- Use descriptors from AAS4J
 	- Fix documentation formatting errors
+	- Add log message when creation of AAS or Submodel fails
 
 ## 1.0.0
 
