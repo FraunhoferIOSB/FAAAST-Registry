@@ -15,8 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -24,6 +26,8 @@ import java.net.URI;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +50,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RestController
 @RequestMapping("/api/v3.0/shell-descriptors")
 public class ShellRegistryController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
 
     @Autowired
     RegistryService service;
@@ -97,12 +103,18 @@ public class ShellRegistryController {
      */
     @PostMapping()
     public ResponseEntity<AssetAdministrationShellDescriptor> create(@RequestBody AssetAdministrationShellDescriptor resource) throws ResourceAlreadyExistsException {
-        AssetAdministrationShellDescriptor aas = service.createAAS(resource);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path(String.format("/%s", EncodingHelper.base64UrlEncode(aas.getId())))
-                .build().toUri();
-        return ResponseEntity.created(location).body(aas);
+        try {
+            AssetAdministrationShellDescriptor aas = service.createAAS(resource);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(aas.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(aas);
+        }
+        catch (ConstraintViolatedException e) {
+            logConstraintViolated("create AAS", e.getMessage(), resource);
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
 
@@ -190,12 +202,18 @@ public class ShellRegistryController {
     public ResponseEntity<SubmodelDescriptor> create(@PathVariable("aasIdentifier") String aasIdentifier,
                                                      @RequestBody SubmodelDescriptor submodel)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        SubmodelDescriptor descriptor = service.createSubmodel(aasIdentifier, submodel);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path(String.format("/%s", EncodingHelper.base64UrlEncode(descriptor.getId())))
-                .build().toUri();
-        return ResponseEntity.created(location).body(descriptor);
+        try {
+            SubmodelDescriptor descriptor = service.createSubmodel(aasIdentifier, submodel);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(descriptor.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(descriptor);
+        }
+        catch (ConstraintViolatedException e) {
+            logConstraintViolated("create Submodel", e.getMessage(), aasIdentifier, submodel);
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
 
@@ -232,5 +250,15 @@ public class ShellRegistryController {
                                     @PathVariable("submodelIdentifier") String submodelIdentifier)
             throws ResourceNotFoundException {
         service.deleteSubmodel(aasIdentifier, submodelIdentifier);
+    }
+
+
+    private void logConstraintViolated(String method, String message, AssetAdministrationShellDescriptor aas) {
+        LOGGER.atInfo().log(CommonConstraintHelper.getLogText(method, message, aas));
+    }
+
+
+    private void logConstraintViolated(String method, String message, String aasId, SubmodelDescriptor submodel) {
+        LOGGER.atInfo().log(CommonConstraintHelper.getLogText(method, message, aasId, submodel));
     }
 }
