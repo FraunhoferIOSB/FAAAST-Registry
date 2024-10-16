@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ServiceSpecificationProfileMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
@@ -127,6 +129,7 @@ public class DescriptorMapperConfig {
                 .mixIn(Extension.class, ExtensionMixin.class)
                 .mixIn(Key.class, KeyMixin.class)
                 .mixIn(Reference.class, ReferenceMixin.class)
+                .mixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .featuresToEnable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
                 .dateFormat(new StdDateFormat().withColonInTimeZone(true));
