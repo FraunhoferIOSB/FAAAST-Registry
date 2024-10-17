@@ -5,6 +5,7 @@
 **New Features & Major Changes**
 - HTTP
 	- Added option to turn off SSL
+	- Added description endpoint
 
 **Internal changes & bugfixes**
 - General
