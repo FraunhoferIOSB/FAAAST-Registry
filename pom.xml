@@ -102,7 +102,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spring.boot.version>3.3.4</spring.boot.version>
-        <spring.web.version>6.1.13</spring.web.version>
+        <spring.web.version>6.1.14</spring.web.version>
     </properties>
     <dependencies>
         <!-- Fixes CVE-2024-7254 -->
