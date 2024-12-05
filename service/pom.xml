@@ -84,7 +84,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240303</version>
+            <version>${org.json.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
