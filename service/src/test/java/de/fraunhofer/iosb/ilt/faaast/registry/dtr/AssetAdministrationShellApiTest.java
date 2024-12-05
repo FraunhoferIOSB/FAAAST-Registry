@@ -40,10 +40,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
@@ -61,9 +59,6 @@ public class AssetAdministrationShellApiTest extends AbstractAssetAdministration
 
     @LocalServerPort
     private int port;
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     public static final String DUPLICATE_SUBMODEL_ID_SHORT_EXCEPTION = "An AssetAdministration Submodel for the given IdShort does already exists.";
 
