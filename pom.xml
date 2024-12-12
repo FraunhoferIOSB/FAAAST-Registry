@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.fraunhofer.iosb.ilt.faaast.registry</groupId>
     <artifactId>registry</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
     <name>registry</name>
     <description>An implementation of the AAS Registry</description>
@@ -43,7 +43,7 @@
     <scm>
         <connection>scm:git:git://github.com/FraunhoferIOSB/FAAAST-Registry.git</connection>
         <developerConnection>scm:git:ssh://github.com:FraunhoferIOSB/FAAAST-Registry.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v1.1.0</tag>
         <url>https://github.com/FraunhoferIOSB/FAAAST-Registry/tree/main</url>
     </scm>
     <issueManagement>
