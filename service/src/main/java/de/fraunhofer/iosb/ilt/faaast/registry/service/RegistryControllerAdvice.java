@@ -18,8 +18,9 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.MessageType;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.Result;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,8 +41,8 @@ public class RegistryControllerAdvice {
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Result> handleResourceNotFoundException(Exception e) {
-        Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
-        return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.NOT_FOUND);
+        Message msg = Message.builder().messageType(MessageTypeEnum.ERROR).text(e.getMessage()).build();
+        return new ResponseEntity<>(new DefaultResult.Builder().messages(msg).build(), HttpStatus.NOT_FOUND);
     }
 
 
@@ -53,8 +54,8 @@ public class RegistryControllerAdvice {
      */
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<Result> handleResourceAlreadyExistsException(Exception e) {
-        Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
-        return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.CONFLICT);
+        Message msg = Message.builder().messageType(MessageTypeEnum.ERROR).text(e.getMessage()).build();
+        return new ResponseEntity<>(new DefaultResult.Builder().messages(msg).build(), HttpStatus.CONFLICT);
     }
 
 
@@ -66,8 +67,8 @@ public class RegistryControllerAdvice {
      */
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<Result> handleBadRequestException(Exception e) {
-        Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
-        return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.BAD_REQUEST);
+        Message msg = Message.builder().messageType(MessageTypeEnum.ERROR).text(e.getMessage()).build();
+        return new ResponseEntity<>(new DefaultResult.Builder().messages(msg).build(), HttpStatus.BAD_REQUEST);
     }
 
 
@@ -78,7 +79,7 @@ public class RegistryControllerAdvice {
      * @return The corresponding response.
      */
     public ResponseEntity<Result> handleExceptions(Exception e) {
-        Message msg = Message.builder().messageType(MessageType.ERROR).text(e.getMessage()).build();
-        return new ResponseEntity<>(Result.builder().message(msg).build(), HttpStatus.INTERNAL_SERVER_ERROR);
+        Message msg = Message.builder().messageType(MessageTypeEnum.ERROR).text(e.getMessage()).build();
+        return new ResponseEntity<>(new DefaultResult.Builder().messages(msg).build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
