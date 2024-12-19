@@ -65,7 +65,7 @@
         <checkstyle.version>10.21.0</checkstyle.version>
         <faaast.service.version>1.2.0</faaast.service.version>
         <h2.version>2.3.232</h2.version>
-        <hibernate.version>6.6.3.Final</hibernate.version>
+        <hibernate.version>6.6.4.Final</hibernate.version>
         <jackson.version>2.18.2</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
