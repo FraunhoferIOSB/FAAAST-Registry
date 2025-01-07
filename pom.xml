@@ -61,7 +61,7 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <assertj.version>3.26.3</assertj.version>
+        <assertj.version>3.27.2</assertj.version>
         <checkstyle.version>10.21.1</checkstyle.version>
         <faaast.service.version>1.2.0</faaast.service.version>
         <h2.version>2.3.232</h2.version>
