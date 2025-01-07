@@ -86,7 +86,7 @@
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.43.0</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.44.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <picocli.version>4.7.6</picocli.version>
         <postgres.version>42.7.4</postgres.version>
