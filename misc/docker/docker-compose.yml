@@ -4,7 +4,7 @@ services:
     volumes:
       - ../examples/:/app/resources/
     environment:
-      - spring.profiles.active=external
+      - spring.profiles.active=jpa
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
       - spring.datasource.driver=org.postgresql.Driver
       - spring.datasource.url=jdbc:postgresql://db:5432/postgres

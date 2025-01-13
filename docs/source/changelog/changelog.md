@@ -1,6 +1,7 @@
 # Release Notes
 <!--start:changelog-header-->
-## 1.1.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+## 1.1.0
 
 **New Features & Major Changes**
 - HTTP
