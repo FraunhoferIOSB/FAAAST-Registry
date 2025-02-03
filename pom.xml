@@ -61,11 +61,11 @@
         </snapshotRepository>
     </distributionManagement>
     <properties>
-        <assertj.version>3.27.2</assertj.version>
-        <checkstyle.version>10.21.1</checkstyle.version>
+        <assertj.version>3.27.3</assertj.version>
+        <checkstyle.version>10.21.2</checkstyle.version>
         <faaast.service.version>1.2.0</faaast.service.version>
         <h2.version>2.3.232</h2.version>
-        <hibernate.version>6.6.4.Final</hibernate.version>
+        <hibernate.version>6.6.6.Final</hibernate.version>
         <jackson.version>2.18.2</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
@@ -82,15 +82,15 @@
         <maven.plugin.jar.version>3.4.2</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.11.2</maven.plugin.javadoc.version>
         <maven.plugin.nexus-staging.version>1.7.0</maven.plugin.nexus-staging.version>
-        <maven.plugin.owasp.version>12.0.0</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.0.2</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.6</maven.plugin.picocli.version>
         <maven.plugin.shade.version>3.6.0</maven.plugin.shade.version>
         <maven.plugin.source.version>3.3.1</maven.plugin.source.version>
-        <maven.plugin.spotless.version>2.44.1</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>2.44.2</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.2</maven.plugin.surefire.version>
         <org.json.version>20240303</org.json.version>
         <picocli.version>4.7.6</picocli.version>
-        <postgres.version>42.7.4</postgres.version>
+        <postgres.version>42.7.5</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>4.29.3</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
@@ -102,8 +102,8 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.4.0</spring.boot.version>
-        <spring.web.version>6.2.1</spring.web.version>
+        <spring.boot.version>3.4.2</spring.boot.version>
+        <spring.web.version>6.2.2</spring.web.version>
     </properties>
     <dependencies>
         <!-- Fixes CVE-2024-7254 -->
