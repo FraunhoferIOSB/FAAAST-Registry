@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
@@ -23,6 +24,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ServiceSpecificationProfileMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.registry.ProtocolInformationMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.registry.SecurityAttributeObjectMixin;
+import de.fraunhofer.iosb.ilt.faaast.service.registry.SpecificAssetIdMixin;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
@@ -130,8 +134,13 @@ public class DescriptorMapperConfig {
                 .mixIn(Key.class, KeyMixin.class)
                 .mixIn(Reference.class, ReferenceMixin.class)
                 .mixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class)
+                .mixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
+                .mixIn(Endpoint.class, EndpointMixin.class)
+                .mixIn(ProtocolInformation.class, ProtocolInformationMixin.class)
+                .mixIn(SpecificAssetId.class, SpecificAssetIdMixin.class)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .featuresToEnable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .dateFormat(new StdDateFormat().withColonInTimeZone(true));
+                .dateFormat(new StdDateFormat().withColonInTimeZone(true))
+                .serializationInclusion(JsonInclude.Include.NON_EMPTY);
     }
 }
