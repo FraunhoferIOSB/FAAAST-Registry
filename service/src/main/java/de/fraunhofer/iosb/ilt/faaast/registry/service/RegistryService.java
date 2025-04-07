@@ -29,7 +29,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -304,6 +306,42 @@ public class RegistryService {
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
         aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         return aasRepository.addSubmodel(aasIdDecoded, submodel);
+    }
+
+
+    public void bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    public void bulkCreateSubmodels(List<SubmodelDescriptor> submodels) {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    public void bulkCreateShells(List<AssetAdministrationShellDescriptor> shells) {
+        // todo: Change this to loop over all shells. Use transactions
+    }
+
+
+    public void bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells) {
+        // todo: Change this to loop over all shells. Use transactions
+    }
+
+
+    public void bulkDeleteShells(List<String> shellIdentifiers) {
+        // todo: Change this to loop over all shells. Use transactions
+    }
+
+
+    public OperationResult getBulkOperationStatus(String handleId) {
+        // todo: implement logic
+        return new DefaultOperationResult();
+    }
+
+
+    public void getBulkOperationResult(String handleId) {
+        // todo: implement logic
     }
 
 

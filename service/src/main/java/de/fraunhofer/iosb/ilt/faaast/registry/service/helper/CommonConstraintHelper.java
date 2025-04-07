@@ -192,6 +192,39 @@ public class CommonConstraintHelper {
     }
 
 
+    /**
+     * Creates the log text for a Submodel constraint violation.
+     *
+     * @param method The desired method name.
+     * @param message The desire dmessage.
+     * @param aasId The ID of the AAS, or null if not available.
+     * @param submodels The The created log text.
+     * @return The created log text.
+     */
+    public static String getLogText(String method, String message, String aasId, List<SubmodelDescriptor> submodels) {
+        // todo: adapt for list of submodel descriptors
+        StringBuilder txt = new StringBuilder();
+        txt.append(method);
+        txt.append(": Request for ");
+        if (aasId != null) {
+            txt.append("AAS: '");
+            txt.append(aasId);
+            txt.append("' ");
+        }
+        txt.append("Submodel: ");
+        if (submodels.get(0).getId() != null) {
+            txt.append("'");
+            txt.append(submodels.get(0).getId());
+            txt.append("' constraint violated: ");
+            txt.append(message);
+        }
+        else {
+            txt.append("no Id given!");
+        }
+        return txt.toString();
+    }
+
+
     private static void checkKey(Key key) {
         if (key.getType() == null) {
             raiseConstraintViolatedException("no key type provided");
