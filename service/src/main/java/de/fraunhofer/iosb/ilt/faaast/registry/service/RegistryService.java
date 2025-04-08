@@ -15,9 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
@@ -309,38 +307,123 @@ public class RegistryService {
     }
 
 
-    public void bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) {
+    /**
+     * Bulk operation for creating multiple submodel descriptors.
+     *
+     * @param submodels The desired submodel.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkCreateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         // todo: Change this to loop over all submodels. Use transactions
     }
 
 
-    public void bulkCreateSubmodels(List<SubmodelDescriptor> submodels) {
+    /**
+     * Updates the given Submodels.
+     *
+     * @param submodels The desired Submodels.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         // todo: Change this to loop over all submodels. Use transactions
     }
 
 
-    public void bulkCreateShells(List<AssetAdministrationShellDescriptor> shells) {
+    /**
+     * Bulk operation for deleting multiple submodel descriptors with the given IDs.
+     *
+     * @param submodelIdentifiers The ID of the desired Submodels.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkDeleteSubmodels(List<String> submodelIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    /**
+     * Bulk operation for creating multiple aas descriptors.
+     *
+     * @param shells The desired asset administration shell descriptors.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         // todo: Change this to loop over all shells. Use transactions
     }
 
 
-    public void bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells) {
+    /**
+     * Bulk operation for updating multiple aas descriptors.
+     *
+     * @param shells The desired aas.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         // todo: Change this to loop over all shells. Use transactions
     }
 
 
-    public void bulkDeleteShells(List<String> shellIdentifiers) {
+    /**
+     * Bulk operation for deleting multiple aas descriptors with the given IDs.
+     *
+     * @param shellIdentifiers The ID of the desired aas.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkDeleteShells(List<String> shellIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
         // todo: Change this to loop over all shells. Use transactions
     }
 
 
-    public OperationResult getBulkOperationStatus(String handleId) {
+    /**
+     * Returns the status of an asynchronously invoked bulk operation.
+     *
+     * @param handleId the id for retrieving the bulk operation result object.
+     * @throws BadRequestException an error occurs.
+     * @throws MovedPermanentlyException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     */
+    public OperationResult getBulkOperationStatus(String handleId)
+            throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
         // todo: implement logic
         return new DefaultOperationResult();
     }
 
 
-    public void getBulkOperationResult(String handleId) {
+    /**
+     * Returns the status of an asynchronously invoked bulk operation.
+     *
+     * @param handleId the id for retrieving the bulk operation result object.
+     * @throws BadRequestException an error occurs.
+     * @throws MovedPermanentlyException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     */
+    public void getBulkOperationResult(String handleId)
+            throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
         // todo: implement logic
     }
 

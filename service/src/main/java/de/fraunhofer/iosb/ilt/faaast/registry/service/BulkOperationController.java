@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
@@ -64,13 +63,15 @@ public class BulkOperationController {
      * Bulk operation for updating multiple submodel descriptors.
      *
      * @param submodels The desired Submodels.
-     * @throws ResourceNotFoundException When the Submodel was not found.
-     * @throws ResourceAlreadyExistsException When an error occurs.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
      */
     @PutMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
-            throws ResourceNotFoundException, ResourceAlreadyExistsException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         service.bulkUpdateSubmodels(submodels);
     }
 
@@ -78,13 +79,17 @@ public class BulkOperationController {
     /**
      * Bulk operation for deleting multiple submodel descriptors with the given IDs.
      *
-     * @param submodelIdentifier The ID of the desired Submodel.
-     * @throws ResourceNotFoundException When the Submodel was not found.
+     * @param submodelIdentifiers The ID of the desired Submodels.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
      */
     @DeleteMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkDeleteSubmodels(@PathVariable("submodelIdentifier") String submodelIdentifier) throws ResourceNotFoundException {
-        service.deleteSubmodel(submodelIdentifier);
+    public void bulkDeleteSubmodels(@PathVariable("submodelIdentifier") List<String> submodelIdentifiers)
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
+        service.bulkDeleteSubmodels(submodelIdentifiers);
     }
 
 
@@ -111,7 +116,7 @@ public class BulkOperationController {
 
 
     /**
-     * Bulk operation for updating multiple submodel descriptors.
+     * Bulk operation for updating multiple aas descriptors.
      *
      * @param shells The desired Submodels.
      * @throws BadRequestException an error occurs.
@@ -128,18 +133,18 @@ public class BulkOperationController {
 
 
     /**
-     * Bulk operation for deleting multiple submodel descriptors with the given IDs.
+     * Bulk operation for deleting multiple aas descriptors with the given IDs.
      *
-     * @param shellIdentifiers The ID of the desired Submodel.
+     * @param shellIdentifiers The ID of the desired aas.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
-     * @throws ForbiddenException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
     @DeleteMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void bulkDeleteShells(@PathVariable("aasIdentifier") List<String> shellIdentifiers)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
         service.bulkDeleteShells(shellIdentifiers);
     }
 
@@ -155,7 +160,7 @@ public class BulkOperationController {
      * @throws InternalServerErrorException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      */
-    @PutMapping(value = "/status/{handleId}")
+    @GetMapping(value = "/status/{handleId}")
     @ResponseStatus(HttpStatus.OK)
     public OperationResult getBulkOperationStatus(@RequestParam String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
@@ -174,7 +179,7 @@ public class BulkOperationController {
      * @throws InternalServerErrorException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      */
-    @PutMapping(value = "/result/{handleId}")
+    @GetMapping(value = "/result/{handleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void getBulkOperationResult(@RequestParam String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
