@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.core.exception;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -23,23 +24,30 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @ResponseStatus(value = HttpStatus.MOVED_PERMANENTLY)
 public class MovedPermanentlyException extends RuntimeException {
+    private HttpHeaders headers;
 
     public MovedPermanentlyException() {
         super();
     }
 
 
-    public MovedPermanentlyException(final String message, final Throwable cause) {
+    public MovedPermanentlyException(final String message, Exception cause) {
         super(message, cause);
-    }
-
-
-    public MovedPermanentlyException(final String message) {
-        super(message);
     }
 
 
     public MovedPermanentlyException(final Throwable cause) {
         super(cause);
+    }
+
+
+    public MovedPermanentlyException(final String message, HttpHeaders headers) {
+        super(message);
+        this.headers = headers;
+    }
+
+
+    public HttpHeaders getHeaders() {
+        return headers;
     }
 }

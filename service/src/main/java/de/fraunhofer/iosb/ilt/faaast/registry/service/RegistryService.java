@@ -17,23 +17,27 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 
 /**
@@ -45,6 +49,11 @@ public class RegistryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
+    private final PlatformTransactionManager transactionManager;
+
+    public RegistryService(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 
     @Autowired
     private AasRepository aasRepository;
@@ -357,10 +366,38 @@ public class RegistryService {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @return handleId
      */
-    public void bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
+    public String bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        // todo: Change this to loop over all shells. Use transactions
+
+        ConstraintHelper.validate(shells);
+        String handleId = OperationHelper.generateOperationHandleId();
+
+        BulkOperationStatusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        CompletableFuture.runAsync(() -> {
+            TransactionStatus txStatus = null;
+            try {
+                BulkOperationStatusStore.setStatus(handleId, ExecutionState.RUNNING);
+                txStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
+
+                for (AssetAdministrationShellDescriptor shell: shells) {
+                    aasRepository.create(shell);
+                }
+
+                transactionManager.commit(txStatus);
+                BulkOperationStatusStore.setStatus(handleId, ExecutionState.COMPLETED);
+            }
+            catch (Exception e) {
+                if (txStatus != null) {
+                    transactionManager.rollback(txStatus);
+                }
+                BulkOperationStatusStore.setStatus(handleId, ExecutionState.FAILED);
+            }
+        });
+
+        return handleId;
     }
 
 
@@ -406,8 +443,21 @@ public class RegistryService {
      */
     public OperationResult getBulkOperationStatus(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        // todo: implement logic
-        return new DefaultOperationResult();
+        ExecutionState status = BulkOperationStatusStore.getStatus(handleId);
+
+        if (status == null) {
+            throw new ResourceNotFoundException("Unknown handleId: " + handleId);
+        }
+
+        if (status == ExecutionState.RUNNING) {
+            DefaultOperationResult operationResult = new DefaultOperationResult();
+            operationResult.setExecutionState(ExecutionState.RUNNING);
+            return operationResult;
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("/bulk/result/" + handleId));
+        throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
     }
 
 
@@ -424,7 +474,16 @@ public class RegistryService {
      */
     public void getBulkOperationResult(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        // todo: implement logic
+        ExecutionState status = BulkOperationStatusStore.getStatus(handleId);
+        if (status == null || status == ExecutionState.RUNNING) {
+            throw new ResourceNotFoundException("Result not available or still running for handleId: " + handleId);
+        }
+
+        if (status == ExecutionState.COMPLETED) {
+            return;
+        }
+
+        throw new BadRequestException("One or more items failed.");
     }
 
 

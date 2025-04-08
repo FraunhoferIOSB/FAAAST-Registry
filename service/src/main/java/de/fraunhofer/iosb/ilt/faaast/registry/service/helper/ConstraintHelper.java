@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
@@ -55,7 +57,7 @@ public class ConstraintHelper {
      *
      * @param aas The desired AAS Descriptor.
      */
-    public static void validate(AssetAdministrationShellDescriptor aas) {
+    public static void validate(AssetAdministrationShellDescriptor aas) throws ConstraintViolatedException {
         Ensure.requireNonNull(aas, RegistryService.AAS_NOT_NULL_TXT);
         CommonConstraintHelper.checkId(aas.getId());
         CommonConstraintHelper.checkIdShort(aas.getIdShort());
@@ -68,6 +70,25 @@ public class ConstraintHelper {
         CommonConstraintHelper.checkText(aas.getGlobalAssetId(), MAX_IDENTIFIER_LENGTH, false, "Global Asset ID");
         checkSpecificAssetIds(aas.getSpecificAssetIds());
         checkSubmodels(aas.getSubmodelDescriptors());
+    }
+
+
+    /**
+     * Validate a list of given AAS Descriptors.
+     *
+     * @param shells The desired AAS Descriptors.
+     */
+    public static void validate(List<AssetAdministrationShellDescriptor> shells) {
+        if (shells != null) {
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                try {
+                    validate(shell);
+                }
+                catch (ConstraintViolatedException e) {
+                    throw new BadRequestException();
+                }
+            }
+        }
     }
 
 
