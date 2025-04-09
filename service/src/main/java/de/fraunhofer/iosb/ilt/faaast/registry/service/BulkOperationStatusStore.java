@@ -17,11 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.springframework.stereotype.Component;
 
 
 /**
  * Utility class for storing and retrieving the status of asynchronous bulk operations.
  */
+@Component
 public class BulkOperationStatusStore {
 
     private static final Map<String, ExecutionState> statusMap = new ConcurrentHashMap<>();

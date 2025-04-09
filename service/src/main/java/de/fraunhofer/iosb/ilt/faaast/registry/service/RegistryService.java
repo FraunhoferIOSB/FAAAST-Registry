@@ -451,7 +451,7 @@ public class RegistryService {
 
         if (status == ExecutionState.RUNNING) {
             DefaultOperationResult operationResult = new DefaultOperationResult();
-            operationResult.setExecutionState(ExecutionState.RUNNING);
+            operationResult.setExecutionState(status);
             return operationResult;
         }
 
@@ -489,7 +489,7 @@ public class RegistryService {
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        if ((submodel.getId() == null) || (submodel.getId().length() == 0)) {
+        if ((submodel.getId() == null) || (submodel.getId().isEmpty())) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
@@ -497,7 +497,7 @@ public class RegistryService {
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        if ((aas.getId() == null) || (aas.getId().length() == 0)) {
+        if ((aas.getId() == null) || (aas.getId().isEmpty())) {
             throw new BadRequestException("no AAS Identification provided");
         }
     }

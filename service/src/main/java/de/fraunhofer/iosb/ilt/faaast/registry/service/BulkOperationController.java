@@ -71,7 +71,7 @@ public class BulkOperationController {
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
-    @PutMapping(value = "/shell-descriptors")
+    @PutMapping(value = "/submodel-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
@@ -88,7 +88,7 @@ public class BulkOperationController {
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
-    @DeleteMapping(value = "/shell-descriptors")
+    @DeleteMapping(value = "/submodel-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void bulkDeleteSubmodels(@PathVariable("submodelIdentifier") List<String> submodelIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
