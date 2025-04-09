@@ -14,7 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BulkOperationStatusStore {
 
-    private static final Map<String, ExecutionState> statusMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ExecutionState> statusMap = new ConcurrentHashMap<>();
 
     /**
      * Sets the status of a bulk operation.
@@ -34,7 +34,7 @@ public class BulkOperationStatusStore {
      * @param handleId unique identifier for the bulk operation
      * @param status the current status of the operation
      */
-    public static void setStatus(String handleId, ExecutionState status) {
+    public void setStatus(String handleId, ExecutionState status) {
         statusMap.put(handleId, status);
     }
 
@@ -43,9 +43,19 @@ public class BulkOperationStatusStore {
      * Retrieves the status of a bulk operation.
      *
      * @param handleId unique identifier for the bulk operation
-     * @return the current status, or {@code OperationStatus.PENDING} if not found
+     * @return the current status, or {@code ExecutionState.INITIATED} if not found
      */
-    public static ExecutionState getStatus(String handleId) {
-        return statusMap.getOrDefault(handleId, ExecutionState.INITIATED);
+    public ExecutionState getStatus(String handleId) {
+        return statusMap.get(handleId);
+    }
+
+
+    /**
+     * Retrieves all handle ids.
+     *
+     * @return set containing all handle ids
+     */
+    public Set<String> getAllHandleIds() {
+        return statusMap.keySet();
     }
 }

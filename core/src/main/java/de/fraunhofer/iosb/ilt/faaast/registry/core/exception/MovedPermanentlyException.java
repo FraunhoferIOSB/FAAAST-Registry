@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 /**
- * Exception class for bad request.
+ * Exception class for completed status request.
  */
 @ResponseStatus(value = HttpStatus.MOVED_PERMANENTLY)
 public class MovedPermanentlyException extends RuntimeException {

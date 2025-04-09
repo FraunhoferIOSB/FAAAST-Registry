@@ -168,7 +168,7 @@ public class BulkOperationController {
      */
     @GetMapping(value = "/status/{handleId}")
     @ResponseStatus(HttpStatus.OK)
-    public OperationResult getBulkOperationStatus(@PathVariable String handleId)
+    public OperationResult getBulkOperationStatus(@PathVariable("handleId") String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
         return service.getBulkOperationStatus(handleId);
     }
@@ -187,7 +187,7 @@ public class BulkOperationController {
      */
     @GetMapping(value = "/result/{handleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void getBulkOperationResult(@PathVariable String handleId)
+    public void getBulkOperationResult(@PathVariable("handleId") String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
         service.getBulkOperationResult(handleId);
     }
@@ -201,7 +201,7 @@ public class BulkOperationController {
      */
     @ExceptionHandler(MovedPermanentlyException.class)
     public ResponseEntity<Void> handleMovedPermanently(MovedPermanentlyException ex) {
-        return ResponseEntity.status(HttpStatus.FOUND)
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
                 .headers(ex.getHeaders())
                 .build();
     }

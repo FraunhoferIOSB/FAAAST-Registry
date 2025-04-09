@@ -50,9 +50,11 @@ public class RegistryService {
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
     private final PlatformTransactionManager transactionManager;
+    private final BulkOperationStatusStore statusStore; // Spring-managed bean to ensure test context and app context share the same store instance to avoid visibility/race issues with static variables
 
-    public RegistryService(PlatformTransactionManager transactionManager) {
+    public RegistryService(PlatformTransactionManager transactionManager, BulkOperationStatusStore statusStore) {
         this.transactionManager = transactionManager;
+        this.statusStore = statusStore;
     }
 
     @Autowired
@@ -374,12 +376,12 @@ public class RegistryService {
         ConstraintHelper.validate(shells);
         String handleId = OperationHelper.generateOperationHandleId();
 
-        BulkOperationStatusStore.setStatus(handleId, ExecutionState.INITIATED);
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         CompletableFuture.runAsync(() -> {
             TransactionStatus txStatus = null;
             try {
-                BulkOperationStatusStore.setStatus(handleId, ExecutionState.RUNNING);
+                statusStore.setStatus(handleId, ExecutionState.RUNNING);
                 txStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
                 for (AssetAdministrationShellDescriptor shell: shells) {
@@ -387,13 +389,13 @@ public class RegistryService {
                 }
 
                 transactionManager.commit(txStatus);
-                BulkOperationStatusStore.setStatus(handleId, ExecutionState.COMPLETED);
+                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
             }
             catch (Exception e) {
                 if (txStatus != null) {
                     transactionManager.rollback(txStatus);
                 }
-                BulkOperationStatusStore.setStatus(handleId, ExecutionState.FAILED);
+                statusStore.setStatus(handleId, ExecutionState.FAILED);
             }
         });
 
@@ -443,7 +445,7 @@ public class RegistryService {
      */
     public OperationResult getBulkOperationStatus(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        ExecutionState status = BulkOperationStatusStore.getStatus(handleId);
+        ExecutionState status = statusStore.getStatus(handleId);
 
         if (status == null) {
             throw new ResourceNotFoundException("Unknown handleId: " + handleId);
@@ -474,7 +476,7 @@ public class RegistryService {
      */
     public void getBulkOperationResult(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        ExecutionState status = BulkOperationStatusStore.getStatus(handleId);
+        ExecutionState status = statusStore.getStatus(handleId);
         if (status == null || status == ExecutionState.RUNNING) {
             throw new ResourceNotFoundException("Result not available or still running for handleId: " + handleId);
         }
