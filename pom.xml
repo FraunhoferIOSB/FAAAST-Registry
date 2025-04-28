@@ -101,8 +101,8 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.4.4</spring.boot.version>
-        <spring.web.version>6.2.5</spring.web.version>
+        <spring.boot.version>3.4.5</spring.boot.version>
+        <spring.web.version>6.2.6</spring.web.version>
     </properties>
     <dependencies>
         <!-- Fixes CVE-2024-7254 -->
