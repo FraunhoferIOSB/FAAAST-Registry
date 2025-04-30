@@ -15,25 +15,30 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.net.URI;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 
 /**
@@ -45,6 +50,13 @@ public class RegistryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
+    private final PlatformTransactionManager transactionManager;
+    private final BulkOperationStatusStore statusStore; // Spring-managed bean to ensure test context and app context share the same store instance to avoid visibility/race issues with static variables
+
+    public RegistryService(PlatformTransactionManager transactionManager, BulkOperationStatusStore statusStore) {
+        this.transactionManager = transactionManager;
+        this.statusStore = statusStore;
+    }
 
     @Autowired
     private AasRepository aasRepository;
@@ -307,9 +319,174 @@ public class RegistryService {
     }
 
 
+    /**
+     * Bulk operation for creating multiple submodel descriptors.
+     *
+     * @param submodels The desired submodel.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkCreateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    /**
+     * Updates the given Submodels.
+     *
+     * @param submodels The desired Submodels.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    /**
+     * Bulk operation for deleting multiple submodel descriptors with the given IDs.
+     *
+     * @param submodelIdentifiers The ID of the desired Submodels.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkDeleteSubmodels(List<String> submodelIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
+        // todo: Change this to loop over all submodels. Use transactions
+    }
+
+
+    /**
+     * Bulk operation for creating multiple aas descriptors.
+     *
+     * @param shells The desired asset administration shell descriptors.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     * @return handleId
+     */
+    public String bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+
+        ConstraintHelper.validate(shells);
+        String handleId = OperationHelper.generateOperationHandleId();
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+        // CompletableFuture.runAsync(() -> createShells(shells, handleId)); todo: Add async back in once transaction rollback works
+        createShells(shells, handleId);
+
+        return handleId;
+    }
+
+    @Transactional(rollbackFor = ResourceAlreadyExistsException.class)
+    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
+        try {
+            statusStore.setStatus(handleId, ExecutionState.RUNNING);
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                aasRepository.create(shell);
+            }
+            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+        }
+        catch (Exception e) {
+            statusStore.setStatus(handleId, ExecutionState.FAILED);
+        }
+    }
+
+
+    /**
+     * Bulk operation for updating multiple aas descriptors.
+     *
+     * @param shells The desired aas.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+        // todo: Change this to loop over all shells. Use transactions
+    }
+
+
+    /**
+     * Bulk operation for deleting multiple aas descriptors with the given IDs.
+     *
+     * @param shellIdentifiers The ID of the desired aas.
+     * @throws BadRequestException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     */
+    public void bulkDeleteShells(List<String> shellIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
+        // todo: Change this to loop over all shells. Use transactions
+    }
+
+
+    /**
+     * Returns the status of an asynchronously invoked bulk operation.
+     *
+     * @param handleId the id for retrieving the bulk operation result object.
+     * @throws BadRequestException an error occurs.
+     * @throws MovedPermanentlyException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     */
+    public OperationResult getBulkOperationStatus(String handleId)
+            throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
+        ExecutionState status = statusStore.getStatus(handleId);
+
+        if (status == null) {
+            throw new ResourceNotFoundException("Unknown handleId: " + handleId);
+        }
+
+        if (status == ExecutionState.RUNNING) {
+            DefaultOperationResult operationResult = new DefaultOperationResult();
+            operationResult.setExecutionState(status);
+            return operationResult;
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("/bulk/result/" + handleId));
+        throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
+    }
+
+
+    /**
+     * Returns the status of an asynchronously invoked bulk operation.
+     *
+     * @param handleId the id for retrieving the bulk operation result object.
+     * @throws BadRequestException an error occurs.
+     * @throws MovedPermanentlyException an error occurs.
+     * @throws UnauthorizedException an error occurs.
+     * @throws ForbiddenException an error occurs.
+     * @throws InternalServerErrorException an error occurs.
+     * @throws ResourceNotFoundException an error occurs.
+     */
+    public void getBulkOperationResult(String handleId)
+            throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
+        ExecutionState status = statusStore.getStatus(handleId);
+        if (status == null || status == ExecutionState.RUNNING) {
+            throw new ResourceNotFoundException("Result not available or still running for handleId: " + handleId);
+        }
+
+        if (status == ExecutionState.COMPLETED) {
+            return;
+        }
+
+        throw new BadRequestException("One or more items failed.");
+    }
+
+
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        if ((submodel.getId() == null) || (submodel.getId().length() == 0)) {
+        if ((submodel.getId() == null) || (submodel.getId().isEmpty())) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
@@ -317,7 +494,7 @@ public class RegistryService {
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        if ((aas.getId() == null) || (aas.getId().length() == 0)) {
+        if ((aas.getId() == null) || (aas.getId().isEmpty())) {
             throw new BadRequestException("no AAS Identification provided");
         }
     }
