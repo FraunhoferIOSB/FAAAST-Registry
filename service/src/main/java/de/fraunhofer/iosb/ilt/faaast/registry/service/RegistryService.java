@@ -37,6 +37,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 
@@ -375,31 +376,25 @@ public class RegistryService {
 
         ConstraintHelper.validate(shells);
         String handleId = OperationHelper.generateOperationHandleId();
-
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
-
-        CompletableFuture.runAsync(() -> {
-            TransactionStatus txStatus = null;
-            try {
-                statusStore.setStatus(handleId, ExecutionState.RUNNING);
-                txStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
-
-                for (AssetAdministrationShellDescriptor shell: shells) {
-                    aasRepository.create(shell);
-                }
-
-                transactionManager.commit(txStatus);
-                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-            }
-            catch (Exception e) {
-                if (txStatus != null) {
-                    transactionManager.rollback(txStatus);
-                }
-                statusStore.setStatus(handleId, ExecutionState.FAILED);
-            }
-        });
+        // CompletableFuture.runAsync(() -> createShells(shells, handleId)); todo: Add async back in once transaction rollback works
+        createShells(shells, handleId);
 
         return handleId;
+    }
+
+    @Transactional(rollbackFor = ResourceAlreadyExistsException.class)
+    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
+        try {
+            statusStore.setStatus(handleId, ExecutionState.RUNNING);
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                aasRepository.create(shell);
+            }
+            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+        }
+        catch (Exception e) {
+            statusStore.setStatus(handleId, ExecutionState.FAILED);
+        }
     }
 
 

@@ -19,13 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd;
-import org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360;
-import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
-import org.eclipse.digitaltwin.aas4j.v3.model.SecurityTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360;
@@ -55,6 +49,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
@@ -63,6 +58,7 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = App.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BulkOperationControllerIT {
     @LocalServerPort
     private int port;
@@ -71,11 +67,44 @@ public class BulkOperationControllerIT {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void testBulkCreateAndStatusFlow() throws InterruptedException {
+    public void testBulkCreateAndStatusFlowSuccess() throws InterruptedException {
         List<AssetAdministrationShellDescriptor> shells = List.of(
                 generateAas("001"),
-                generateAas("002"));
+                generateAas("002"),
+                generateAas("003"));
 
+        performBulkCreateAndAssertResult(shells, HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    public void testBulkCreateAndStatusFlowFailure() throws InterruptedException {
+        List<AssetAdministrationShellDescriptor> shells = List.of(
+                generateAas("001"),
+                generateAas("002"),
+                generateAas("001"));
+
+        performBulkCreateAndAssertResult(shells, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @Test
+    public void testBulkCreateAndStatusFlowRollback() throws InterruptedException {
+        List<AssetAdministrationShellDescriptor> shells_failure = List.of(
+                generateAas("001"),
+                generateAas("002"),
+                generateAas("001"));  // duplicate to trigger rollback
+
+        performBulkCreateAndAssertResult(shells_failure, HttpStatus.BAD_REQUEST);
+
+        List<AssetAdministrationShellDescriptor> shells_success = List.of(
+                generateAas("001"),
+                generateAas("002"),
+                generateAas("003"));
+
+        performBulkCreateAndAssertResult(shells_success, HttpStatus.NO_CONTENT);
+    }
+
+    private void performBulkCreateAndAssertResult(List<AssetAdministrationShellDescriptor> shells, HttpStatus expectedFinalStatus) throws InterruptedException {
         HttpEntity<List<AssetAdministrationShellDescriptor>> request = new HttpEntity<>(shells);
 
         ResponseEntity<Void> postResponse = restTemplate.postForEntity(
@@ -89,10 +118,9 @@ public class BulkOperationControllerIT {
 
         String handleId = statusUri.toString().substring(statusUri.toString().lastIndexOf("/") + 1);
 
-        // 3. Poll GET /status/{handleId} until completed or timeout
         int maxTries = 20;
         boolean operationCompleted = false;
-        RestTemplate noRedirectRestTemplate = createRestTemplateWithNoRedirects(); // not disabling automatic redirect leads to 404 exceptions
+        RestTemplate noRedirectRestTemplate = createRestTemplateWithNoRedirects(); // automatic redirect leads to 404 exceptions
         for (int i = 0; i < maxTries; i++) {
             ResponseEntity<String> statusResponse = noRedirectRestTemplate.getForEntity(
                     createURLWithPort("/status/" + handleId),
@@ -103,18 +131,16 @@ public class BulkOperationControllerIT {
                 break;
             }
 
-            // Assert.assertEquals(HttpStatus.OK, statusResponse.getStatusCode());
-            Thread.sleep(300); // Small delay before retry
+            Thread.sleep(300);
         }
 
         Assert.assertTrue("Bulk operation did not complete in time", operationCompleted);
 
-        // 4. Call GET /result/{handleId}
         ResponseEntity<Void> resultResponse = restTemplate.getForEntity(
                 createURLWithPort("/result/" + handleId),
                 Void.class);
 
-        Assert.assertEquals(HttpStatus.NO_CONTENT, resultResponse.getStatusCode());
+        Assert.assertEquals(expectedFinalStatus, resultResponse.getStatusCode());
     }
 
 
