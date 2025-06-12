@@ -79,7 +79,7 @@
         <maven.plugin.spotless.version>2.44.5</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.3</maven.plugin.surefire.version>
         <picocli.version>4.7.7</picocli.version>
-        <postgres.version>42.7.6</postgres.version>
+        <postgres.version>42.7.7</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>4.31.1</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
