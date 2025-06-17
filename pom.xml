@@ -93,6 +93,7 @@
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spring.boot.version>3.5.0</spring.boot.version>
         <spring.web.version>6.2.8</spring.web.version>
+        <tomcat.embed.core.version>10.1.42</tomcat.embed.core.version>
     </properties>
     <dependencies>
         <!-- Fixes CVE-2024-7254 -->
