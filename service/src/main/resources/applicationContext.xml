@@ -12,6 +12,11 @@
         <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AasRepositoryMemory"/>
         <!--#####################-->
     </beans>
+    <beans profile="test">
+        <!--##### in-memory #####-->
+        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.memory.AasRepositoryMemory"/>
+        <!--#####################-->
+    </beans>
     <beans profile="jpa">
         <!--##### JPA Repository #####-->
         <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AasRepositoryJpa"/>
