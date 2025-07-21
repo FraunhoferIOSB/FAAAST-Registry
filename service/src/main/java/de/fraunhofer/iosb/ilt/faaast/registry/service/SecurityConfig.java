@@ -64,10 +64,9 @@ import org.springframework.web.filter.GenericFilterBean;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String apiPrefix = "/api/v3.0/";
+    private static final String API_PREFIX = "/api/v3.0/";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
-
-    private final String abortMessage = "Invalid ACL folder path, AAS Security will not enforce rules.)";
+    private static final String INVALID_ACL_FOLDER_MSG = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
     private Map<Path, AllAccessPermissionRulesRoot> aclList;
 
@@ -111,7 +110,7 @@ public class SecurityConfig {
                 //        .requestMatchers(HttpMethod.GET).permitAll()
                 //.anyRequest().authenticated())
                 .addFilterAfter(new AclFilter(), BasicAuthenticationFilter.class)
-                .oauth2ResourceServer((oauth2) -> oauth2
+                .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()));
         return http.build();
     }
@@ -156,7 +155,7 @@ public class SecurityConfig {
         if (aclFolder == null
                 || aclFolder.trim().isEmpty()
                 || !new File(aclFolder.trim()).isDirectory()) {
-            LOGGER.error(abortMessage);
+            LOGGER.error(INVALID_ACL_FOLDER_MSG);
             return;
         }
 
@@ -173,7 +172,7 @@ public class SecurityConfig {
                             content, AllAccessPermissionRulesRoot.class));
                 }
                 catch (IOException e) {
-                    LOGGER.error(abortMessage, e);
+                    LOGGER.error(INVALID_ACL_FOLDER_MSG, e);
                 }
             }
         }
@@ -223,7 +222,7 @@ public class SecurityConfig {
          */
         private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
             String requestPath = request.getRequestURI();
-            String path = requestPath.startsWith(apiPrefix) ? requestPath.substring(9) : requestPath;
+            String path = requestPath.startsWith(API_PREFIX) ? requestPath.substring(9) : requestPath;
             String method = request.getMethod();
             List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                     .filter(a -> a.getAllAccessPermissionRules()
@@ -283,10 +282,7 @@ public class SecurityConfig {
             List<LinkedHashMap> eqList = (List<LinkedHashMap>) formula.get("$eq");
             LinkedHashMap attribute = (LinkedHashMap) eqList.get(0).get("$attribute");
             String strVal = (String) eqList.get(1).get("$strVal");
-            if (attribute.get("CLAIM").equals(value) && strVal.equals(claimValue)) {
-                return true;
-            }
-            return false;
+            return attribute.get("CLAIM").equals(value) && strVal.equals(claimValue);
         }
 
 
