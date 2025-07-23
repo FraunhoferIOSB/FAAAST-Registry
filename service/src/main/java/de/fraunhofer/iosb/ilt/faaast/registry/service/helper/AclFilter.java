@@ -28,8 +28,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,11 +59,13 @@ public class AclFilter extends GenericFilterBean {
     private static final String INVALID_ACL_FOLDER_MSG = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
     private final String aclFolder;
-    private Map<Path, AllAccessPermissionRulesRoot> aclList;
+    private final Map<Path, AllAccessPermissionRulesRoot> aclList;
 
     public AclFilter(String aclFolder) {
+        aclList = new HashMap<>();
         this.aclFolder = aclFolder;
         readAccessRules();
+        monitorAclRules();
     }
 
 
@@ -78,7 +86,10 @@ public class AclFilter extends GenericFilterBean {
             {
                 claims = jwt.getClaims();
             }
-            boolean allowed = filterRules(aclList, claims, request);
+            boolean allowed;
+            synchronized(aclList) {
+                allowed = filterRules(aclList, claims, request);
+            }
             LOG.info("doFilter called: Request: {}; authentication: {}; allowed: {}", request, authentication, allowed);
             if (!allowed)
             {
@@ -97,8 +108,6 @@ public class AclFilter extends GenericFilterBean {
 
 
     private void readAccessRules() {
-        aclList = new HashMap<>();
-
         if (aclFolder == null
                 || aclFolder.trim().isEmpty()
                 || !new File(aclFolder.trim()).isDirectory()) {
@@ -110,16 +119,19 @@ public class AclFilter extends GenericFilterBean {
         File[] jsonFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
         ObjectMapper mapper = new ObjectMapper();
         if (jsonFiles != null) {
-            for (File file: jsonFiles) {
-                Path filePath = file.toPath();
-                String content = null;
-                try {
-                    content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-                    aclList.put(filePath, mapper.readValue(
-                            content, AllAccessPermissionRulesRoot.class));
-                }
-                catch (IOException e) {
-                    LOG.error(INVALID_ACL_FOLDER_MSG, e);
+            synchronized (aclList) {
+                for (File file: jsonFiles) {
+                    Path filePath = file.toPath().toAbsolutePath();
+                    String content = null;
+                    try {
+                        LOG.trace("readAccessRules: add rule {}", filePath);
+                        content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                        aclList.put(filePath, mapper.readValue(
+                                content, AllAccessPermissionRulesRoot.class));
+                    }
+                    catch (IOException e) {
+                        LOG.error(INVALID_ACL_FOLDER_MSG, e);
+                    }
                 }
             }
         }
@@ -193,8 +205,8 @@ public class AclFilter extends GenericFilterBean {
             LOG.error("Unsupported ACL formula.");
             return false;
         }
-        List<LinkedHashMap> eqList = (List<LinkedHashMap>) formula.get("$eq");
-        LinkedHashMap attribute = (LinkedHashMap) eqList.get(0).get("$attribute");
+        List<LinkedHashMap<?, ?>> eqList = (List<LinkedHashMap<?, ?>>) formula.get("$eq");
+        LinkedHashMap<?, ?> attribute = (LinkedHashMap<?, ?>) eqList.get(0).get("$attribute");
         String strVal = (String) eqList.get(1).get("$strVal");
         return attribute.get("CLAIM").equals(value) && strVal.equals(claimValue);
     }
@@ -244,4 +256,88 @@ public class AclFilter extends GenericFilterBean {
         return false;
     }
 
+
+    private void monitorAclRules() {
+        if (aclFolder == null
+                || aclFolder.trim().isEmpty()
+                || !new File(aclFolder.trim()).isDirectory()) {
+            LOG.error(INVALID_ACL_FOLDER_MSG);
+            return;
+        }
+        Path folderToWatch = Paths.get(aclFolder);
+        WatchService watchService = null;
+        try {
+            watchService = FileSystems.getDefault().newWatchService();
+            // Register the folder with the WatchService for CREATE and DELETE events
+            folderToWatch.register(
+                    watchService,
+                    StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY);
+            monitorLoop(watchService, folderToWatch);
+        }
+        catch (IOException e) {
+            LOG.error(INVALID_ACL_FOLDER_MSG);
+        }
+
+    }
+
+
+    private void monitorLoop(WatchService watchService, Path folderToWatch) {
+        ObjectMapper mapper = new ObjectMapper();
+        Thread monitoringThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                WatchKey watchKey = null;
+                try {
+                    watchKey = watchService.take();
+                }
+                catch (InterruptedException e) {
+                    LOG.error(INVALID_ACL_FOLDER_MSG);
+                }
+                boolean valid;
+                if (watchKey != null) {
+                    for (var event: watchKey.pollEvents()) {
+                        WatchEvent.Kind<?> kind = event.kind();
+                        Path filePath = (Path) event.context();
+                        Path absolutePath = folderToWatch.resolve(filePath).toAbsolutePath();
+                        // Check if the file is a JSON file
+                        if (filePath.toString().toLowerCase().endsWith(".json")) {
+                            if ((kind == StandardWatchEventKinds.ENTRY_CREATE) || (kind == StandardWatchEventKinds.ENTRY_MODIFY)) {
+                                try {
+                                    synchronized (aclList) {
+                                        aclList.put(absolutePath, mapper.readValue(
+                                                new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class));
+                                    }
+                                }
+                                catch (IOException e) {
+                                    LOG.error(INVALID_ACL_FOLDER_MSG);
+                                }
+                                LOG.info("Added new ACL rule {}", filePath);
+                            }
+                            else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+                                synchronized (aclList) {
+                                    if (aclList.remove(absolutePath) != null) {
+                                        LOG.info("Removed ACL rule {}", filePath);
+                                    }
+                                    else {
+                                        LOG.warn("ACL rule not found: {}", filePath);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Reset the key to receive further watch events
+                    valid = watchKey.reset();
+                }
+                else {
+                    valid = false;
+                }
+                if (!valid) {
+                    LOG.warn("monitorLoop: WatchKey no longer valid; exiting.");
+                    break;
+                }
+            }
+        });
+        monitoringThread.start();
+    }
 }

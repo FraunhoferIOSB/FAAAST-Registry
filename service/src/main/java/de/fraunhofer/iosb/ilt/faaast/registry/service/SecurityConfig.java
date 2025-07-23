@@ -34,23 +34,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class SecurityConfig {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
-
-    //@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    //private String issuerUri;
-
     @Value("${service.security.aclFolder}")
     private String aclFolder;
-
-    //@Bean
-    //SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    //    http
-    //            .authorizeExchange(exchanges -> exchanges
-    //                    .anyExchange().authenticated())
-    //            .oauth2ResourceServer(oauth2 -> oauth2
-    //                    .opaqueToken(Customizer.withDefaults()));
-    //    return http.build();
-    //}
 
     /**
      * Configure access.
@@ -70,47 +55,10 @@ public class SecurityConfig {
         // That's why CSRF is disabled
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                //.authorizeHttpRequests((authorize) -> authorize
-                //        .requestMatchers("/**").permitAll())
-                //        .anyRequest().permitAll())
-                //        .requestMatchers(HttpMethod.GET).permitAll()
-                //.anyRequest().authenticated())
                 .addFilterAfter(aclFilter, BasicAuthenticationFilter.class)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()));
         return http.build();
     }
-
-    //    /**
-    //     * A JWT Decoder.
-    //     *
-    //     * @return The JWT Decoder.
-    //     */
-    //    @Bean
-    //    public JwtDecoder jwtDecoder() {
-    //
-    //        JwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuerUri).build();
-    //
-    //        return new JwtDecoder() {
-    //            @Override
-    //            public Jwt decode(String token) throws JwtException {
-    //                try {
-    //                    //LOGGER.info("token: {}", token);
-    //                    Jwt jwt = jwtDecoder.decode(token);
-    //                    //LOGGER.info("jwt: {}", jwt);
-    //                    //LOGGER.info("jwt ID: {}", jwt.getId());
-    //                    //LOGGER.info("jwt Subject: {}", jwt.getSubject());
-    //                    //for (var c: jwt.getClaims().entrySet()) {
-    //                    //    LOGGER.info("Claim: Key: {}; Value: {}", c.getKey(), c.getValue());
-    //                    //}
-    //                    return jwt;
-    //                }
-    //                catch (JwtException ex) {
-    //                    LOGGER.error("exception: ", ex);
-    //                    throw ex;
-    //                }
-    //            }
-    //        };
-    //    }
 
 }
