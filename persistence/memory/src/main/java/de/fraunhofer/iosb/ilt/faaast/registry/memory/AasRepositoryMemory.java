@@ -47,15 +47,19 @@ public class AasRepositoryMemory extends AbstractAasRepository {
      * Clear the repository.
      */
     public void clear() {
-        shellDescriptors.clear();
+        synchronized (shellDescriptors) {
+            shellDescriptors.clear();
+        }
         submodelDescriptors.clear();
     }
 
 
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return new ArrayList<>(
-                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
+        synchronized (shellDescriptors) {
+            return new ArrayList<>(
+                    shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
+        }
     }
 
 
@@ -73,7 +77,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
-        shellDescriptors.put(descriptor.getId(), descriptor);
+        synchronized (shellDescriptors) {
+            shellDescriptors.put(descriptor.getId(), descriptor);
+        }
         return descriptor;
     }
 
@@ -83,7 +89,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        shellDescriptors.remove(aasId);
+        synchronized (shellDescriptors) {
+            shellDescriptors.remove(aasId);
+        }
     }
 
 
@@ -94,8 +102,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
+            shellDescriptors.put(descriptor.getId(), descriptor);
         }
-        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -183,7 +191,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
-        return shellDescriptors.getOrDefault(aasId, null);
+        synchronized (shellDescriptors) {
+            return shellDescriptors.getOrDefault(aasId, null);
+        }
     }
 
 
