@@ -101,8 +101,10 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
         if (Objects.nonNull(oldAAS)) {
-            shellDescriptors.remove(aasId);
-            shellDescriptors.put(descriptor.getId(), descriptor);
+            synchronized (shellDescriptors) {
+                shellDescriptors.remove(aasId);
+                shellDescriptors.put(descriptor.getId(), descriptor);
+            }
         }
         return descriptor;
     }
