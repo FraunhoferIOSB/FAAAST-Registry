@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedE
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -48,7 +49,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * REST controller for the Asset Administration Shell registry.
  */
 @RestController
-@RequestMapping("/api/v3.0/shell-descriptors")
+@RequestMapping(value = Constants.SHELL_REQUEST_PATH)
 public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
