@@ -19,7 +19,6 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;

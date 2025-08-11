@@ -17,14 +17,13 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
@@ -80,7 +79,7 @@ public class BulkOperationControllerIT {
     private AasRepository aasRepository;
 
     @Test
-    public void testAsyncCommit() throws ResourceAlreadyExistsException{
+    public void testAsyncCommit() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
@@ -97,7 +96,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncRollback() throws ResourceAlreadyExistsException{
+    public void testAsyncRollback() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
@@ -123,14 +122,14 @@ public class BulkOperationControllerIT {
     }
 
 
-   @Test
-   public void testResultUnknownHandle() {
-       ResponseEntity<String> response = restTemplate.getForEntity(
-               createURLWithPort("/result/unknown-id"),
-               String.class);
+    @Test
+    public void testResultUnknownHandle() {
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                createURLWithPort("/result/unknown-id"),
+                String.class);
 
-       Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-   }
+        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
 
 
     private String createURLWithPort(String uri) {

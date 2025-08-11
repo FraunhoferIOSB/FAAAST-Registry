@@ -67,7 +67,7 @@ public class TransactionService {
     @Transactional(rollbackFor = ResourceAlreadyExistsException.class)
     public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws ResourceAlreadyExistsException {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
-        for (AssetAdministrationShellDescriptor shell : shells) {
+        for (AssetAdministrationShellDescriptor shell: shells) {
             aasRepository.create(shell);
             statusStore.setStatus(handleId, ExecutionState.RUNNING);
         }
