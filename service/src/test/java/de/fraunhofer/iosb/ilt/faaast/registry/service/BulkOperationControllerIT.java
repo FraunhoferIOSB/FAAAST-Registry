@@ -14,9 +14,17 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
-import java.net.URI;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
@@ -45,7 +53,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -66,81 +73,43 @@ public class BulkOperationControllerIT {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private RegistryService registryService;
+
+    @Autowired
+    private AasRepository aasRepository;
+
     @Test
-    public void testBulkCreateAndStatusFlowSuccess() throws InterruptedException {
-        List<AssetAdministrationShellDescriptor> shells = List.of(
+    public void testAsyncCommit() throws ResourceAlreadyExistsException{
+        List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
                 generateAas("003"));
 
-        performBulkCreateAndAssertResult(shells, HttpStatus.NO_CONTENT);
+        registryService.bulkCreateShells(commitAASList);
+
+        await()
+                .atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    assertEquals(commitAASList, aasRepository.getAASs());
+                });
     }
 
+
     @Test
-    public void testBulkCreateAndStatusFlowFailure() throws InterruptedException {
-        List<AssetAdministrationShellDescriptor> shells = List.of(
+    public void testAsyncRollback() throws ResourceAlreadyExistsException{
+        List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
                 generateAas("001"));
 
-        performBulkCreateAndAssertResult(shells, HttpStatus.BAD_REQUEST);
-    }
+        registryService.bulkCreateShells(rollbackAASList);
 
-
-    @Test
-    public void testBulkCreateAndStatusFlowRollback() throws InterruptedException {
-        List<AssetAdministrationShellDescriptor> shells_failure = List.of(
-                generateAas("001"),
-                generateAas("002"),
-                generateAas("001"));  // duplicate to trigger rollback
-
-        performBulkCreateAndAssertResult(shells_failure, HttpStatus.BAD_REQUEST);
-
-        List<AssetAdministrationShellDescriptor> shells_success = List.of(
-                generateAas("001"),
-                generateAas("002"),
-                generateAas("003"));
-
-        performBulkCreateAndAssertResult(shells_success, HttpStatus.NO_CONTENT);
-    }
-
-    private void performBulkCreateAndAssertResult(List<AssetAdministrationShellDescriptor> shells, HttpStatus expectedFinalStatus) throws InterruptedException {
-        HttpEntity<List<AssetAdministrationShellDescriptor>> request = new HttpEntity<>(shells);
-
-        ResponseEntity<Void> postResponse = restTemplate.postForEntity(
-                createURLWithPort("/shell-descriptors"),
-                request,
-                Void.class);
-
-        Assert.assertEquals(HttpStatus.ACCEPTED, postResponse.getStatusCode());
-        URI statusUri = postResponse.getHeaders().getLocation();
-        Assert.assertNotNull(statusUri);
-
-        String handleId = statusUri.toString().substring(statusUri.toString().lastIndexOf("/") + 1);
-
-        int maxTries = 20;
-        boolean operationCompleted = false;
-        RestTemplate noRedirectRestTemplate = createRestTemplateWithNoRedirects(); // automatic redirect leads to 404 exceptions
-        for (int i = 0; i < maxTries; i++) {
-            ResponseEntity<String> statusResponse = noRedirectRestTemplate.getForEntity(
-                    createURLWithPort("/status/" + handleId),
-                    String.class);
-
-            if (statusResponse.getStatusCode().equals(HttpStatus.MOVED_PERMANENTLY)) {
-                operationCompleted = true;
-                break;
-            }
-
-            Thread.sleep(300);
-        }
-
-        Assert.assertTrue("Bulk operation did not complete in time", operationCompleted);
-
-        ResponseEntity<Void> resultResponse = restTemplate.getForEntity(
-                createURLWithPort("/result/" + handleId),
-                Void.class);
-
-        Assert.assertEquals(expectedFinalStatus, resultResponse.getStatusCode());
+        await()
+                .atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    assertEquals(new ArrayList<>(), aasRepository.getAASs());
+                });
     }
 
 
@@ -154,14 +123,14 @@ public class BulkOperationControllerIT {
     }
 
 
-    @Test
-    public void testResultUnknownHandle() {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                createURLWithPort("/result/unknown-id"),
-                String.class);
+   @Test
+   public void testResultUnknownHandle() {
+       ResponseEntity<String> response = restTemplate.getForEntity(
+               createURLWithPort("/result/unknown-id"),
+               String.class);
 
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
+       Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+   }
 
 
     private String createURLWithPort(String uri) {
