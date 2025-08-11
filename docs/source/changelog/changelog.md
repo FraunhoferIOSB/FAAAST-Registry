@@ -15,6 +15,7 @@
 	- Use descriptors from AAS4J
 	- Fix documentation formatting errors
 	- Add log message if a constraint violation occurs when creating AAS or Submodel
+ 	- Fix synchronization issues in In-Memory Persistence
 
 ## 1.0.0
 
