@@ -29,7 +29,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 /**
