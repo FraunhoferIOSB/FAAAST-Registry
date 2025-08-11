@@ -15,14 +15,18 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.AssetKindConverter;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -94,5 +98,21 @@ public class ControllerConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new AssetKindConverter());
+    }
+
+
+    /**
+     * Use Filter to enable trailing slashes in requests.
+     *
+     * @return The extended FilterRegistrationBean.
+     */
+    @Bean
+    public FilterRegistrationBean urlHandlerFilterRegistrationBean() {
+        FilterRegistrationBean<OncePerRequestFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(UrlHandlerFilter
+                .trailingSlashHandler(String.format("%s/**", Constants.SHELL_REQUEST_PATH)).wrapRequest()
+                .trailingSlashHandler(String.format("%s/**", Constants.SUBMODEL_REQUEST_PATH)).wrapRequest()
+                .build());
+        return registrationBean;
     }
 }
