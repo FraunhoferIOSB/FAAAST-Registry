@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * REST controller for the description.
  */
 @RestController
-@RequestMapping("/api/v3.0/description")
+@RequestMapping(value = Constants.DESCRIPTION_REQUEST_PATH)
 public class DescriptionController {
 
     /**

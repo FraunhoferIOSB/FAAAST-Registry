@@ -112,6 +112,7 @@ public class ControllerConfig implements WebMvcConfigurer {
         registrationBean.setFilter(UrlHandlerFilter
                 .trailingSlashHandler(String.format("%s/**", Constants.SHELL_REQUEST_PATH)).wrapRequest()
                 .trailingSlashHandler(String.format("%s/**", Constants.SUBMODEL_REQUEST_PATH)).wrapRequest()
+                .trailingSlashHandler(String.format("%s/**", Constants.DESCRIPTION_REQUEST_PATH)).wrapRequest()
                 .build());
         return registrationBean;
     }
