@@ -64,7 +64,6 @@ public class TransactionService {
      * @param handleId id of the operation handle for future reference.
      * @throws ResourceAlreadyExistsException if a descriptor with that id already exists.
      */
-    @Transactional(rollbackFor = ResourceAlreadyExistsException.class)
     public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws ResourceAlreadyExistsException {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
         for (AssetAdministrationShellDescriptor shell: shells) {
