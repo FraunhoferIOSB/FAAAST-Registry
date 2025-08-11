@@ -12,11 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -108,8 +111,8 @@ public class BulkOperationController {
     @PostMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        String handleId = service.bulkCreateShells(shells);
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException {
+        CompletableFuture<String> handleId = service.bulkCreateShells(shells);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/bulk/status/" + handleId));

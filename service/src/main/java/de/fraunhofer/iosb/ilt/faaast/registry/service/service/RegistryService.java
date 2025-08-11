@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
@@ -23,22 +23,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
-import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 
 /**
@@ -50,12 +44,11 @@ public class RegistryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
-    private final PlatformTransactionManager transactionManager;
-    private final BulkOperationStatusStore statusStore; // Spring-managed bean to ensure test context and app context share the same store instance to avoid visibility/race issues with static variables
 
-    public RegistryService(PlatformTransactionManager transactionManager, BulkOperationStatusStore statusStore) {
-        this.transactionManager = transactionManager;
-        this.statusStore = statusStore;
+    private final TransactionService transactionService;
+
+    public RegistryService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Autowired
@@ -371,30 +364,15 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @return handleId
      */
-    public String bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+    @Async
+    public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException {
 
         ConstraintHelper.validate(shells);
         String handleId = OperationHelper.generateOperationHandleId();
-        statusStore.setStatus(handleId, ExecutionState.INITIATED);
-        // CompletableFuture.runAsync(() -> createShells(shells, handleId)); todo: Add async back in once transaction rollback works
-        createShells(shells, handleId);
+        transactionService.createShells(shells, handleId);
 
-        return handleId;
-    }
-
-    @Transactional(rollbackFor = ResourceAlreadyExistsException.class)
-    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
-        try {
-            statusStore.setStatus(handleId, ExecutionState.RUNNING);
-            for (AssetAdministrationShellDescriptor shell: shells) {
-                aasRepository.create(shell);
-            }
-            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-        }
-        catch (Exception e) {
-            statusStore.setStatus(handleId, ExecutionState.FAILED);
-        }
+        return CompletableFuture.completedFuture(handleId);
     }
 
 
@@ -440,21 +418,7 @@ public class RegistryService {
      */
     public OperationResult getBulkOperationStatus(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        ExecutionState status = statusStore.getStatus(handleId);
-
-        if (status == null) {
-            throw new ResourceNotFoundException("Unknown handleId: " + handleId);
-        }
-
-        if (status == ExecutionState.RUNNING) {
-            DefaultOperationResult operationResult = new DefaultOperationResult();
-            operationResult.setExecutionState(status);
-            return operationResult;
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/bulk/result/" + handleId));
-        throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
+        return transactionService.getStatus(handleId);
     }
 
 
@@ -471,16 +435,7 @@ public class RegistryService {
      */
     public void getBulkOperationResult(String handleId)
             throws MovedPermanentlyException, UnauthorizedException, ForbiddenException, ResourceNotFoundException, InternalServerErrorException {
-        ExecutionState status = statusStore.getStatus(handleId);
-        if (status == null || status == ExecutionState.RUNNING) {
-            throw new ResourceNotFoundException("Result not available or still running for handleId: " + handleId);
-        }
-
-        if (status == ExecutionState.COMPLETED) {
-            return;
-        }
-
-        throw new BadRequestException("One or more items failed.");
+        transactionService.getResult(handleId);
     }
 
 

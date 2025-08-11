@@ -16,7 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.regex.Pattern;
