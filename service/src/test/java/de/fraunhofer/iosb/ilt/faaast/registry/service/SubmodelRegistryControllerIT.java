@@ -59,13 +59,13 @@ public class SubmodelRegistryControllerIT {
 
     @Test
     public void testGetSubmodels() {
-        ResponseEntity<Page<SubmodelDescriptor>> response = restTemplate.exchange(
-                createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<SubmodelDescriptor>>() {});
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        var list = response.getBody().getContent();
-        Assert.assertNotNull(list);
+        assertGetSubmodels("");
+    }
+
+
+    @Test
+    public void testGetSubmodelsWithSlash() {
+        assertGetSubmodels("/");
     }
 
 
@@ -235,5 +235,16 @@ public class SubmodelRegistryControllerIT {
 
     private String createURLWithPort(String uri) {
         return "http://localhost:" + port + "/api/v3.0/submodel-descriptors" + uri;
+    }
+
+
+    private void assertGetSubmodels(String urlPostfix) {
+        ResponseEntity<Page<SubmodelDescriptor>> response = restTemplate.exchange(
+                createURLWithPort(urlPostfix), HttpMethod.GET, null, new ParameterizedTypeReference<Page<SubmodelDescriptor>>() {});
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        var list = response.getBody().getContent();
+        Assert.assertNotNull(list);
     }
 }
