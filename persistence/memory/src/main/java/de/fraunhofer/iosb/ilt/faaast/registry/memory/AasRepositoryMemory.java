@@ -19,11 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -38,8 +38,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
 
     public AasRepositoryMemory() {
-        shellDescriptors = new HashMap<>();
-        submodelDescriptors = new HashMap<>();
+        shellDescriptors = new ConcurrentHashMap<>();
+        submodelDescriptors = new ConcurrentHashMap<>();
     }
 
 
@@ -47,21 +47,15 @@ public class AasRepositoryMemory extends AbstractAasRepository {
      * Clear the repository.
      */
     public void clear() {
-        synchronized (shellDescriptors) {
-            shellDescriptors.clear();
-        }
-        synchronized (submodelDescriptors) {
-            submodelDescriptors.clear();
-        }
+        shellDescriptors.clear();
+        submodelDescriptors.clear();
     }
 
 
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        synchronized (shellDescriptors) {
-            return new ArrayList<>(
-                    shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
-        }
+        return new ArrayList<>(
+                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
     }
 
 
@@ -79,9 +73,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
-        synchronized (shellDescriptors) {
-            shellDescriptors.put(descriptor.getId(), descriptor);
-        }
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -91,9 +83,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        synchronized (shellDescriptors) {
-            shellDescriptors.remove(aasId);
-        }
+        shellDescriptors.remove(aasId);
     }
 
 
@@ -103,10 +93,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
         if (Objects.nonNull(oldAAS)) {
-            synchronized (shellDescriptors) {
-                shellDescriptors.remove(aasId);
-                shellDescriptors.put(descriptor.getId(), descriptor);
-            }
+            shellDescriptors.remove(aasId);
+            shellDescriptors.put(descriptor.getId(), descriptor);
         }
         return descriptor;
     }
@@ -117,17 +105,13 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        synchronized (submodelDescriptors) {
-            return aas.getSubmodelDescriptors();
-        }
+        return aas.getSubmodelDescriptors();
     }
 
 
     @Override
     public List<SubmodelDescriptor> getSubmodels() {
-        synchronized (submodelDescriptors) {
-            return new ArrayList<>(submodelDescriptors.values());
-        }
+        return new ArrayList<>(submodelDescriptors.values());
     }
 
 
@@ -147,10 +131,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        synchronized (submodelDescriptors) {
-            Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
-            return submodelDescriptors.get(submodelId);
-        }
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        return submodelDescriptors.get(submodelId);
     }
 
 
@@ -171,12 +153,10 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
-        synchronized (submodelDescriptors) {
-            Ensure.require(
-                    !submodelDescriptors.containsKey(descriptor.getId()),
-                    buildSubmodelAlreadyExistsException(descriptor.getId()));
-            submodelDescriptors.put(descriptor.getId(), descriptor);
-        }
+        Ensure.require(
+                !submodelDescriptors.containsKey(descriptor.getId()),
+                buildSubmodelAlreadyExistsException(descriptor.getId()));
+        submodelDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -189,27 +169,21 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         boolean found = aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
-        synchronized (submodelDescriptors) {
-            submodelDescriptors.remove(submodelId);
-        }
+        submodelDescriptors.remove(submodelId);
     }
 
 
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
-        synchronized (submodelDescriptors) {
-            Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
-            submodelDescriptors.remove(submodelId);
-        }
+        Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
+        submodelDescriptors.remove(submodelId);
     }
 
 
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
-        synchronized (shellDescriptors) {
-            return shellDescriptors.getOrDefault(aasId, null);
-        }
+        return shellDescriptors.getOrDefault(aasId, null);
     }
 
 
