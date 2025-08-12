@@ -77,13 +77,13 @@ public class ShellRegistryControllerIT {
 
     @Test
     public void testGetAASs() {
-        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
-                createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        var list = response.getBody().getContent();
-        Assert.assertNotNull(list);
+        assertGetAASs("");
+    }
+
+
+    @Test
+    public void testGetAASsWithSlash() {
+        assertGetAASs("/");
     }
 
 
@@ -565,4 +565,16 @@ public class ShellRegistryControllerIT {
                         .build())
                 .build();
     }
+
+
+    private void assertGetAASs(String urlPostFix) {
+        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
+                createURLWithPort(urlPostFix), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        var list = response.getBody().getContent();
+        Assert.assertNotNull(list);
+    }
+
 }

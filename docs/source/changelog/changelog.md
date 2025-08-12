@@ -7,6 +7,7 @@
 - HTTP
 	- Added option to turn off SSL
 	- Added description endpoint
+	- Ignore trailing slashes in URLs
 
 **Internal changes & bugfixes**
 - General
