@@ -19,9 +19,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
  */
 public final class Constants {
 
-    public static final String SHELL_REQUEST_PATH = "/api/v3.0/shell-descriptors";
-    public static final String SUBMODEL_REQUEST_PATH = "/api/v3.0/submodel-descriptors";
-    public static final String DESCRIPTION_REQUEST_PATH = "/api/v3.0/description";
+    public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
+    public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
+    public static final String DESCRIPTION_REQUEST_PATH = "/description";
 
     private Constants() {}
 }
