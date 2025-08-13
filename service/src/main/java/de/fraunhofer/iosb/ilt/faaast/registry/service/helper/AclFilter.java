@@ -36,8 +36,9 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.time.Clock;
+import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -195,20 +196,19 @@ public class AclFilter extends GenericFilterBean {
                         .allMatch(value -> {
                             Object claim = claims.get(value);
                             return claim != null
-                                    && evaluateSimpleEQFormula(rule.getFORMULA(), value, claim.toString());
+                                    && evaluateFormula(rule.getFORMULA(), value, claim.toString());
                         });
     }
 
 
-    private static boolean evaluateSimpleEQFormula(Map<String, Object> formula, String value, String claimValue) {
-        if (formula.size() != 1 || !formula.containsKey("$eq")) {
-            LOG.error("Unsupported ACL formula.");
-            return false;
-        }
-        List<LinkedHashMap<?, ?>> eqList = (List<LinkedHashMap<?, ?>>) formula.get("$eq");
-        LinkedHashMap<?, ?> attribute = (LinkedHashMap<?, ?>) eqList.get(0).get("$attribute");
-        String strVal = (String) eqList.get(1).get("$strVal");
-        return attribute.get("CLAIM").equals(value) && strVal.equals(claimValue);
+    private static boolean evaluateFormula(Map<String, Object> formula,
+                                           String claimName,
+                                           String claimValue) {
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("CLAIM:" + claimName, claimValue);
+        ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
+        boolean retval = FormulaEvaluator.evaluate(formula, ctx);
+        return retval;
     }
 
 
