@@ -53,7 +53,7 @@ function replaceValue()
 }
 
 GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout)
-ARTIFACT_ID=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+ARTIFACT_ID="service"
 VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
 baseUrl="${MAVEN_SNAPSHOT_REPOSITORY}/$(toUrlPath $GROUP_ID)/$(toUrlPath $ARTIFACT_ID)/${VERSION}"
