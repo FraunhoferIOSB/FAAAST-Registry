@@ -3,12 +3,9 @@
 
 MAVEN_SNAPSHOT_REPOSITORY="https://central.sonatype.com/repository/maven-snapshots"
 
-TAG_VERSION="version"
 TAG_DOWNLOAD_SNAPSHOT="download-snapshot"
 README_FILE="README.md"
 INSTALLATION_FILE="./docs/source/gettingstarted/gettingstarted.md"
-README_LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/oss.sonatype.org\/service\/local\/artifact\/maven\/redirect?r=snapshots\&g=de\.fraunhofer\.iosb\.ilt\.faaast\.registry\&a=service\&v=${NEXTVERSION}-SNAPSHOT\)"
-INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT="{download}\`Latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) <https:\/\/oss.sonatype.org\/service\/local\/artifact\/maven\/redirect?r=snapshots\&g=de\.fraunhofer\.iosb\.ilt\.faaast\.registry\&a=service\&v=${NEXTVERSION}-SNAPSHOT>\`"
 
 function isSnapshot() {
 	if [[ "${VERSION}" =~ -SNAPSHOT$ ]]; then
