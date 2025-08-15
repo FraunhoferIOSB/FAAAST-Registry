@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -43,6 +45,17 @@ public interface AasRepository {
      * @return The list of all registered Asset Administration Shells.
      */
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
+
+
+    /**
+     * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.
+     *
+     * @param assetType The desired Asset Type.
+     * @param assetKind The desired Asset Kind.
+     * @param paging The desired Paging info.
+     * @return The list of the registered Asset Administration Shells for the desired page.
+     */
+    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging);
 
 
     /**

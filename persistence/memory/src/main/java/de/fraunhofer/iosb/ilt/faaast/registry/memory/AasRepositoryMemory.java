@@ -17,6 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,6 +59,32 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
         return new ArrayList<>(
                 shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging) {
+        int limit = Long.valueOf(paging.getLimit()).intValue();
+        int cursor = 0;
+        if (paging.getCursor() != null) {
+            cursor = Integer.parseInt(paging.getCursor());
+        }
+        List<AssetAdministrationShellDescriptor> retval = shellDescriptors.values().stream()
+                .filter(a -> filterAssetType(a, assetType))
+                .filter(b -> filterAssetKind(b, assetKind))
+                .skip(cursor)
+                .limit(limit)
+                .toList();
+        String nextCursor = null;
+        if (cursor + retval.size() < shellDescriptors.size()) {
+            nextCursor = Integer.toString(cursor + retval.size());
+        }
+        return Page.<AssetAdministrationShellDescriptor> builder()
+                .result(retval)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
     }
 
 

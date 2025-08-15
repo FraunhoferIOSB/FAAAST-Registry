@@ -22,6 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -53,6 +55,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
         return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging) {
+        return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, paging);
     }
 
 

@@ -52,6 +52,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
+    private static final int DEFAULT_LIMIT = 500;
 
     @Autowired
     RegistryService service;
@@ -76,6 +77,9 @@ public class ShellRegistryController {
                 throw new BadRequestException("Limit must be greater than 0");
             }
             pageBuilder.limit(limit);
+        }
+        else {
+            pageBuilder.limit(DEFAULT_LIMIT);
         }
         return service.getAASs(assetType, assetKind, pageBuilder.build());
     }

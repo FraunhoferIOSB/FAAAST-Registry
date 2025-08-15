@@ -15,9 +15,14 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,13 +81,14 @@ public class EntityManagerHelper {
      * @return All instances matching the given criteria.
      */
     public static List<AssetAdministrationShellDescriptor> getAllAas(EntityManager entityManager, String assetType, AssetKind assetKind) {
-        if ((assetKind == null) && (assetType == null)) {
-            return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
-        }
+        //if ((assetKind == null) && (assetType == null)) {
+        //    return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
+        //}
 
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
-        var root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
+        CriteriaQuery<JpaAssetAdministrationShellDescriptor> cq = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        //var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        Root<JpaAssetAdministrationShellDescriptor> root = cq.from(JpaAssetAdministrationShellDescriptor.class);
         List<Predicate> predicates = new ArrayList<>();
         if (assetType != null) {
             predicates.add(builder.equal(root.get("assetType"), assetType));
@@ -90,10 +96,74 @@ public class EntityManagerHelper {
         if (assetKind != null) {
             predicates.add(builder.equal(root.get("assetKind"), assetKind));
         }
-        queryCriteria.select(root).where(predicates.toArray(Predicate[]::new));
-        var query = entityManager.createQuery(queryCriteria);
+        //Metamodel m = entityManager.getMetamodel();
+        //var aas_ = m.entity(JpaAssetAdministrationShellDescriptor.class);
+        //EntityType<JpaAssetAdministrationShellDescriptor> Aas_ = root.getModel();
+        cq.select(root);
+        if (!predicates.isEmpty()) {
+            cq.where(predicates.toArray(Predicate[]::new));
+        }
+        //cq.orderBy(builder.asc(root.get(Aas_.getId(JpaAssetAdministrationShellDescriptor.class))));
+        cq.orderBy(builder.asc(root.get("id")));
+        var query = entityManager.createQuery(cq);
         return query.getResultList().stream()
                 .map(AssetAdministrationShellDescriptor.class::cast)
                 .toList();
+    }
+
+
+    /**
+     * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
+     *
+     * @param entityManager The entityManager to use.
+     * @param assetType The desired assetType.
+     * @param assetKind The desired assetKind.
+     * @param paging The desired Paging info.
+     * @return All instances matching the given criteria.
+     */
+    public static Page<AssetAdministrationShellDescriptor> getPagedAas(EntityManager entityManager, String assetType, AssetKind assetKind, PagingInfo paging) {
+        //if ((assetKind == null) && (assetType == null)) {
+        //    return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
+        //}
+
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<JpaAssetAdministrationShellDescriptor> cq = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        //var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        Root<JpaAssetAdministrationShellDescriptor> root = cq.from(JpaAssetAdministrationShellDescriptor.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if (assetType != null) {
+            predicates.add(builder.equal(root.get("assetType"), assetType));
+        }
+        if (assetKind != null) {
+            predicates.add(builder.equal(root.get("assetKind"), assetKind));
+        }
+        //Metamodel m = entityManager.getMetamodel();
+        //var aas_ = m.entity(JpaAssetAdministrationShellDescriptor.class);
+        //EntityType<JpaAssetAdministrationShellDescriptor> Aas_ = root.getModel();
+        cq.select(root);
+        if (!predicates.isEmpty()) {
+            cq.where(predicates.toArray(Predicate[]::new));
+        }
+        //cq.orderBy(builder.asc(root.get(Aas_.getId(JpaAssetAdministrationShellDescriptor.class))));
+        cq.orderBy(builder.asc(root.get("id")));
+        int limit = Long.valueOf(paging.getLimit()).intValue();
+        int cursor = 0;
+        if (paging.getCursor() != null) {
+            cursor = Integer.parseInt(paging.getCursor());
+        }
+        var query = entityManager.createQuery(cq).setFirstResult(cursor).setMaxResults(limit);
+        List<AssetAdministrationShellDescriptor> retval = query.getResultList().stream()
+                .map(AssetAdministrationShellDescriptor.class::cast)
+                .toList();
+        String nextCursor = null;
+        if (retval.size() >= limit) {
+            nextCursor = Integer.toString(cursor + retval.size());
+        }
+        return Page.<AssetAdministrationShellDescriptor> builder()
+                .result(retval)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
     }
 }

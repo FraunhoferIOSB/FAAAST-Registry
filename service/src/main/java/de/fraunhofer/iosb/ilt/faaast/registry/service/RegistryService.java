@@ -69,8 +69,9 @@ public class RegistryService {
         if (assetKind != null) {
             LOGGER.debug("getAASs: AssetKind {}", assetKind);
         }
-        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
-        return preparePagedResult(list, paging);
+        //List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
+        //return preparePagedResult(list, paging);
+        return aasRepository.getAASsPage(assetTypeDecoded, assetKind, paging);
     }
 
 
