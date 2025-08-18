@@ -144,7 +144,6 @@ public class EntityManagerHelper {
         if (!predicates.isEmpty()) {
             cq.where(predicates.toArray(Predicate[]::new));
         }
-        //cq.orderBy(builder.asc(root.get(Aas_.getId(JpaAssetAdministrationShellDescriptor.class))));
         cq.orderBy(builder.asc(root.get("id")));
         int limit = Long.valueOf(paging.getLimit()).intValue();
         int cursor = 0;
