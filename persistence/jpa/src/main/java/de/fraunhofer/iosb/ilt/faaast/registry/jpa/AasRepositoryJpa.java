@@ -51,15 +51,14 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         this.entityManager = entityManager;
     }
 
+    //@Override
+    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+    //    return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
+    //}
+
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
-    }
-
-
-    @Override
-    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging) {
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
         return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, paging);
     }
 

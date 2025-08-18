@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
@@ -52,7 +53,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
-    private static final int DEFAULT_LIMIT = 500;
+    //private static final int DEFAULT_LIMIT = 500;
 
     @Autowired
     RegistryService service;
@@ -79,7 +80,7 @@ public class ShellRegistryController {
             pageBuilder.limit(limit);
         }
         else {
-            pageBuilder.limit(DEFAULT_LIMIT);
+            pageBuilder.limit(AasRepository.DEFAULT_LIMIT);
         }
         return service.getAASs(assetType, assetKind, pageBuilder.build());
     }

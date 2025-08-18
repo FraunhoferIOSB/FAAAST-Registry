@@ -71,7 +71,7 @@ public class RegistryService {
         }
         //List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
         //return preparePagedResult(list, paging);
-        return aasRepository.getAASsPage(assetTypeDecoded, assetKind, paging);
+        return aasRepository.getAASs(assetTypeDecoded, assetKind, paging);
     }
 
 

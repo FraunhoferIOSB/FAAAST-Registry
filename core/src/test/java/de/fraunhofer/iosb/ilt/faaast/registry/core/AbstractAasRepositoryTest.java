@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -152,8 +154,10 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     @Test
     public void listAllAAS() throws Exception {
         repository.create(getAASWithSubmodel());
-        List<AssetAdministrationShellDescriptor> aass = repository.getAASs();
-        Assert.assertEquals(1, aass.size());
+        //List<AssetAdministrationShellDescriptor> aass = repository.getAASs();
+        Page<AssetAdministrationShellDescriptor> aass = repository.getAASs(PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
     }
 
 
@@ -183,11 +187,13 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     @Test
     public void deleteAAS() throws Exception {
         repository.create(getAASWithSubmodel());
-        List<AssetAdministrationShellDescriptor> aass = repository.getAASs();
-        Assert.assertEquals(1, aass.size());
+        Page<AssetAdministrationShellDescriptor> aass = repository.getAASs(PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
         repository.deleteAAS("TestAAS1");
-        aass = repository.getAASs();
-        Assert.assertEquals(0, aass.size());
+        aass = repository.getAASs(PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
     }
 
 

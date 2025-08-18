@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
@@ -54,17 +55,19 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         submodelDescriptors.clear();
     }
 
+    //@Override
+    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
+    //    return new ArrayList<>(
+    //            shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
+    //}
+
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return new ArrayList<>(
-                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
-    }
-
-
-    @Override
-    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging) {
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
         int limit = Long.valueOf(paging.getLimit()).intValue();
+        if ((limit < 0) || (limit > AasRepository.DEFAULT_LIMIT)) {
+            limit = AasRepository.DEFAULT_LIMIT;
+        }
         int cursor = 0;
         if (paging.getCursor() != null) {
             cursor = Integer.parseInt(paging.getCursor());

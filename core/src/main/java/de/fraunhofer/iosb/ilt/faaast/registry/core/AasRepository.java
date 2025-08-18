@@ -28,23 +28,24 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  * AAS Registry main repository.
  */
 public interface AasRepository {
+    static final int DEFAULT_LIMIT = 500;
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param paging The desired Paging info.
      * @return The list of all registered Asset Administration Shells.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs();
+    public Page<AssetAdministrationShellDescriptor> getAASs(PagingInfo paging);
 
-
-    /**
-     * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.
-     *
-     * @param assetType The desired Asset Type.
-     * @param assetKind The desired Asset Kind.
-     * @return The list of all registered Asset Administration Shells.
-     */
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
+    ///**
+    // * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.
+    // *
+    // * @param assetType The desired Asset Type.
+    // * @param assetKind The desired Asset Kind.
+    // * @return The list of all registered Asset Administration Shells.
+    // */
+    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
 
 
     /**
@@ -55,7 +56,7 @@ public interface AasRepository {
      * @param paging The desired Paging info.
      * @return The list of the registered Asset Administration Shells for the desired page.
      */
-    public Page<AssetAdministrationShellDescriptor> getAASsPage(String assetType, AssetKind assetKind, PagingInfo paging);
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging);
 
 
     /**
