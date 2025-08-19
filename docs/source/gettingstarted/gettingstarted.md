@@ -12,7 +12,7 @@
 {download}`Latest RELEASE version (1.1.0) <https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/registry/service/1.1.0/service-1.1.0.jar>`<!--end:download-release-->
 
 <!--start:download-snapshot-->
-{download}`Latest SNAPSHOT version (1.2.0-SNAPSHOT) <https://central.sonatype.com/repository/maven-snapshots/de/fraunhofer/iosb/ilt/faaast/registry/service/1.2.0-SNAPSHOT/service-1.2.0-20250818.123735-34.jar>`<!--end:download-snapshot-->
+{download}`Latest SNAPSHOT version (1.2.0-SNAPSHOT) <https://central.sonatype.com/repository/maven-snapshots/de/fraunhofer/iosb/ilt/faaast/registry/service/1.2.0-SNAPSHOT/service-1.2.0-20250819.164943-35.jar>`<!--end:download-snapshot-->
 
 ### As Maven Dependency
 
