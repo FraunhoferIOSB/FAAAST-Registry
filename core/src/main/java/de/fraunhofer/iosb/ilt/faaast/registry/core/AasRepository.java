@@ -18,7 +18,6 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -103,18 +102,20 @@ public interface AasRepository {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasId The ID of the desired Asset Administration Shell.
-     * @return The list of Submodels.
+     * @param paging The desired Paging info.
+     * @return The list of Submodels for the desired page.
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException;
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException;
 
 
     /**
      * Retrieves a list of all registered Submodels.
      *
-     * @return The list of Submodels.
+     * @param paging The desired Paging info.
+     * @return The list of Submodels for the desired page.
      */
-    public List<SubmodelDescriptor> getSubmodels();
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging);
 
 
     /**

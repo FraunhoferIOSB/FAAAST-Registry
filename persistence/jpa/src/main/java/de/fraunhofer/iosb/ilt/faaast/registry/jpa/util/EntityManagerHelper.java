@@ -14,10 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -74,42 +72,35 @@ public class EntityManagerHelper {
 
 
     /**
-     * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
      *
-     * @param entityManager The entityManager to use.
-     * @param assetType The desired assetType.
-     * @param assetKind The desired assetKind.
-     * @return All instances matching the given criteria.
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @return all instances of given type cast to return type
      */
-    public static List<AssetAdministrationShellDescriptor> getAllAas(EntityManager entityManager, String assetType, AssetKind assetKind) {
-        //if ((assetKind == null) && (assetType == null)) {
-        //    return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
-        //}
-
+    public static <R, T extends R> Page<R> getAllPaged(EntityManager entityManager, Class<T> type, Class<R> returnType, int limit, int cursor) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<JpaAssetAdministrationShellDescriptor> cq = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
-        //var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
-        Root<JpaAssetAdministrationShellDescriptor> root = cq.from(JpaAssetAdministrationShellDescriptor.class);
-        List<Predicate> predicates = new ArrayList<>();
-        if (assetType != null) {
-            predicates.add(builder.equal(root.get("assetType"), assetType));
+        var queryCriteria = builder.createQuery(type);
+        queryCriteria.select(queryCriteria.from(type));
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit);
+        List<R> list = query.getResultList().stream()
+                .map(returnType::cast)
+                .collect(Collectors.toList());
+        String nextCursor = null;
+        if (list.size() >= limit) {
+            nextCursor = Integer.toString(cursor + list.size());
         }
-        if (assetKind != null) {
-            predicates.add(builder.equal(root.get("assetKind"), assetKind));
-        }
-        //Metamodel m = entityManager.getMetamodel();
-        //var aas_ = m.entity(JpaAssetAdministrationShellDescriptor.class);
-        //EntityType<JpaAssetAdministrationShellDescriptor> Aas_ = root.getModel();
-        cq.select(root);
-        if (!predicates.isEmpty()) {
-            cq.where(predicates.toArray(Predicate[]::new));
-        }
-        //cq.orderBy(builder.asc(root.get(Aas_.getId(JpaAssetAdministrationShellDescriptor.class))));
-        cq.orderBy(builder.asc(root.get("id")));
-        var query = entityManager.createQuery(cq);
-        return query.getResultList().stream()
-                .map(AssetAdministrationShellDescriptor.class::cast)
-                .toList();
+        return Page.<R> builder()
+                .result(list)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
     }
 
 
@@ -119,10 +110,11 @@ public class EntityManagerHelper {
      * @param entityManager The entityManager to use.
      * @param assetType The desired assetType.
      * @param assetKind The desired assetKind.
-     * @param paging The desired Paging info.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
      * @return All instances matching the given criteria.
      */
-    public static Page<AssetAdministrationShellDescriptor> getPagedAas(EntityManager entityManager, String assetType, AssetKind assetKind, PagingInfo paging) {
+    public static Page<AssetAdministrationShellDescriptor> getPagedAas(EntityManager entityManager, String assetType, AssetKind assetKind, int limit, int cursor) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<JpaAssetAdministrationShellDescriptor> queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
         Root<JpaAssetAdministrationShellDescriptor> root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
@@ -138,14 +130,6 @@ public class EntityManagerHelper {
             queryCriteria.where(predicates.toArray(Predicate[]::new));
         }
         queryCriteria.orderBy(builder.asc(root.get("id")));
-        int limit = Long.valueOf(paging.getLimit()).intValue();
-        if ((limit < 0) || (limit > AasRepository.DEFAULT_LIMIT)) {
-            limit = AasRepository.DEFAULT_LIMIT;
-        }
-        int cursor = 0;
-        if (paging.getCursor() != null) {
-            cursor = Integer.parseInt(paging.getCursor());
-        }
         var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit);
         List<AssetAdministrationShellDescriptor> retval = query.getResultList().stream()
                 .map(AssetAdministrationShellDescriptor.class::cast)

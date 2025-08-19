@@ -51,15 +51,10 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         this.entityManager = entityManager;
     }
 
-    //@Override
-    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-    //    return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
-    //}
-
 
     @Override
     public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
-        return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, paging);
+        return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, readLimit(paging), readCursor(paging));
     }
 
 
@@ -106,17 +101,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return aas.getSubmodelDescriptors();
+        List<SubmodelDescriptor> list = aas.getSubmodelDescriptors();
+        return getPage(list, readCursor(paging), list.size());
     }
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels() {
-        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class);
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
+        return EntityManagerHelper.getAllPaged(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class, readLimit(paging), readCursor(paging));
     }
 
 
