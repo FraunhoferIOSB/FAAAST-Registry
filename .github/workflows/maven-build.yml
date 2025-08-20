@@ -109,7 +109,7 @@ jobs:
       run: |
         mvn clean deploy -P release --settings maven-ci-settings.xml -B
         chmod +x ./update-snapshot-purl.sh
-        ./update-snapshot-purl.sh -g de.fraunhofer.iosb.ilt.faaast.registry -a service -v ${{ env.version}} -d faaast -p registry/snapshot/latest
+        ./update-snapshot-purl.sh -g "de.fraunhofer.iosb.ilt.faaast.registry" -a "service" -v "${{ env.version}}" -d "faaast" -p "registry/snapshot/latest"
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
