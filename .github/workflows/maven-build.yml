@@ -104,6 +104,8 @@ jobs:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PURL_USER: ${{ secrets.PURL_USER }}
+        PURL_PASSWORD: ${{ secrets.PURL_PASSWORD }}
       run: |
         mvn clean deploy -P release --settings maven-ci-settings.xml -B
         chmod +x ./update-snapshot-purl.sh
