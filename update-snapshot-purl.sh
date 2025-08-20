@@ -70,7 +70,7 @@ parseOptions() {
 			g) GROUP_ID=$OPTARG;;
 			h) echo "$USAGE"; exit 0;;
 			p) PURL_NAME=$OPTARG;;
-			v) VERSION="${OPTARG%$-SNAPSHOT}";;
+			v) VERSION="${OPTARG%-SNAPSHOT}";;
 			*) echo "$USAGE" >&2; exit 2;;
 		esac
 	done
