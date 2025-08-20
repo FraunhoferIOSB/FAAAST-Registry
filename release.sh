@@ -15,9 +15,9 @@ CHANGELOG_FILE="./docs/source/changelog/changelog.md"
 README_FILE="README.md"
 INSTALLATION_FILE="./docs/source/gettingstarted/gettingstarted.md"
 README_LATEST_RELEASE_VERSION_CONTENT="[Download latest RELEASE version \($VERSION\)]\(https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/registry\/service\/${VERSION}\/service-${VERSION}.jar\)"
-README_LATEST_SNAPSHOT_VERSION_CONTENT="Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) - currently building, will be updated shortly"
+README_LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/purl.archive.org\/faaast\/registry\/snapshot\/latest\)"
 INSTALLATION_LATEST_RELEASE_VERSION_CONTENT="{download}\`Latest RELEASE version \($VERSION\) <https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/registry\/service\/${VERSION}\/service-${VERSION}.jar>\`"
-INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT="{download}\`Latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) - currently building, will be updated shortly <>\`"
+INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT="{download}\`Latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT) <https:\/\/purl.archive.org\/faaast\/registry\/snapshot\/latest>\`"
 
 # arguments: tag
 function startTag()
