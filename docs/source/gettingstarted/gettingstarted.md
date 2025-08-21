@@ -12,7 +12,7 @@
 {download}`Latest RELEASE version (1.1.0) <https://repo1.maven.org/maven2/de/fraunhofer/iosb/ilt/faaast/registry/service/1.1.0/service-1.1.0.jar>`<!--end:download-release-->
 
 <!--start:download-snapshot-->
-{download}`Latest SNAPSHOT version (1.2.0-SNAPSHOT) <https://central.sonatype.com/repository/maven-snapshots/de/fraunhofer/iosb/ilt/faaast/registry/service/1.2.0-SNAPSHOT/service-1.2.0-20250818.115043-33.jar>`<!--end:download-snapshot-->
+{download}`Latest SNAPSHOT version (1.2.0-SNAPSHOT) <https://purl.archive.org/faaast/registry/snapshot/latest>`<!--end:download-snapshot-->
 
 ### As Maven Dependency
 
@@ -58,14 +58,3 @@ To start FA³ST Registry from command-line you need to run the `service` module 
 | `-vv`         |                       |                                                                |                                         | Enables very verbose logging (*DEBUG* for FAST packages, *INFO* for all other packages).                                                                 |                  |
 | `-vvv`        |                       |                                                                |                                         | Enables very very verbose logging (*TRACE* for FAST packages, *DEBUG* for all other packages).                                                           |                  |
 :::
-
-## Example
-
-This example shows how to start a FA³ST Registry with in-memory persistence.
-If you have built the Registry from Source, you can find the file 'service-0.1.0-SNAPSHOT.jar' in the subdirectory 'service/target'.
-
-### Via Command-line Interface (CLI)
-
-```sh
-java -jar service-0.1.0-SNAPSHOT.jar
-```
