@@ -43,7 +43,18 @@ public class DescriptionControllerIT {
 
     @Test
     public void testDescription() {
-        ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(""), HttpMethod.GET, null, ServiceDescription.class);
+        assertDescriptions("");
+    }
+
+
+    @Test
+    public void testDescriptionWithSlash() {
+        assertDescriptions("/");
+    }
+
+
+    private void assertDescriptions(String urlPostfix) {
+        ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(urlPostfix), HttpMethod.GET, null, ServiceDescription.class);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertNotNull(response.getBody());
