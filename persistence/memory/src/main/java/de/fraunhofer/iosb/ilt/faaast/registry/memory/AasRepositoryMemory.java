@@ -52,12 +52,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         submodelDescriptors.clear();
     }
 
-    //@Override
-    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-    //    return new ArrayList<>(
-    //            shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
-    //}
-
 
     @Override
     public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
@@ -127,7 +121,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     @Override
     public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
-        //return new ArrayList<>(submodelDescriptors.values());
         int limit = readLimit(paging);
         int cursor = readCursor(paging);
         List<SubmodelDescriptor> submodels = submodelDescriptors.values().stream()

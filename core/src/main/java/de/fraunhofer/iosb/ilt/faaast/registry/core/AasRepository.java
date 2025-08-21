@@ -37,15 +37,6 @@ public interface AasRepository {
      */
     public Page<AssetAdministrationShellDescriptor> getAASs(PagingInfo paging);
 
-    ///**
-    // * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.
-    // *
-    // * @param assetType The desired Asset Type.
-    // * @param assetKind The desired Asset Kind.
-    // * @return The list of all registered Asset Administration Shells.
-    // */
-    //public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
-
 
     /**
      * Retrieves a list of all registered Asset Administration Shells which meet the given conditions.

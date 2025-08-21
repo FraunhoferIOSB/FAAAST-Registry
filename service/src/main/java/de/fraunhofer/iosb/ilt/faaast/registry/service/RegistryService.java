@@ -65,8 +65,6 @@ public class RegistryService {
         if (assetKind != null) {
             LOGGER.debug("getAASs: AssetKind {}", assetKind);
         }
-        //List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
-        //return preparePagedResult(list, paging);
         return aasRepository.getAASs(assetTypeDecoded, assetKind, paging);
     }
 
@@ -306,7 +304,7 @@ public class RegistryService {
 
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
-        if ((submodel.getId() == null) || (submodel.getId().length() == 0)) {
+        if ((submodel.getId() == null) || (submodel.getId().isEmpty())) {
             throw new BadRequestException("no Submodel identification provided");
         }
     }
@@ -314,63 +312,9 @@ public class RegistryService {
 
     private void checkShellIdentifiers(AssetAdministrationShellDescriptor aas) throws BadRequestException {
         Ensure.requireNonNull(aas, AAS_NOT_NULL_TXT);
-        if ((aas.getId() == null) || (aas.getId().length() == 0)) {
+        if ((aas.getId() == null) || (aas.getId().isEmpty())) {
             throw new BadRequestException("no AAS Identification provided");
         }
     }
 
-    //    private static <T> Page<T> preparePagedResult(List<T> input, PagingInfo paging) {
-    //        Stream<T> result = input.stream();
-    //        if (Objects.nonNull(paging.getCursor())) {
-    //            long skip = readCursor(paging.getCursor());
-    //            if (skip < 0 || skip >= input.size()) {
-    //                throw new BadRequestException(String.format("invalid cursor (cursor: %s)", paging.getCursor()));
-    //            }
-    //            result = result.skip(skip);
-    //        }
-    //        if (paging.hasLimit()) {
-    //            if (paging.getLimit() < 1) {
-    //                throw new BadRequestException(String.format("invalid limit - must be >= 1 (actual: %s)", paging.getLimit()));
-    //            }
-    //            result = result.limit(paging.getLimit() + 1);
-    //        }
-    //        List<T> temp = result.toList();
-    //        return Page.<T> builder()
-    //                .result(temp.stream()
-    //                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-    //                        .toList())
-    //                .metadata(PagingMetadata.builder()
-    //                        .cursor(nextCursor(paging, temp.size()))
-    //                        .build())
-    //                .build();
-    //    }
-    //
-    //
-    //    private static long readCursor(String cursor) {
-    //        return Long.parseLong(cursor);
-    //    }
-    //
-    //
-    //    private static String writeCursor(long index) {
-    //        return Long.toString(index);
-    //    }
-    //
-    //
-    //    private static String nextCursor(PagingInfo paging, int resultCount) {
-    //        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
-    //    }
-    //
-    //
-    //    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
-    //        if (!hasMoreData) {
-    //            return null;
-    //        }
-    //        if (!paging.hasLimit()) {
-    //            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-    //        }
-    //        if (Objects.isNull(paging.getCursor())) {
-    //            return writeCursor(paging.getLimit());
-    //        }
-    //        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
-    //    }
 }

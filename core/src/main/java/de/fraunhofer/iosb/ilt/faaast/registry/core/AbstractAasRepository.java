@@ -168,7 +168,7 @@ public abstract class AbstractAasRepository implements AasRepository {
         if (!paging.hasLimit()) {
             return AasRepository.DEFAULT_LIMIT;
         }
-        int limit = Long.valueOf(paging.getLimit()).intValue();
+        int limit = (int) paging.getLimit();
         if ((limit <= 0) || (limit > AasRepository.DEFAULT_LIMIT)) {
             limit = AasRepository.DEFAULT_LIMIT;
         }
