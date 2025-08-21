@@ -20,11 +20,11 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -39,8 +39,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
 
     public AasRepositoryMemory() {
-        shellDescriptors = new HashMap<>();
-        submodelDescriptors = new HashMap<>();
+        shellDescriptors = new ConcurrentHashMap<>();
+        submodelDescriptors = new ConcurrentHashMap<>();
     }
 
 
@@ -108,8 +108,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
+            shellDescriptors.put(descriptor.getId(), descriptor);
         }
-        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
