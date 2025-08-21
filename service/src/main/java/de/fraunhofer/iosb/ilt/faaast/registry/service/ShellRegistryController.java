@@ -54,7 +54,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
-    //private static final int DEFAULT_LIMIT = 500;
 
     @Autowired
     RegistryService service;

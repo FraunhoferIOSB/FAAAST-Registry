@@ -90,7 +90,7 @@ public class EntityManagerHelper {
         var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit);
         List<R> list = query.getResultList().stream()
                 .map(returnType::cast)
-                .collect(Collectors.toList());
+                .toList();
         String nextCursor = null;
         if (list.size() >= limit) {
             nextCursor = Integer.toString(cursor + list.size());
