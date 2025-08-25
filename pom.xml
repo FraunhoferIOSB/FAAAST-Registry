@@ -92,7 +92,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.5.4</spring.boot.version>
+        <spring.boot.version>3.5.5</spring.boot.version>
         <spring.web.version>6.2.10</spring.web.version>
         <tomcat.embed.core.version>11.0.10</tomcat.embed.core.version>
     </properties>
