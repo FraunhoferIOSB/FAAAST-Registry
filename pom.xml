@@ -57,7 +57,8 @@
         <glassfish.jaxb-runtime>4.0.5</glassfish.jaxb-runtime>
         <h2.version>2.3.232</h2.version>
         <hibernate.version>6.6.27.Final</hibernate.version>
-        <jackson.version>2.19.2</jackson.version>
+        <jackson.annotations.version>2.20</jackson.annotations.version>
+        <jackson.version>2.20.0</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.18</logback.version>
