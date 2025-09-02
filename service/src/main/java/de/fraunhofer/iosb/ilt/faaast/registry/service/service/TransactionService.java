@@ -16,8 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerErrorException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkOperationStatusStore;
 import java.net.URI;
@@ -64,17 +64,22 @@ public class TransactionService {
      *
      * @param shells list of shell descriptors that shall be created.
      * @param handleId id of the operation handle for future reference.
-     * @throws ResourceAlreadyExistsException if a descriptor with that id already exists.
      */
-    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws ResourceAlreadyExistsException {
-        LOGGER.debug("createShells start");
-        statusStore.setStatus(handleId, ExecutionState.INITIATED);
-        for (AssetAdministrationShellDescriptor shell: shells) {
-            aasRepository.create(shell);
+    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
+        try {
+            LOGGER.debug("createShells start");
             statusStore.setStatus(handleId, ExecutionState.RUNNING);
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                aasRepository.create(shell);
+                //statusStore.setStatus(handleId, ExecutionState.RUNNING);
+            }
+            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+            LOGGER.debug("createShells finished");
         }
-        statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-        LOGGER.debug("createShells finished");
+        catch (Exception ex) {
+            statusStore.setStatus(handleId, ExecutionState.FAILED);
+            LOGGER.info("createShells error", ex);
+        }
     }
 
 
@@ -94,19 +99,25 @@ public class TransactionService {
             LOGGER.debug("getStatus: not found: {}", handleId);
             throw new ResourceNotFoundException("Unknown handleId: " + handleId);
         }
-
-        if (status == ExecutionState.RUNNING) {
-            LOGGER.debug("getStatus: running: {}", handleId);
-            DefaultOperationResult operationResult = new DefaultOperationResult();
-            operationResult.setExecutionState(status);
-            return operationResult;
-        }
-
-        URI location = URI.create("../../bulk/result/" + handleId);
-        HttpHeaders headers = new HttpHeaders();
-        LOGGER.debug("getStatus: status {}; location: {}", status, location);
-        headers.setLocation(location);
-        throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
+        else
+            switch (status) {
+                case RUNNING:
+                    LOGGER.debug("getStatus: running: {}", handleId);
+                    DefaultOperationResult operationResult = new DefaultOperationResult();
+                    operationResult.setExecutionState(status);
+                    return operationResult;
+                case COMPLETED:
+                case FAILED:
+                    URI location = URI.create("../result/" + handleId);
+                    HttpHeaders headers = new HttpHeaders();
+                    LOGGER.debug("getStatus: status {}; location: {}", status, location);
+                    headers.setLocation(location);
+                    throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
+                default:
+                    LOGGER.info("getStatus: Operation status {}", status);
+                    break;
+            }
+        throw new InternalServerErrorException("operation status unknown");
     }
 
 

@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +86,7 @@ public class BulkOperationControllerIT {
                 generateAas("002"),
                 generateAas("003"));
 
-        registryService.bulkCreateShells(commitAASList);
+        registryService.bulkCreateShells(commitAASList, OperationHelper.generateOperationHandleId());
 
         await()
                 .atMost(3, TimeUnit.SECONDS)
@@ -102,7 +103,7 @@ public class BulkOperationControllerIT {
                 generateAas("002"),
                 generateAas("001"));
 
-        registryService.bulkCreateShells(rollbackAASList);
+        registryService.bulkCreateShells(rollbackAASList, OperationHelper.generateOperationHandleId());
 
         await()
                 .atMost(3, TimeUnit.SECONDS)

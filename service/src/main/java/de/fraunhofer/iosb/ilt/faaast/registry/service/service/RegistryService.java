@@ -17,7 +17,6 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
@@ -359,6 +358,7 @@ public class RegistryService {
      * Bulk operation for creating multiple aas descriptors.
      *
      * @param shells The desired asset administration shell descriptors.
+     * @param handleId The asynchronous handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
@@ -368,11 +368,10 @@ public class RegistryService {
      */
     @Async
     @Transactional
-    public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
+    public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException {
 
         ConstraintHelper.validate(shells);
-        String handleId = OperationHelper.generateOperationHandleId();
         transactionService.createShells(shells, handleId);
 
         return CompletableFuture.completedFuture(handleId);

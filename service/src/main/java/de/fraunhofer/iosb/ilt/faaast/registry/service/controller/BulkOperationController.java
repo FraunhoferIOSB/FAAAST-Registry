@@ -15,10 +15,10 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
@@ -117,12 +117,13 @@ public class BulkOperationController {
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException,
             ExecutionException {
-        CompletableFuture<String> handleId = service.bulkCreateShells(shells);
+        String handleId = OperationHelper.generateOperationHandleId();
+        service.bulkCreateShells(shells, handleId);
 
-        String handle = handleId.get();
-        LOGGER.debug("bulkCreateShells: Handle: {}; {}", handle, handleId);
+        //String handle = handleId.get();
+        LOGGER.debug("bulkCreateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/bulk/status/" + handle));
+        headers.setLocation(URI.create("../status/" + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
