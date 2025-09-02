@@ -26,6 +26,8 @@ import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TransactionService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
     private final BulkOperationStatusStore statusStore;
 
     @Autowired
@@ -64,12 +67,14 @@ public class TransactionService {
      * @throws ResourceAlreadyExistsException if a descriptor with that id already exists.
      */
     public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws ResourceAlreadyExistsException {
+        LOGGER.debug("createShells start");
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
         for (AssetAdministrationShellDescriptor shell: shells) {
             aasRepository.create(shell);
             statusStore.setStatus(handleId, ExecutionState.RUNNING);
         }
         statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+        LOGGER.debug("createShells finished");
     }
 
 
@@ -82,20 +87,25 @@ public class TransactionService {
      * @throws ResourceNotFoundException if there is no handle with that id.
      */
     public OperationResult getStatus(String handleId) throws ResourceNotFoundException {
+        LOGGER.debug("getStatus: {}", handleId);
         ExecutionState status = statusStore.getStatus(handleId);
 
         if (status == null) {
+            LOGGER.debug("getStatus: not found: {}", handleId);
             throw new ResourceNotFoundException("Unknown handleId: " + handleId);
         }
 
         if (status == ExecutionState.RUNNING) {
+            LOGGER.debug("getStatus: running: {}", handleId);
             DefaultOperationResult operationResult = new DefaultOperationResult();
             operationResult.setExecutionState(status);
             return operationResult;
         }
 
+        URI location = URI.create("../../bulk/result/" + handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/bulk/result/" + handleId));
+        LOGGER.debug("getStatus: status {}; location: {}", status, location);
+        headers.setLocation(location);
         throw new MovedPermanentlyException("Operation completed. See result endpoint.", headers);
     }
 

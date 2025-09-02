@@ -363,7 +363,8 @@ public class RegistryService {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
-     * @return handleId
+     * @return handleId The transaction handle.
+     * @throws ResourceAlreadyExistsException When an AAS already exists.
      */
     @Async
     @Transactional
@@ -411,6 +412,7 @@ public class RegistryService {
      * Returns the status of an asynchronously invoked bulk operation.
      *
      * @param handleId the id for retrieving the bulk operation result object.
+     * @return The operation result.
      * @throws BadRequestException an error occurs.
      * @throws MovedPermanentlyException an error occurs.
      * @throws UnauthorizedException an error occurs.

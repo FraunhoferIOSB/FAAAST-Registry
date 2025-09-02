@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -102,19 +103,26 @@ public class BulkOperationController {
      * Bulk operation for creating multiple aas descriptors.
      *
      * @param shells The desired asset administration shell descriptors.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws ResourceAlreadyExistsException When an AAS aleady exists.
+     * @throws InterruptedException an error occurs.
+     * @throws ExecutionException an error occurs.
      */
     @PostMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException,
+            ExecutionException {
         CompletableFuture<String> handleId = service.bulkCreateShells(shells);
 
+        String handle = handleId.get();
+        LOGGER.debug("bulkCreateShells: Handle: {}; {}", handle, handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/bulk/status/" + handleId));
+        headers.setLocation(URI.create("/bulk/status/" + handle));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -161,8 +169,9 @@ public class BulkOperationController {
      * Returns the status of an asynchronously invoked bulk operation.
      *
      * @param handleId the id for retrieving the bulk operation status.
-     * @throws BadRequestException an error occurs.
+     * @return The operation result.
      * @throws MovedPermanentlyException an error occurs.
+     * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
@@ -194,17 +203,4 @@ public class BulkOperationController {
         service.getBulkOperationResult(handleId);
     }
 
-
-    /**
-     * Handles MovedPermanentlyException by returning a 302 Found response with the given headers.
-     *
-     * @param ex the exception containing redirect headers
-     * @return response with HTTP 302 and location header
-     */
-    @ExceptionHandler(MovedPermanentlyException.class)
-    public ResponseEntity<Void> handleMovedPermanently(MovedPermanentlyException ex) {
-        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-                .headers(ex.getHeaders())
-                .build();
-    }
 }

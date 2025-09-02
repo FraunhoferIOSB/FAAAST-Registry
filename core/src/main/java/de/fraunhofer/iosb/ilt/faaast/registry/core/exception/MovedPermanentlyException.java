@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Exception class for completed status request.
  */
-@ResponseStatus(value = HttpStatus.MOVED_PERMANENTLY)
+@ResponseStatus(value = HttpStatus.FOUND)
 public class MovedPermanentlyException extends RuntimeException {
     private HttpHeaders headers;
 
