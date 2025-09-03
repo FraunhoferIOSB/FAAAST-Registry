@@ -27,6 +27,8 @@ import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,12 +36,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  */
 public class AasRepositoryMemory extends AbstractAasRepository {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasRepositoryMemory.class);
     private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
+    private final Map<String, AssetAdministrationShellDescriptor> shellDescriptorsBackup;
+    private final Map<String, SubmodelDescriptor> submodelDescriptorsBackup;
 
     public AasRepositoryMemory() {
         shellDescriptors = new HashMap<>();
         submodelDescriptors = new HashMap<>();
+        shellDescriptorsBackup = new HashMap<>();
+        submodelDescriptorsBackup = new HashMap<>();
     }
 
 
@@ -181,6 +188,41 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     }
 
 
+    @Override
+    public void startTransaction() {
+        if (!shellDescriptorsBackup.isEmpty()) {
+            throw new IllegalArgumentException("transaction already running");
+        }
+        else if (!submodelDescriptorsBackup.isEmpty()) {
+            throw new IllegalArgumentException("transaction already running");
+        }
+        // TODO: try implementing a DeepCopyHelper for these Maps
+        LOGGER.debug("startTransaction");
+        shellDescriptorsBackup.putAll(shellDescriptors);
+        submodelDescriptorsBackup.putAll(submodelDescriptors);
+    }
+
+
+    @Override
+    public void commitTransaction() {
+        LOGGER.debug("commitTransaction");
+        shellDescriptorsBackup.clear();
+        submodelDescriptorsBackup.clear();
+    }
+
+
+    @Override
+    public void rollbackTransaction() {
+        LOGGER.debug("rollbackTransaction");
+        shellDescriptors.clear();
+        shellDescriptors.putAll(shellDescriptorsBackup);
+        shellDescriptorsBackup.clear();
+        submodelDescriptors.clear();
+        submodelDescriptors.putAll(submodelDescriptorsBackup);
+        submodelDescriptorsBackup.clear();
+    }
+
+
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
         return shellDescriptors.getOrDefault(aasId, null);
@@ -205,4 +247,5 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             return aas.getAssetKind() == assetKind;
         }
     }
+
 }

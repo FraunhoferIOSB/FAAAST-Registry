@@ -24,6 +24,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 
@@ -41,6 +44,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Transactional
 public class AasRepositoryJpa extends AbstractAasRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasRepositoryJpa.class);
 
     @PersistenceContext(name = "AASRepositoryJPA")
     private final EntityManager entityManager;
@@ -193,6 +198,30 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
+    @Override
+    public void startTransaction() {
+        LOGGER.debug("startTransaction");
+        EntityTransaction transaction = entityManager.getTransaction();
+        if (transaction != null) {
+            transaction.begin();
+        }
+    }
+
+
+    @Override
+    public void commitTransaction() {
+        LOGGER.debug("commitTransaction");
+        entityManager.getTransaction().commit();
+    }
+
+
+    @Override
+    public void rollbackTransaction() {
+        LOGGER.debug("rollbackTransaction");
+        entityManager.getTransaction().rollback();
+    }
+
+
     private JpaAssetAdministrationShellDescriptor fetchAAS(String aasId) {
         try {
             return entityManager.find(JpaAssetAdministrationShellDescriptor.class, aasId);
@@ -206,4 +235,5 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
         return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
     }
+
 }
