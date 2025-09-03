@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedE
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
@@ -47,7 +48,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * REST controller for the Submodel registry.
  */
 @RestController
-@RequestMapping(value = "/api/v3.0/submodel-descriptors")
+@RequestMapping(value = Constants.SUBMODEL_REQUEST_PATH)
 public class SubmodelRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelRegistryController.class);

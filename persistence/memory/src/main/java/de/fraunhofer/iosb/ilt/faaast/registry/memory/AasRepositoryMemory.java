@@ -19,11 +19,11 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -43,10 +43,10 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private final Map<String, SubmodelDescriptor> submodelDescriptorsBackup;
 
     public AasRepositoryMemory() {
-        shellDescriptors = new HashMap<>();
-        submodelDescriptors = new HashMap<>();
-        shellDescriptorsBackup = new HashMap<>();
-        submodelDescriptorsBackup = new HashMap<>();
+        shellDescriptors = new ConcurrentHashMap<>();
+        submodelDescriptors = new ConcurrentHashMap<>();
+        shellDescriptorsBackup = new ConcurrentHashMap<>();
+        submodelDescriptorsBackup = new ConcurrentHashMap<>();
     }
 
 
@@ -101,8 +101,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
+            shellDescriptors.put(descriptor.getId(), descriptor);
         }
-        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
