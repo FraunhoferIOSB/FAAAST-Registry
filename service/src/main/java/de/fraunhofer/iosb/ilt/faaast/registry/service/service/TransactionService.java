@@ -82,7 +82,7 @@ public class TransactionService {
         catch (Exception ex) {
             aasRepository.rollbackTransaction();
             statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("createShells error", ex);
+            LOGGER.info("createShells error: {}", ex.getMessage(), ex);
         }
     }
 
