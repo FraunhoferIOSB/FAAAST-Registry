@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
@@ -91,7 +90,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    assertEquals(commitAASList, aasRepository.getAASs());
+                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
                 });
     }
 
@@ -108,7 +107,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    assertEquals(new ArrayList<>(), aasRepository.getAASs());
+                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs());
                 });
     }
 
