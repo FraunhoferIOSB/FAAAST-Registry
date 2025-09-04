@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerError
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkOperationStatusStore;
+import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.net.URI;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -82,6 +83,34 @@ public class TransactionService {
             aasRepository.rollbackTransaction();
             statusStore.setStatus(handleId, ExecutionState.FAILED);
             LOGGER.info("createShells error", ex);
+        }
+    }
+
+
+    /**
+     * This method implements the logic for PUT on the /bulk/shell-descriptors endpoint.
+     * Updates multiple Asset Administration Shell Descriptors.
+     *
+     * @param shells list of shell descriptors that shall be created.
+     * @param handleId id of the operation handle for future reference.
+     */
+    public void updateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
+        try {
+            aasRepository.startTransaction();
+            LOGGER.debug("updateShells start");
+            statusStore.setStatus(handleId, ExecutionState.RUNNING);
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                Ensure.requireNonNull(shell);
+                aasRepository.update(shell.getId(), shell);
+            }
+            aasRepository.commitTransaction();
+            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+            LOGGER.debug("updateShells finished");
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction();
+            statusStore.setStatus(handleId, ExecutionState.FAILED);
+            LOGGER.info("updateShells error", ex);
         }
     }
 

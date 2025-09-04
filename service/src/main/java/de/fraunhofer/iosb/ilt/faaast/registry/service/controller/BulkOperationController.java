@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
@@ -36,7 +37,7 @@ import org.springframework.web.bind.annotation.*;
  * REST controller for the bulk operations.
  */
 @RestController
-@RequestMapping(value = "/api/v3.0/bulk")
+@RequestMapping(value = Constants.BULK_REQUEST_PATH)
 public class BulkOperationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationController.class);
 
@@ -120,7 +121,6 @@ public class BulkOperationController {
         String handleId = OperationHelper.generateOperationHandleId();
         service.bulkCreateShells(shells, handleId);
 
-        //String handle = handleId.get();
         LOGGER.debug("bulkCreateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("../status/" + handleId));
@@ -136,6 +136,7 @@ public class BulkOperationController {
      * Bulk operation for updating multiple aas descriptors.
      *
      * @param shells The desired Submodels.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
@@ -143,9 +144,19 @@ public class BulkOperationController {
      */
     @PutMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkUpdateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
+    public ResponseEntity<Void> bulkUpdateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        service.bulkUpdateShells(shells);
+        String handleId = OperationHelper.generateOperationHandleId();
+        service.bulkUpdateShells(shells, handleId);
+
+        LOGGER.debug("bulkUpdateShells: Handle: {}", handleId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("../status/" + handleId));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .headers(headers)
+                .build();
     }
 
 

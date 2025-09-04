@@ -22,6 +22,7 @@ public final class Constants {
     public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
     public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
     public static final String DESCRIPTION_REQUEST_PATH = "/description";
+    public static final String BULK_REQUEST_PATH = "/bulk";
 
     private Constants() {}
 }

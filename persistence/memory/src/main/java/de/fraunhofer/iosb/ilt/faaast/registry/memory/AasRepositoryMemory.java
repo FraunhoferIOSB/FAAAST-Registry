@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.util.DeepCopyHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,10 @@ import org.slf4j.LoggerFactory;
 public class AasRepositoryMemory extends AbstractAasRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AasRepositoryMemory.class);
-    private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
-    private final Map<String, SubmodelDescriptor> submodelDescriptors;
-    private final Map<String, AssetAdministrationShellDescriptor> shellDescriptorsBackup;
-    private final Map<String, SubmodelDescriptor> submodelDescriptorsBackup;
+    private Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
+    private Map<String, SubmodelDescriptor> submodelDescriptors;
+    private Map<String, String> shellDescriptorsBackup;
+    private Map<String, String> submodelDescriptorsBackup;
 
     public AasRepositoryMemory() {
         shellDescriptors = new ConcurrentHashMap<>();
@@ -196,10 +197,11 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         else if (!submodelDescriptorsBackup.isEmpty()) {
             throw new IllegalArgumentException("transaction already running");
         }
-        // TODO: try implementing a DeepCopyHelper for these Maps
         LOGGER.debug("startTransaction");
-        shellDescriptorsBackup.putAll(shellDescriptors);
-        submodelDescriptorsBackup.putAll(submodelDescriptors);
+        //shellDescriptorsBackup.putAll(shellDescriptors);
+        //submodelDescriptorsBackup.putAll(submodelDescriptors);
+        shellDescriptorsBackup = DeepCopyHelper.createBackupMap(shellDescriptors);
+        submodelDescriptorsBackup = DeepCopyHelper.createBackupMap(submodelDescriptors);
     }
 
 
@@ -215,10 +217,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public void rollbackTransaction() {
         LOGGER.debug("rollbackTransaction");
         shellDescriptors.clear();
-        shellDescriptors.putAll(shellDescriptorsBackup);
+        //shellDescriptors.putAll(shellDescriptorsBackup);
+        shellDescriptors = DeepCopyHelper.restoreBackupMap(shellDescriptorsBackup, AssetAdministrationShellDescriptor.class);
         shellDescriptorsBackup.clear();
         submodelDescriptors.clear();
-        submodelDescriptors.putAll(submodelDescriptorsBackup);
+        //submodelDescriptors.putAll(submodelDescriptorsBackup);
+        submodelDescriptors = DeepCopyHelper.restoreBackupMap(submodelDescriptorsBackup, SubmodelDescriptor.class);
         submodelDescriptorsBackup.clear();
     }
 

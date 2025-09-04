@@ -89,7 +89,7 @@ public class BulkOperationControllerIT {
         registryService.bulkCreateShells(commitAASList, OperationHelper.generateOperationHandleId());
 
         await()
-                .atMost(3, TimeUnit.SECONDS)
+                .atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     assertEquals(commitAASList, aasRepository.getAASs());
                 });

@@ -359,11 +359,11 @@ public class RegistryService {
      *
      * @param shells The desired asset administration shell descriptors.
      * @param handleId The asynchronous handle.
+     * @return handleId The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
-     * @return handleId The transaction handle.
      * @throws ResourceAlreadyExistsException When an AAS already exists.
      */
     @Async
@@ -382,14 +382,20 @@ public class RegistryService {
      * Bulk operation for updating multiple aas descriptors.
      *
      * @param shells The desired aas.
+     * @param handleId The asynchronous handle.
+     * @return handleId The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
-    public void bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells)
+    @Async
+    public CompletableFuture<String> bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        // todo: Change this to loop over all shells. Use transactions
+        ConstraintHelper.validate(shells);
+        transactionService.updateShells(shells, handleId);
+
+        return CompletableFuture.completedFuture(handleId);
     }
 
 
