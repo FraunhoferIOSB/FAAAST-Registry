@@ -98,9 +98,9 @@ public class BulkOperationControllerIT {
     @Test
     public void testAsyncRollback() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
-                generateAas("001"),
-                generateAas("002"),
-                generateAas("001"));
+                generateAas("004"),
+                generateAas("005"),
+                generateAas("004"));
 
         registryService.bulkCreateShells(rollbackAASList, OperationHelper.generateOperationHandleId());
 
