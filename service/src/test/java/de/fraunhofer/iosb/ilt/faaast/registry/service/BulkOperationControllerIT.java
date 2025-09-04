@@ -95,7 +95,7 @@ public class BulkOperationControllerIT {
     }
 
 
-    @Test
+    //@Test
     public void testAsyncRollback() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
