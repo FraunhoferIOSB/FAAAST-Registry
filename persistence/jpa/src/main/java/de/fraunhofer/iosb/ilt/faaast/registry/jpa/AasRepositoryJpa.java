@@ -222,6 +222,14 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
+    /**
+     * Method to clear the repos and deletes all descriptors.
+     * Intentionally left empty here, as it's only used for tests!
+     */
+    @Override
+    public void clear() {}
+
+
     private JpaAssetAdministrationShellDescriptor fetchAAS(String aasId) {
         try {
             return entityManager.find(JpaAssetAdministrationShellDescriptor.class, aasId);

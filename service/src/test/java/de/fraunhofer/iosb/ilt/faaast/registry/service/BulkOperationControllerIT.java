@@ -95,14 +95,14 @@ public class BulkOperationControllerIT {
         registryService.bulkCreateShells(commitAASList, OperationHelper.generateOperationHandleId());
 
         await()
-                .atMost(20, TimeUnit.SECONDS)
+                .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     Assert.assertEquals(commitAASList, aasRepository.getAASs());
                 });
     }
 
 
-    //@Test
+    @Test
     public void testAsyncRollback() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
