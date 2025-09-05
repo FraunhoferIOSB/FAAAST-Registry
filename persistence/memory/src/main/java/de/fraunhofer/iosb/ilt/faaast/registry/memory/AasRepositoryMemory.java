@@ -54,6 +54,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     /**
      * Clear the repository.
      */
+    @Override
     public void clear() {
         shellDescriptors.clear();
         submodelDescriptors.clear();

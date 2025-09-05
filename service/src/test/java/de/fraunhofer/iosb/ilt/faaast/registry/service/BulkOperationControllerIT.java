@@ -23,7 +23,6 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -47,6 +46,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +79,12 @@ public class BulkOperationControllerIT {
     @Autowired
     private AasRepository aasRepository;
 
+    @Before
+    public void init() {
+        aasRepository.clear();
+    }
+
+
     @Test
     public void testAsyncCommit() throws ResourceAlreadyExistsException {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
@@ -90,9 +96,8 @@ public class BulkOperationControllerIT {
 
         await()
                 .atMost(20, TimeUnit.SECONDS)
-                .until(() -> {
-                    //Assert.assertEquals(commitAASList, aasRepository.getAASs());
-                    return Objects.equals(commitAASList, aasRepository.getAASs());
+                .untilAsserted(() -> {
+                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
                 });
     }
 

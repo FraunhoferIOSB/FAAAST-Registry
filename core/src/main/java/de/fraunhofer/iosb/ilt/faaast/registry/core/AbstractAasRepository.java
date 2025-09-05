@@ -38,6 +38,10 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
+    @Override
+    public void clear() {}
+
+
     /**
      * Creates a new {@link ResourceNotFoundException} for the AAS.
      *

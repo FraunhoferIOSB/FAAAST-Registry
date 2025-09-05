@@ -181,4 +181,11 @@ public interface AasRepository {
      * Rollback a Transaction.
      */
     public void rollbackTransaction();
+
+
+    /**
+     * Clears the repos and deletes all descriptors.
+     * Only used for tests!
+     */
+    public void clear();
 }
