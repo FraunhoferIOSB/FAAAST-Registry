@@ -69,7 +69,7 @@ public class TransactionService {
     public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
         try {
             aasRepository.startTransaction();
-            LOGGER.debug("createShells start");
+            LOGGER.info("createShells start");
             statusStore.setStatus(handleId, ExecutionState.RUNNING);
             for (AssetAdministrationShellDescriptor shell: shells) {
                 aasRepository.create(shell);
@@ -77,7 +77,7 @@ public class TransactionService {
             }
             aasRepository.commitTransaction();
             statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-            LOGGER.debug("createShells finished");
+            LOGGER.info("createShells finished");
         }
         catch (Exception ex) {
             aasRepository.rollbackTransaction();

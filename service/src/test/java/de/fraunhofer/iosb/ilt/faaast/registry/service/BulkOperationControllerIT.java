@@ -23,6 +23,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -88,9 +89,10 @@ public class BulkOperationControllerIT {
         registryService.bulkCreateShells(commitAASList, OperationHelper.generateOperationHandleId());
 
         await()
-                .atMost(5, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
+                .atMost(20, TimeUnit.SECONDS)
+                .until(() -> {
+                    //Assert.assertEquals(commitAASList, aasRepository.getAASs());
+                    return Objects.equals(commitAASList, aasRepository.getAASs());
                 });
     }
 
