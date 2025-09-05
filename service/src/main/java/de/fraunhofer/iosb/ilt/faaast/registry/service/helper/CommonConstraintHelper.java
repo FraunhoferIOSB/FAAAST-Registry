@@ -27,6 +27,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  */
 public class CommonConstraintHelper {
 
+    private static final String CONSTRAINT_VIOLATED_TXT = "' constraint violated: ";
+    private static final String NO_ID_TXT = "no Id given!";
+
     private CommonConstraintHelper() {}
 
 
@@ -150,11 +153,11 @@ public class CommonConstraintHelper {
         if (aas.getId() != null) {
             txt.append("'");
             txt.append(aas.getId());
-            txt.append("' constraint violated: ");
+            txt.append(CONSTRAINT_VIOLATED_TXT);
             txt.append(message);
         }
         else {
-            txt.append("no Id given!");
+            txt.append(NO_ID_TXT);
         }
         return txt.toString();
     }
@@ -182,11 +185,43 @@ public class CommonConstraintHelper {
         if (submodel.getId() != null) {
             txt.append("'");
             txt.append(submodel.getId());
-            txt.append("' constraint violated: ");
+            txt.append(CONSTRAINT_VIOLATED_TXT);
             txt.append(message);
         }
         else {
-            txt.append("no Id given!");
+            txt.append(NO_ID_TXT);
+        }
+        return txt.toString();
+    }
+
+
+    /**
+     * Creates the log text for a Submodel constraint violation.
+     *
+     * @param method The desired method name.
+     * @param message The desire dmessage.
+     * @param aasId The ID of the AAS, or null if not available.
+     * @param submodels The The created log text.
+     * @return The created log text.
+     */
+    public static String getLogText(String method, String message, String aasId, List<SubmodelDescriptor> submodels) {
+        StringBuilder txt = new StringBuilder();
+        txt.append(method);
+        txt.append(": Request for ");
+        if (aasId != null) {
+            txt.append("AAS: '");
+            txt.append(aasId);
+            txt.append("' ");
+        }
+        txt.append("Submodel: ");
+        if (submodels.get(0).getId() != null) {
+            txt.append("'");
+            txt.append(submodels.get(0).getId());
+            txt.append(CONSTRAINT_VIOLATED_TXT);
+            txt.append(message);
+        }
+        else {
+            txt.append(NO_ID_TXT);
         }
         return txt.toString();
     }
