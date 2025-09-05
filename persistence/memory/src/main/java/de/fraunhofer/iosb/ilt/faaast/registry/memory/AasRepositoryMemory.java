@@ -192,10 +192,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     @Override
     public void startTransaction() {
-        if (!shellDescriptorsBackup.isEmpty()) {
-            throw new IllegalArgumentException("transaction already running");
-        }
-        else if (!submodelDescriptorsBackup.isEmpty()) {
+        if ((!shellDescriptorsBackup.isEmpty()) || (!submodelDescriptorsBackup.isEmpty())) {
             throw new IllegalArgumentException("transaction already running");
         }
         LOGGER.debug("startTransaction");

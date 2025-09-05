@@ -55,8 +55,14 @@ public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
 
+    //@Autowired
+    private final RegistryService service;
+
     @Autowired
-    RegistryService service;
+    public ShellRegistryController(RegistryService service) {
+        this.service = service;
+    }
+
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.

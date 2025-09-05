@@ -27,6 +27,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  */
 public class CommonConstraintHelper {
 
+    private static final String CONSTRAINT_VIOLATED_TXT = "' constraint violated: ";
+    private static final String NO_ID_TXT = "no Id given!";
+
     private CommonConstraintHelper() {}
 
 
@@ -150,11 +153,11 @@ public class CommonConstraintHelper {
         if (aas.getId() != null) {
             txt.append("'");
             txt.append(aas.getId());
-            txt.append("' constraint violated: ");
+            txt.append(CONSTRAINT_VIOLATED_TXT);
             txt.append(message);
         }
         else {
-            txt.append("no Id given!");
+            txt.append(NO_ID_TXT);
         }
         return txt.toString();
     }
@@ -182,11 +185,11 @@ public class CommonConstraintHelper {
         if (submodel.getId() != null) {
             txt.append("'");
             txt.append(submodel.getId());
-            txt.append("' constraint violated: ");
+            txt.append(CONSTRAINT_VIOLATED_TXT);
             txt.append(message);
         }
         else {
-            txt.append("no Id given!");
+            txt.append(NO_ID_TXT);
         }
         return txt.toString();
     }
@@ -202,7 +205,6 @@ public class CommonConstraintHelper {
      * @return The created log text.
      */
     public static String getLogText(String method, String message, String aasId, List<SubmodelDescriptor> submodels) {
-        // todo: adapt for list of submodel descriptors
         StringBuilder txt = new StringBuilder();
         txt.append(method);
         txt.append(": Request for ");
@@ -215,11 +217,11 @@ public class CommonConstraintHelper {
         if (submodels.get(0).getId() != null) {
             txt.append("'");
             txt.append(submodels.get(0).getId());
-            txt.append("' constraint violated: ");
+            txt.append(CONSTRAINT_VIOLATED_TXT);
             txt.append(message);
         }
         else {
-            txt.append("no Id given!");
+            txt.append(NO_ID_TXT);
         }
         return txt.toString();
     }

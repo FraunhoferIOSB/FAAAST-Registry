@@ -46,16 +46,19 @@ public class TransactionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
     private final BulkOperationStatusStore statusStore;
 
-    @Autowired
-    private AasRepository aasRepository;
+    //@Autowired
+    private final AasRepository aasRepository;
 
     /**
      * Instantiates the Transaction Service.
      *
+     * @param aasRepository The AAS Repository.
      * @param statusStore Utility class for storing and retrieving the status of asynchronous bulk operations.
      */
-    public TransactionService(BulkOperationStatusStore statusStore) {
+    @Autowired
+    public TransactionService(AasRepository aasRepository, BulkOperationStatusStore statusStore) {
         this.statusStore = statusStore;
+        this.aasRepository = aasRepository;
     }
 
 
@@ -138,8 +141,7 @@ public class TransactionService {
                     DefaultOperationResult operationResult = new DefaultOperationResult();
                     operationResult.setExecutionState(status);
                     return operationResult;
-                case COMPLETED:
-                case FAILED:
+                case COMPLETED, FAILED:
                     URI location = URI.create("../result/" + handleId);
                     HttpHeaders headers = new HttpHeaders();
                     LOGGER.debug("getStatus: status {}; location: {}", status, location);

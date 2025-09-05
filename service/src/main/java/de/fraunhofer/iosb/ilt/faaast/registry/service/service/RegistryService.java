@@ -45,14 +45,15 @@ public class RegistryService {
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
+    private final AasRepository aasRepository;
     private final TransactionService transactionService;
 
-    public RegistryService(TransactionService transactionService) {
+    @Autowired
+    public RegistryService(AasRepository aasRepository, TransactionService transactionService) {
+        this.aasRepository = aasRepository;
         this.transactionService = transactionService;
     }
 
-    @Autowired
-    private AasRepository aasRepository;
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.

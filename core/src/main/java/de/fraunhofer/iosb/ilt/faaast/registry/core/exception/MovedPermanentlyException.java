@@ -24,20 +24,23 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @ResponseStatus(value = HttpStatus.FOUND)
 public class MovedPermanentlyException extends RuntimeException {
-    private HttpHeaders headers;
+    private final HttpHeaders headers;
 
     public MovedPermanentlyException() {
         super();
+        headers = new HttpHeaders();
     }
 
 
     public MovedPermanentlyException(final String message, Exception cause) {
         super(message, cause);
+        headers = new HttpHeaders();
     }
 
 
     public MovedPermanentlyException(final Throwable cause) {
         super(cause);
+        headers = new HttpHeaders();
     }
 
 

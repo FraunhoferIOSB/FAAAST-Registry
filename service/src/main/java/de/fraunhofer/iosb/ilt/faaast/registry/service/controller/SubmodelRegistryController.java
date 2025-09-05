@@ -53,8 +53,14 @@ public class SubmodelRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelRegistryController.class);
 
+    //@Autowired
+    private final RegistryService service;
+
     @Autowired
-    RegistryService service;
+    public SubmodelRegistryController(RegistryService service) {
+        this.service = service;
+    }
+
 
     /**
      * Retrieves a list of all registered Submodels.

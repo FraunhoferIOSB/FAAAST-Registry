@@ -41,8 +41,14 @@ import org.springframework.web.bind.annotation.*;
 public class BulkOperationController {
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationController.class);
 
+    //@Autowired
+    private final RegistryService service;
+
     @Autowired
-    RegistryService service;
+    public BulkOperationController(RegistryService service) {
+        this.service = service;
+    }
+
 
     /**
      * Bulk operation for creating multiple submodel descriptors.
@@ -92,9 +98,9 @@ public class BulkOperationController {
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
-    @DeleteMapping(value = "/submodel-descriptors")
+    @DeleteMapping(value = "/submodel-descriptors/")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkDeleteSubmodels(@PathVariable("submodelIdentifier") List<String> submodelIdentifiers)
+    public void bulkDeleteSubmodels(@RequestBody List<String> submodelIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
         service.bulkDeleteSubmodels(submodelIdentifiers);
     }
@@ -171,7 +177,7 @@ public class BulkOperationController {
      */
     @DeleteMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkDeleteShells(@PathVariable("aasIdentifier") List<String> shellIdentifiers)
+    public void bulkDeleteShells(@RequestBody List<String> shellIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
         service.bulkDeleteShells(shellIdentifiers);
     }
