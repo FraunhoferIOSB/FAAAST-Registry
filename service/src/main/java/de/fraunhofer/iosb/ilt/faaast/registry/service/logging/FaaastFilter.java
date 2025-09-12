@@ -23,8 +23,9 @@ import ch.qos.logback.core.spi.FilterReply;
  * Allows to set different log levels for FA³ST package and all other packages at run-time.
  */
 public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEvent> {
+
     private static final String PACKAGE_FAAAST = "de.fraunhofer.iosb.ilt.faaast";
-    private static Level levelFaaast = Level.WARN;
+    private static Level levelFaaast = Level.INFO;
     private static Level levelExternal = Level.WARN;
 
     /**
@@ -77,4 +78,5 @@ public class FaaastFilter extends ch.qos.logback.core.filter.Filter<ILoggingEven
         }
         return FilterReply.DENY;
     }
+
 }
