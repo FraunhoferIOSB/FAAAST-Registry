@@ -17,6 +17,7 @@
 	- Fix documentation formatting errors
 	- Add log message if a constraint violation occurs when creating AAS or Submodel
 	- Fix synchronization issues in In-Memory Persistence
+	- Minor corrections in Logging
  	- Improved paging mechanism
 
 ## 1.0.0
