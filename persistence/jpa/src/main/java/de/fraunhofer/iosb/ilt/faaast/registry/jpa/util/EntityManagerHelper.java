@@ -85,22 +85,9 @@ public class EntityManagerHelper {
      */
     public static <R, T extends R> Page<R> getAllPaged(EntityManager entityManager, Class<T> type, Class<R> returnType, int limit, int cursor) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        var queryCriteria = builder.createQuery(type);
+        CriteriaQuery<T> queryCriteria = builder.createQuery(type);
         queryCriteria.select(queryCriteria.from(type));
-        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit);
-        List<R> list = query.getResultList().stream()
-                .map(returnType::cast)
-                .toList();
-        String nextCursor = null;
-        if (list.size() >= limit) {
-            nextCursor = Integer.toString(cursor + list.size());
-        }
-        return Page.<R> builder()
-                .result(list)
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor)
-                        .build())
-                .build();
+        return doPaging(entityManager, returnType, limit, cursor, queryCriteria);
     }
 
 
@@ -130,16 +117,21 @@ public class EntityManagerHelper {
             queryCriteria.where(predicates.toArray(Predicate[]::new));
         }
         queryCriteria.orderBy(builder.asc(root.get("id")));
-        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit);
-        List<AssetAdministrationShellDescriptor> retval = query.getResultList().stream()
-                .map(AssetAdministrationShellDescriptor.class::cast)
+        return doPaging(entityManager, AssetAdministrationShellDescriptor.class, limit, cursor, queryCriteria);
+    }
+
+
+    private static <R, T extends R> Page<R> doPaging(EntityManager entityManager, Class<R> returnType, int limit, int cursor, CriteriaQuery<T> queryCriteria) {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<R> list = query.getResultList().stream()
+                .map(returnType::cast)
                 .toList();
         String nextCursor = null;
-        if (retval.size() >= limit) {
-            nextCursor = Integer.toString(cursor + retval.size());
+        if (list.size() > limit) {
+            nextCursor = Integer.toString(cursor + limit);
         }
-        return Page.<AssetAdministrationShellDescriptor> builder()
-                .result(retval)
+        return Page.<R> builder()
+                .result(list.stream().limit(limit).toList())
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor)
                         .build())
