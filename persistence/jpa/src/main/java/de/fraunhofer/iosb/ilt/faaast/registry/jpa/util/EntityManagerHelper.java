@@ -15,9 +15,13 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,21 +72,39 @@ public class EntityManagerHelper {
 
 
     /**
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
+     *
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @return all instances of given type cast to return type
+     */
+    public static <R, T extends R> Page<R> getAllPaged(EntityManager entityManager, Class<T> type, Class<R> returnType, int limit, int cursor) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> queryCriteria = builder.createQuery(type);
+        queryCriteria.select(queryCriteria.from(type));
+        return doPaging(entityManager, returnType, limit, cursor, queryCriteria);
+    }
+
+
+    /**
      * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
      *
      * @param entityManager The entityManager to use.
      * @param assetType The desired assetType.
      * @param assetKind The desired assetKind.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
      * @return All instances matching the given criteria.
      */
-    public static List<AssetAdministrationShellDescriptor> getAllAas(EntityManager entityManager, String assetType, AssetKind assetKind) {
-        if ((assetKind == null) && (assetType == null)) {
-            return getAll(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class);
-        }
-
+    public static Page<AssetAdministrationShellDescriptor> getPagedAas(EntityManager entityManager, String assetType, AssetKind assetKind, int limit, int cursor) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        var queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
-        var root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
+        CriteriaQuery<JpaAssetAdministrationShellDescriptor> queryCriteria = builder.createQuery(JpaAssetAdministrationShellDescriptor.class);
+        Root<JpaAssetAdministrationShellDescriptor> root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
         List<Predicate> predicates = new ArrayList<>();
         if (assetType != null) {
             predicates.add(builder.equal(root.get("assetType"), assetType));
@@ -90,10 +112,29 @@ public class EntityManagerHelper {
         if (assetKind != null) {
             predicates.add(builder.equal(root.get("assetKind"), assetKind));
         }
-        queryCriteria.select(root).where(predicates.toArray(Predicate[]::new));
-        var query = entityManager.createQuery(queryCriteria);
-        return query.getResultList().stream()
-                .map(AssetAdministrationShellDescriptor.class::cast)
+        queryCriteria.select(root);
+        if (!predicates.isEmpty()) {
+            queryCriteria.where(predicates.toArray(Predicate[]::new));
+        }
+        queryCriteria.orderBy(builder.asc(root.get("id")));
+        return doPaging(entityManager, AssetAdministrationShellDescriptor.class, limit, cursor, queryCriteria);
+    }
+
+
+    private static <R, T extends R> Page<R> doPaging(EntityManager entityManager, Class<R> returnType, int limit, int cursor, CriteriaQuery<T> queryCriteria) {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<R> list = query.getResultList().stream()
+                .map(returnType::cast)
                 .toList();
+        String nextCursor = null;
+        if (list.size() > limit) {
+            nextCursor = Integer.toString(cursor + limit);
+        }
+        return Page.<R> builder()
+                .result(list.stream().limit(limit).toList())
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
     }
 }

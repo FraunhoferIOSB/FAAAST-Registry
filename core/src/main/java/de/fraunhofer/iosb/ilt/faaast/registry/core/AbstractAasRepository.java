@@ -14,8 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.Objects;
@@ -33,8 +37,8 @@ public abstract class AbstractAasRepository implements AasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return getAASs(null, null);
+    public Page<AssetAdministrationShellDescriptor> getAASs(PagingInfo paging) {
+        return getAASs(null, null, paging);
     }
 
 
@@ -154,4 +158,64 @@ public abstract class AbstractAasRepository implements AasRepository {
                 .findAny();
     }
 
+
+    /**
+     * Helper method to read the limit as integer from the paging info.
+     *
+     * @param paging The desired paging info.
+     * @return The limit as integer value.
+     */
+    protected static int readLimit(PagingInfo paging) {
+        if (!paging.hasLimit()) {
+            return AasRepository.DEFAULT_LIMIT;
+        }
+        int limit = (int) paging.getLimit();
+        if ((limit <= 0) || (limit > AasRepository.DEFAULT_LIMIT)) {
+            limit = AasRepository.DEFAULT_LIMIT;
+        }
+        return limit;
+    }
+
+
+    /**
+     * Helper method to read the cursor as integer value from the paging info.
+     *
+     * @param paging The desired paging info.
+     * @return The cursor as integer value.
+     */
+    protected static int readCursor(PagingInfo paging) {
+        int cursor = 0;
+        try {
+            if (paging.getCursor() != null) {
+                cursor = Integer.parseInt(paging.getCursor());
+            }
+        }
+        catch (NumberFormatException ex) {
+            throw new BadRequestException("Cursor must be an Integer");
+        }
+        return cursor;
+    }
+
+
+    /**
+     * Constructs a page from the given list.
+     *
+     * @param <T> The class of the list.
+     * @param list The desired list.
+     * @param cursor The cursor.
+     * @param totalSize The total size.
+     * @return The desired page.
+     */
+    protected static <T> Page<T> getPage(List<T> list, int cursor, int totalSize) {
+        String nextCursor = null;
+        if (cursor + list.size() < totalSize) {
+            nextCursor = Integer.toString(cursor + list.size());
+        }
+        return Page.<T> builder()
+                .result(list)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
+    }
 }
