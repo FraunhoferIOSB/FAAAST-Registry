@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -184,8 +185,13 @@ public abstract class AbstractAasRepository implements AasRepository {
      */
     protected static int readCursor(PagingInfo paging) {
         int cursor = 0;
-        if (paging.getCursor() != null) {
-            cursor = Integer.parseInt(paging.getCursor());
+        try {
+            if (paging.getCursor() != null) {
+                cursor = Integer.parseInt(paging.getCursor());
+            }
+        }
+        catch (NumberFormatException ex) {
+            throw new BadRequestException("Cursor must be an Integer");
         }
         return cursor;
     }
