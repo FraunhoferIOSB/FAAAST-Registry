@@ -15,6 +15,7 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.config.ControllerConfig;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
@@ -56,7 +57,6 @@ import org.springframework.web.filter.GenericFilterBean;
 public class AclFilter extends GenericFilterBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclFilter.class);
-    private static final String API_PREFIX = "/api/v3.0/";
     private static final String INVALID_ACL_FOLDER_MSG = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
     private final String aclFolder;
@@ -149,7 +149,7 @@ public class AclFilter extends GenericFilterBean {
      */
     private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
         String requestPath = request.getRequestURI();
-        String path = requestPath.startsWith(API_PREFIX) ? requestPath.substring(9) : requestPath;
+        String path = requestPath.startsWith(ControllerConfig.getApiPrefix()) ? requestPath.substring(9) : requestPath;
         String method = request.getMethod();
         List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                 .filter(a -> a.getAllAccessPermissionRules()

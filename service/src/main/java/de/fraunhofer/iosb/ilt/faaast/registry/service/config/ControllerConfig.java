@@ -64,8 +64,24 @@ public class ControllerConfig implements WebMvcConfigurer {
     @Value("${cors.maxAge:1800}")
     private long corsMaxAge;
 
+    private static String apiPrefix;
+
+    /**
+     * Setter for apiPrefix.
+     * Must not be static, otherwise dependency injection won't work.
+     *
+     * @param value The desired value from the configuration.
+     */
     @Value("${server.servlet.context-path}")
-    private String apiPrefix;
+    public void setApiPrefix(String value) {
+        apiPrefix = value;
+    }
+
+
+    public static String getApiPrefix() {
+        return apiPrefix;
+    }
+
 
     /**
      * The conversion service.
