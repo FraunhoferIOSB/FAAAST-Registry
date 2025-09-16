@@ -16,8 +16,11 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.config.ControllerConfig;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefACL;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.FilterChain;
@@ -43,6 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -63,7 +68,7 @@ public class AclFilter extends GenericFilterBean {
     private final Map<Path, AllAccessPermissionRulesRoot> aclList;
 
     public AclFilter(String aclFolder) {
-        aclList = new HashMap<>();
+        aclList = new ConcurrentHashMap<>();
         this.aclFolder = aclFolder;
         readAccessRules();
         monitorAclRules();
@@ -88,9 +93,7 @@ public class AclFilter extends GenericFilterBean {
                 claims = jwt.getClaims();
             }
             boolean allowed;
-            synchronized(aclList) {
-                allowed = filterRules(aclList, claims, request);
-            }
+            allowed = filterRules(aclList, claims, request);
             LOG.info("doFilter called: Request: {}; authentication: {}; allowed: {}", request, authentication, allowed);
             if (!allowed)
             {
@@ -120,19 +123,17 @@ public class AclFilter extends GenericFilterBean {
         File[] jsonFiles = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
         ObjectMapper mapper = new ObjectMapper();
         if (jsonFiles != null) {
-            synchronized (aclList) {
-                for (File file: jsonFiles) {
-                    Path filePath = file.toPath().toAbsolutePath();
-                    String content = null;
-                    try {
-                        LOG.trace("readAccessRules: add rule {}", filePath);
-                        content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-                        aclList.put(filePath, mapper.readValue(
-                                content, AllAccessPermissionRulesRoot.class));
-                    }
-                    catch (IOException e) {
-                        LOG.error(INVALID_ACL_FOLDER_MSG, e);
-                    }
+            for (File file: jsonFiles) {
+                Path filePath = file.toPath().toAbsolutePath();
+                String content = null;
+                try {
+                    LOG.trace("readAccessRules: add rule {}", filePath);
+                    content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    aclList.put(filePath, mapper.readValue(
+                            content, AllAccessPermissionRulesRoot.class));
+                }
+                catch (IOException e) {
+                    LOG.error(INVALID_ACL_FOLDER_MSG, e);
                 }
             }
         }
@@ -147,38 +148,64 @@ public class AclFilter extends GenericFilterBean {
      * @param request
      * @return
      */
-    private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
+    private boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
         String requestPath = request.getRequestURI();
         String path = requestPath.startsWith(ControllerConfig.getApiPrefix()) ? requestPath.substring(9) : requestPath;
         String method = request.getMethod();
         List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
                 .filter(a -> a.getAllAccessPermissionRules()
                         .getRules().stream()
-                        .anyMatch(r -> r.getACL() != null
-                                && r.getACL().getATTRIBUTES() != null
-                                && r.getACL().getRIGHTS() != null
-                                && r.getOBJECTS() != null
-                                && r.getOBJECTS().stream().anyMatch(attr -> {
-                                    if (attr.getROUTE() != null) {
-                                        return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
-                                    }
-                                    else if (attr.getDESCRIPTOR() != null) {
-                                        return checkDescriptor(path, attr.getDESCRIPTOR());
-                                    }
-                                    else {
-                                        return false;
-                                    }
-                                })
-                                && "ALLOW".equals(r.getACL().getACCESS())
-                                && r.getACL().getRIGHTS().contains(getRequiredRight(method))
-                                && verifyAllClaims(claims, r)))
+                        .anyMatch(r -> evalueRule(r, path, method, claims, a.getAllAccessPermissionRules())))
                 .toList();
         return !relevantRules.isEmpty();
     }
 
 
-    private static boolean verifyAllClaims(Map<String, Object> claims, Rule rule) {
-        if (rule.getACL().getATTRIBUTES().stream()
+    private boolean evalueRule(Rule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
+        ACL acl = getAcl(rule, allAccess);
+        return acl != null
+                && acl.getATTRIBUTES() != null
+                && acl.getRIGHTS() != null
+                && rule.getOBJECTS() != null
+                && rule.getOBJECTS().stream().anyMatch(attr -> {
+                    if (attr.getROUTE() != null) {
+                        return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
+                    }
+                    else if (attr.getDESCRIPTOR() != null) {
+                        return checkDescriptor(path, attr.getDESCRIPTOR());
+                    }
+                    else {
+                        return false;
+                    }
+                })
+                && "ALLOW".equals(acl.getACCESS())
+                && acl.getRIGHTS().contains(getRequiredRight(method))
+                && verifyAllClaims(claims, rule, allAccess);
+    }
+
+
+    private ACL getAcl(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getACL() != null) {
+            return rule.getACL();
+        }
+        else if (rule.getUSEACL() != null) {
+            Optional<DefACL> acl = allAccess.getDEFACLS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (acl.isPresent()) {
+                return acl.get().getAcl();
+            }
+            else {
+                throw new IllegalArgumentException("DEFACL not found: " + rule.getUSEACL());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: ACL or USEACL must be specified");
+        }
+    }
+
+
+    private boolean verifyAllClaims(Map<String, Object> claims, Rule rule, AllAccessPermissionRules allAccess) {
+        ACL acl = getAcl(rule, allAccess);
+        if (acl.getATTRIBUTES().stream()
                 .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
                         && Boolean.TRUE.equals(rule.getFORMULA().get("$boolean")))) {
             return true;
@@ -186,7 +213,7 @@ public class AclFilter extends GenericFilterBean {
         if (claims == null) {
             return false;
         }
-        List<String> claimValues = rule.getACL().getATTRIBUTES().stream()
+        List<String> claimValues = getAcl(rule, allAccess).getATTRIBUTES().stream()
                 .filter(attr -> attr.getGLOBAL() == null)
                 .map(Attribute::getCLAIM)
                 .filter(Objects::nonNull)
@@ -316,10 +343,8 @@ public class AclFilter extends GenericFilterBean {
                         if (filePath.toString().toLowerCase().endsWith(".json")) {
                             if ((kind == StandardWatchEventKinds.ENTRY_CREATE) || (kind == StandardWatchEventKinds.ENTRY_MODIFY)) {
                                 try {
-                                    synchronized (aclList) {
-                                        aclList.put(absolutePath, mapper.readValue(
-                                                new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class));
-                                    }
+                                    aclList.put(absolutePath, mapper.readValue(
+                                            new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class));
                                 }
                                 catch (IOException e) {
                                     LOG.error(INVALID_ACL_FOLDER_MSG);
@@ -327,13 +352,11 @@ public class AclFilter extends GenericFilterBean {
                                 LOG.info("Added new ACL rule {}", filePath);
                             }
                             else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                                synchronized (aclList) {
-                                    if (aclList.remove(absolutePath) != null) {
-                                        LOG.info("Removed ACL rule {}", filePath);
-                                    }
-                                    else {
-                                        LOG.warn("ACL rule not found: {}", filePath);
-                                    }
+                                if (aclList.remove(absolutePath) != null) {
+                                    LOG.info("Removed ACL rule {}", filePath);
+                                }
+                                else {
+                                    LOG.warn("ACL rule not found: {}", filePath);
                                 }
                             }
                         }
