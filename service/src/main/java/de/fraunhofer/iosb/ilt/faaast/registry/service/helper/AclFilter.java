@@ -148,7 +148,7 @@ public class AclFilter extends GenericFilterBean {
      * @param request
      * @return
      */
-    private boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
+    private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
         String requestPath = request.getRequestURI();
         String path = requestPath.startsWith(ControllerConfig.getApiPrefix()) ? requestPath.substring(9) : requestPath;
         String method = request.getMethod();
@@ -161,7 +161,7 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private boolean evalueRule(Rule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
+    private static boolean evalueRule(Rule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
         ACL acl = getAcl(rule, allAccess);
         return acl != null
                 && acl.getATTRIBUTES() != null
@@ -184,7 +184,7 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private ACL getAcl(Rule rule, AllAccessPermissionRules allAccess) {
+    private static ACL getAcl(Rule rule, AllAccessPermissionRules allAccess) {
         if (rule.getACL() != null) {
             return rule.getACL();
         }
@@ -203,7 +203,7 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private boolean verifyAllClaims(Map<String, Object> claims, Rule rule, AllAccessPermissionRules allAccess) {
+    private static boolean verifyAllClaims(Map<String, Object> claims, Rule rule, AllAccessPermissionRules allAccess) {
         ACL acl = getAcl(rule, allAccess);
         if (acl.getATTRIBUTES().stream()
                 .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
