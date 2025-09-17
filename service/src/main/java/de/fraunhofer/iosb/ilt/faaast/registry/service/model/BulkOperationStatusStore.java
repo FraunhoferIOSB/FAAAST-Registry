@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.model;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
@@ -26,7 +28,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class BulkOperationStatusStore {
 
+    private static final int MAX_QUEUE_SIZE = 100;
     private final ConcurrentHashMap<String, ExecutionState> statusMap = new ConcurrentHashMap<>();
+    private final Queue<String> handles = new LinkedList<>();
 
     /**
      * Sets the status of a bulk operation.
@@ -35,7 +39,15 @@ public class BulkOperationStatusStore {
      * @param status the current status of the operation
      */
     public void setStatus(String handleId, ExecutionState status) {
-        statusMap.put(handleId, status);
+        synchronized (handles) {
+            if (!statusMap.containsKey(handleId)) {
+                handles.add(handleId);
+                if (handles.size() > MAX_QUEUE_SIZE) {
+                    statusMap.remove(handles.remove());
+                }
+            }
+            statusMap.put(handleId, status);
+        }
     }
 
 
