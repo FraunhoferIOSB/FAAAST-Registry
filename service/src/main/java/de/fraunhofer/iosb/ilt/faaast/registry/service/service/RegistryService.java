@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -105,7 +104,16 @@ public class RegistryService {
         if (aas.getSubmodelDescriptors() != null) {
             aas.getSubmodelDescriptors().stream().forEach(this::checkSubmodelIdentifiers);
         }
-        return aasRepository.create(aas);
+        aasRepository.startTransaction();
+        try {
+            AssetAdministrationShellDescriptor retval = aasRepository.create(aas);
+            aasRepository.commitTransaction();
+            return retval;
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction();
+            throw ex;
+        }
     }
 
 
@@ -366,11 +374,12 @@ public class RegistryService {
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      * @throws ResourceAlreadyExistsException When an AAS already exists.
+     * @throws InterruptedException The operation was interrupted.
      */
     @Async
-    @Transactional
+    //@Transactional
     public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException {
 
         ConstraintHelper.validate(shells);
         transactionService.createShells(shells, handleId);
@@ -389,10 +398,11 @@ public class RegistryService {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The execution was interrupted.
      */
     @Async
     public CompletableFuture<String> bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         ConstraintHelper.validate(shells);
         transactionService.updateShells(shells, handleId);
 

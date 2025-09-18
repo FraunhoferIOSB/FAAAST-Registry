@@ -184,6 +184,14 @@ public interface AasRepository {
 
 
     /**
+     * Returns a value indicating whether a transaction is active.
+     *
+     * @return True when a transaction is active, false otherwise.
+     */
+    public boolean getTransactionActive();
+
+
+    /**
      * Clears the repos and deletes all descriptors.
      * Only used for tests!
      */

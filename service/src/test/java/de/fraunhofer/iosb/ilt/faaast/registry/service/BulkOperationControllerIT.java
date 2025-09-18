@@ -86,7 +86,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncCommit() throws ResourceAlreadyExistsException {
+    public void testAsyncCommit() throws ResourceAlreadyExistsException, InterruptedException {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
@@ -103,7 +103,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncRollback() throws ResourceAlreadyExistsException {
+    public void testAsyncRollback() throws ResourceAlreadyExistsException, InterruptedException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
                 generateAas("005"),

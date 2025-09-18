@@ -147,11 +147,12 @@ public class BulkOperationController {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The execution was interrupted.
      */
     @PutMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkUpdateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = OperationHelper.generateOperationHandleId();
         service.bulkUpdateShells(shells, handleId);
 

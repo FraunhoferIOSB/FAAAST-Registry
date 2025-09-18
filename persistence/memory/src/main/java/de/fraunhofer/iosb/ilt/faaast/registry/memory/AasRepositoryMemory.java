@@ -42,12 +42,14 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private Map<String, SubmodelDescriptor> submodelDescriptors;
     private Map<String, String> shellDescriptorsBackup;
     private Map<String, String> submodelDescriptorsBackup;
+    private boolean transactionActive;
 
     public AasRepositoryMemory() {
         shellDescriptors = new ConcurrentHashMap<>();
         submodelDescriptors = new ConcurrentHashMap<>();
         shellDescriptorsBackup = new ConcurrentHashMap<>();
         submodelDescriptorsBackup = new ConcurrentHashMap<>();
+        transactionActive = false;
     }
 
 
@@ -195,6 +197,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         if ((!shellDescriptorsBackup.isEmpty()) || (!submodelDescriptorsBackup.isEmpty())) {
             throw new IllegalArgumentException("transaction already running");
         }
+        transactionActive = true;
         LOGGER.debug("startTransaction");
         //shellDescriptorsBackup.putAll(shellDescriptors);
         //submodelDescriptorsBackup.putAll(submodelDescriptors);
@@ -208,6 +211,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         LOGGER.debug("commitTransaction");
         shellDescriptorsBackup.clear();
         submodelDescriptorsBackup.clear();
+        transactionActive = false;
     }
 
 
@@ -222,6 +226,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         //submodelDescriptors.putAll(submodelDescriptorsBackup);
         submodelDescriptors = DeepCopyHelper.restoreBackupMap(submodelDescriptorsBackup, SubmodelDescriptor.class);
         submodelDescriptorsBackup.clear();
+        transactionActive = false;
     }
 
 
@@ -248,6 +253,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         else {
             return aas.getAssetKind() == assetKind;
         }
+    }
+
+
+    @Override
+    public boolean getTransactionActive() {
+        return transactionActive;
     }
 
 }

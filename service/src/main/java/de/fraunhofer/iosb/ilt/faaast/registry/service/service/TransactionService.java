@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 
+import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.INITIATED;
+
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerErrorException;
@@ -44,6 +46,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
+    private static final Object MONITOR = new Object();
     private final BulkOperationStatusStore statusStore;
 
     //@Autowired
@@ -68,24 +71,51 @@ public class TransactionService {
      *
      * @param shells list of shell descriptors that shall be created.
      * @param handleId id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
      */
-    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
-        try {
-            aasRepository.startTransaction();
-            LOGGER.info("createShells start");
-            statusStore.setStatus(handleId, ExecutionState.RUNNING);
-            for (AssetAdministrationShellDescriptor shell: shells) {
-                aasRepository.create(shell);
-                //statusStore.setStatus(handleId, ExecutionState.RUNNING);
+    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        while (aasRepository.getTransactionActive()) {
+            LOGGER.debug("createShells: wait for transaction to finish");
+            synchronized (MONITOR) {
+                MONITOR.wait();
             }
-            aasRepository.commitTransaction();
-            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-            LOGGER.info("createShells finished");
+            //Thread.sleep(100);
+        }
+
+        try {
+            // don't call rollbackTransaction when startTransaction fails
+            LOGGER.info("createShells start");
+            aasRepository.startTransaction();
+            try {
+                LOGGER.info("createShells execute");
+                statusStore.setStatus(handleId, ExecutionState.RUNNING);
+                for (AssetAdministrationShellDescriptor shell: shells) {
+                    aasRepository.create(shell);
+                    //statusStore.setStatus(handleId, ExecutionState.RUNNING);
+                }
+                Thread.sleep(5000);
+                aasRepository.commitTransaction();
+                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+                LOGGER.info("createShells finished");
+            }
+            catch (Exception ex) {
+                statusStore.setStatus(handleId, ExecutionState.FAILED);
+                aasRepository.rollbackTransaction();
+                LOGGER.info("createShells error");
+            }
         }
         catch (Exception ex) {
-            aasRepository.rollbackTransaction();
             statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("createShells error: {}", ex.getMessage(), ex);
+            LOGGER.info("createShells error starting transaction: {}", ex.getMessage(), ex);
+            //throw ex;
+        }
+        finally {
+            synchronized (MONITOR) {
+                LOGGER.debug("createShells: notify next thread");
+                MONITOR.notify();
+            }
         }
     }
 
@@ -96,24 +126,48 @@ public class TransactionService {
      *
      * @param shells list of shell descriptors that shall be created.
      * @param handleId id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
      */
-    public void updateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
-        try {
-            aasRepository.startTransaction();
-            LOGGER.debug("updateShells start");
-            statusStore.setStatus(handleId, ExecutionState.RUNNING);
-            for (AssetAdministrationShellDescriptor shell: shells) {
-                Ensure.requireNonNull(shell);
-                aasRepository.update(shell.getId(), shell);
+    public void updateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        while (aasRepository.getTransactionActive()) {
+            LOGGER.debug("updateShells: wait for transaction to finish");
+            synchronized (MONITOR) {
+                MONITOR.wait();
             }
-            aasRepository.commitTransaction();
-            statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-            LOGGER.debug("updateShells finished");
+        }
+
+        try {
+            // don't call rollbackTransaction when startTransaction fails
+            aasRepository.startTransaction();
+            try {
+                LOGGER.debug("updateShells start");
+                statusStore.setStatus(handleId, ExecutionState.RUNNING);
+                for (AssetAdministrationShellDescriptor shell: shells) {
+                    Ensure.requireNonNull(shell);
+                    aasRepository.update(shell.getId(), shell);
+                }
+                aasRepository.commitTransaction();
+                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+                LOGGER.debug("updateShells finished");
+            }
+            catch (Exception ex) {
+                aasRepository.rollbackTransaction();
+                statusStore.setStatus(handleId, ExecutionState.FAILED);
+                LOGGER.info("updateShells error", ex);
+            }
         }
         catch (Exception ex) {
-            aasRepository.rollbackTransaction();
             statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("updateShells error", ex);
+            LOGGER.info("updateShells error starting transaction: {}", ex.getMessage(), ex);
+            //throw ex;
+        }
+        finally {
+            synchronized (MONITOR) {
+                LOGGER.debug("updateShells: notify next thread");
+                MONITOR.notify();
+            }
         }
     }
 
@@ -136,7 +190,7 @@ public class TransactionService {
         }
         else
             switch (status) {
-                case RUNNING:
+                case RUNNING, INITIATED:
                     LOGGER.debug("getStatus: running: {}", handleId);
                     DefaultOperationResult operationResult = new DefaultOperationResult();
                     operationResult.setExecutionState(status);
