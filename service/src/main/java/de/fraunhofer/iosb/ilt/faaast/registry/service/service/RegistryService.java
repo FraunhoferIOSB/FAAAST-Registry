@@ -368,7 +368,7 @@ public class RegistryService {
      *
      * @param shells The desired asset administration shell descriptors.
      * @param handleId The asynchronous handle.
-     * @return handleId The transaction handle.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
@@ -393,7 +393,7 @@ public class RegistryService {
      *
      * @param shells The desired aas.
      * @param handleId The asynchronous handle.
-     * @return handleId The transaction handle.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
@@ -414,13 +414,19 @@ public class RegistryService {
      * Bulk operation for deleting multiple aas descriptors with the given IDs.
      *
      * @param shellIdentifiers The ID of the desired aas.
+     * @param handleId The asynchronous handle.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws java.lang.InterruptedException
      */
-    public void bulkDeleteShells(List<String> shellIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
-        // todo: Change this to loop over all shells. Use transactions
+    @Async
+    public CompletableFuture<String> bulkDeleteShells(List<String> shellIdentifiers, String handleId)
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
+        transactionService.deleteShells(shellIdentifiers, handleId);
+        return CompletableFuture.completedFuture(handleId);
     }
 
 

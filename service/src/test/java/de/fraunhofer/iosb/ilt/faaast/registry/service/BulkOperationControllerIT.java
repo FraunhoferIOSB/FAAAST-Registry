@@ -18,6 +18,7 @@ import static org.awaitility.Awaitility.await;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.util.ArrayList;
@@ -86,24 +87,50 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncCommit() throws ResourceAlreadyExistsException, InterruptedException {
+    public void testAsyncAasCommit() throws ResourceAlreadyExistsException, InterruptedException, ResourceNotFoundException {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
                 generateAas("003"));
 
-        registryService.bulkCreateShells(commitAASList, OperationHelper.generateOperationHandleId());
+        String handleId = OperationHelper.generateOperationHandleId();
+        registryService.bulkCreateShells(commitAASList, handleId);
 
         await()
                 .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
                     Assert.assertEquals(commitAASList, aasRepository.getAASs());
                 });
+
+        for (var aas: commitAASList) {
+            aas.setIdShort(aas.getIdShort() + "_new");
+        }
+
+        registryService.bulkUpdateShells(commitAASList, OperationHelper.generateOperationHandleId());
+
+        await()
+                .atMost(3, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
+                });
+
+        List<String> shellIds = new ArrayList<>();
+        for (var aas: commitAASList) {
+            shellIds.add(aas.getId());
+        }
+
+        registryService.bulkDeleteShells(shellIds, OperationHelper.generateOperationHandleId());
+
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs());
+                });
     }
 
 
     @Test
-    public void testAsyncRollback() throws ResourceAlreadyExistsException, InterruptedException {
+    public void testAsyncCreateRollback() throws ResourceAlreadyExistsException, InterruptedException {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
                 generateAas("005"),

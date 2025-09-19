@@ -173,6 +173,64 @@ public class TransactionService {
 
 
     /**
+     * This method deletes multiple AASs based on their identifiers.
+     *
+     * @param shellIdentifiers The AAS identifiers that shall be deleted.
+     * @param handleId id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
+     */
+    public void deleteShells(List<String> shellIdentifiers, String handleId) throws InterruptedException {
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        while (aasRepository.getTransactionActive()) {
+            LOGGER.debug("deleteShells: wait for transaction to finish");
+            synchronized (MONITOR) {
+                MONITOR.wait();
+            }
+        }
+
+        try {
+            // don't call rollbackTransaction when startTransaction fails
+            aasRepository.startTransaction();
+            try {
+                LOGGER.debug("deleteShells start");
+                statusStore.setStatus(handleId, ExecutionState.RUNNING);
+                for (String shell: shellIdentifiers) {
+                    Ensure.requireNonNull(shell);
+                    aasRepository.deleteAAS(shell);
+                }
+                aasRepository.commitTransaction();
+                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
+                LOGGER.debug("deleteShells finished");
+            }
+            catch (Exception ex) {
+                aasRepository.rollbackTransaction();
+                statusStore.setStatus(handleId, ExecutionState.FAILED);
+                LOGGER.info("deleteShells error", ex);
+            }
+        }
+        catch (Exception ex) {
+            statusStore.setStatus(handleId, ExecutionState.FAILED);
+            LOGGER.info("deleteShells error starting transaction: {}", ex.getMessage(), ex);
+        }
+        finally {
+            synchronized (MONITOR) {
+                LOGGER.debug("deleteShells: notify next thread");
+                MONITOR.notify();
+            }
+        }
+    }
+
+
+    /**
+     * This method implements the logic for GET on the /bulk/status/{handleId} endpoint.
+     * Returns the status of an asynchronously invoked bulk operation
+     *
+     * @param handleId id of the operation handle for future reference.
+     * @return Bulk operation result object containing information that the 'executionState' is still 'Running'
+     * @throws ResourceNotFoundException if there is no handle with that id.
+     */
+    /**
      * This method implements the logic for GET on the /bulk/status/{handleId} endpoint.
      * Returns the status of an asynchronously invoked bulk operation
      *

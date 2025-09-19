@@ -171,16 +171,28 @@ public class BulkOperationController {
      * Bulk operation for deleting multiple aas descriptors with the given IDs.
      *
      * @param shellIdentifiers The ID of the desired aas.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The execution was interrupted.
      */
     @DeleteMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkDeleteShells(@RequestBody List<String> shellIdentifiers)
-            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
-        service.bulkDeleteShells(shellIdentifiers);
+    public ResponseEntity<Void> bulkDeleteShells(@RequestBody List<String> shellIdentifiers)
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
+        service.bulkDeleteShells(shellIdentifiers, handleId);
+
+        LOGGER.debug("bulkDeleteShells: Handle: {}", handleId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("../status/" + handleId));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .headers(headers)
+                .build();
     }
 
 
