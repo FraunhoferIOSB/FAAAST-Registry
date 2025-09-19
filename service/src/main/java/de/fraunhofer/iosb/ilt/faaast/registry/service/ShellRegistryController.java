@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
@@ -77,6 +78,9 @@ public class ShellRegistryController {
                 throw new BadRequestException("Limit must be greater than 0");
             }
             pageBuilder.limit(limit);
+        }
+        else {
+            pageBuilder.limit(AasRepository.DEFAULT_LIMIT);
         }
         return service.getAASs(assetType, assetKind, pageBuilder.build());
     }

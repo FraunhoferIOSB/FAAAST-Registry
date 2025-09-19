@@ -32,7 +32,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  */
 public class ConstraintHelper {
 
-    //private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintHelper.class);
     public static final Pattern TEXT_PATTERN = Pattern
             .compile("^([\\t\\n\\r -퟿-�]|\\ud800[\\udc00-\\udfff]|[\\ud801-\\udbfe][\\udc00-\\udfff]|\\udbff[\\udc00-\\udfff])*$");
     public static final Pattern LANG_LANGUAGE_PATTERN = Pattern.compile(
