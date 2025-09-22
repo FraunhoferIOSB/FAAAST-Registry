@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -99,7 +100,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
+                    Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
                 });
 
         for (var aas: commitAASList) {
@@ -111,7 +112,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    Assert.assertEquals(commitAASList, aasRepository.getAASs());
+                    Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
                 });
 
         List<String> shellIds = new ArrayList<>();
@@ -124,7 +125,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs());
+                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
                 });
     }
 
@@ -141,7 +142,7 @@ public class BulkOperationControllerIT {
         await()
                 .atMost(3, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs());
+                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
                 });
     }
 

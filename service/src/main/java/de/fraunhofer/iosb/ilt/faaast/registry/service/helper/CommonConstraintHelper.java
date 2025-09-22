@@ -39,7 +39,7 @@ public class CommonConstraintHelper {
      * @param id The desired id.
      */
     public static void checkId(String id) {
-        if ((id == null) || (id.length() == 0)) {
+        if ((id == null) || (id.isEmpty())) {
             raiseConstraintViolatedException("no Id provided");
         }
         else if (id.length() > ConstraintHelper.MAX_IDENTIFIER_LENGTH) {

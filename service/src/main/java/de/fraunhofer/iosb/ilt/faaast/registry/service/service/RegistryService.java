@@ -19,13 +19,10 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
-import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,8 +71,7 @@ public class RegistryService {
         if (assetKind != null) {
             LOGGER.debug("getAASs: AssetKind {}", assetKind);
         }
-        List<AssetAdministrationShellDescriptor> list = aasRepository.getAASs(assetTypeDecoded, assetKind);
-        return preparePagedResult(list, paging);
+        return aasRepository.getAASs(assetTypeDecoded, assetKind, paging);
     }
 
 
@@ -169,15 +165,15 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
-        List<SubmodelDescriptor> list;
+        Page<SubmodelDescriptor> retval;
         if (aasId == null) {
-            list = aasRepository.getSubmodels();
+            retval = aasRepository.getSubmodels(paging);
         }
         else {
             String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
-            list = aasRepository.getSubmodels(aasIdDecoded);
+            retval = aasRepository.getSubmodels(aasIdDecoded, paging);
         }
-        return preparePagedResult(list, paging);
+        return retval;
     }
 
 
@@ -480,59 +476,4 @@ public class RegistryService {
         }
     }
 
-
-    private static <T> Page<T> preparePagedResult(List<T> input, PagingInfo paging) {
-        Stream<T> result = input.stream();
-        if (Objects.nonNull(paging.getCursor())) {
-            long skip = readCursor(paging.getCursor());
-            if (skip < 0 || skip >= input.size()) {
-                throw new BadRequestException(String.format("invalid cursor (cursor: %s)", paging.getCursor()));
-            }
-            result = result.skip(skip);
-        }
-        if (paging.hasLimit()) {
-            if (paging.getLimit() < 1) {
-                throw new BadRequestException(String.format("invalid limit - must be >= 1 (actual: %s)", paging.getLimit()));
-            }
-            result = result.limit(paging.getLimit() + 1);
-        }
-        List<T> temp = result.toList();
-        return Page.<T> builder()
-                .result(temp.stream()
-                        .limit(paging.hasLimit() ? paging.getLimit() : temp.size())
-                        .toList())
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor(paging, temp.size()))
-                        .build())
-                .build();
-    }
-
-
-    private static long readCursor(String cursor) {
-        return Long.parseLong(cursor);
-    }
-
-
-    private static String writeCursor(long index) {
-        return Long.toString(index);
-    }
-
-
-    private static String nextCursor(PagingInfo paging, int resultCount) {
-        return nextCursor(paging, paging.hasLimit() && resultCount > paging.getLimit());
-    }
-
-
-    private static String nextCursor(PagingInfo paging, boolean hasMoreData) {
-        if (!hasMoreData) {
-            return null;
-        }
-        if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
-        }
-        if (Objects.isNull(paging.getCursor())) {
-            return writeCursor(paging.getLimit());
-        }
-        return writeCursor(readCursor(paging.getCursor()) + paging.getLimit());
-    }
 }
