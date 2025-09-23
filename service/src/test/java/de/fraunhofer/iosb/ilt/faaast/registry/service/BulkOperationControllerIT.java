@@ -17,17 +17,15 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 import static org.awaitility.Awaitility.await;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -51,11 +49,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
@@ -69,14 +72,16 @@ import org.springframework.web.client.RestTemplate;
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class BulkOperationControllerIT {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationControllerIT.class);
+
     @LocalServerPort
     private int port;
 
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @Autowired
-    private RegistryService registryService;
+    //@Autowired
+    //private RegistryService registryService;
 
     @Autowired
     private AasRepository aasRepository;
@@ -88,62 +93,109 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncAasCommit() throws ResourceAlreadyExistsException, InterruptedException, ResourceNotFoundException {
+    public void testAsyncAasCommit() throws SerializationException {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
                 generateAas("003"));
 
-        String handleId = OperationHelper.generateOperationHandleId();
-        registryService.bulkCreateShells(commitAASList, handleId);
-
+        HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(commitAASList);
+        ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
+        Assert.assertNotNull(createResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
+        URI location = createResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullCreate = location.toString().replace("..", createURLWithPort(""));
         await()
-                .atMost(3, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullCreate,
+                            String.class);
+                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
+
+        Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
         for (var aas: commitAASList) {
             aas.setIdShort(aas.getIdShort() + "_new");
         }
 
-        registryService.bulkUpdateShells(commitAASList, OperationHelper.generateOperationHandleId());
+        HttpEntity<List<AssetAdministrationShellDescriptor>> updateEntity = new HttpEntity<>(commitAASList);
+        ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
+        Assert.assertNotNull(updateResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
+        location = updateResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullUpdate = location.toString().replace("..", createURLWithPort(""));
 
         await()
-                .atMost(3, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullUpdate,
+                            String.class);
+                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
+
+        Assert.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
         List<String> shellIds = new ArrayList<>();
         for (var aas: commitAASList) {
             shellIds.add(aas.getId());
         }
-
-        registryService.bulkDeleteShells(shellIds, OperationHelper.generateOperationHandleId());
-
+        HttpEntity<List<String>> deleteEntity = new HttpEntity<>(shellIds);
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
+        Assert.assertNotNull(deleteResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
+        location = deleteResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullDelete = location.toString().replace("..", createURLWithPort(""));
         await()
                 .atMost(10, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullDelete,
+                            String.class);
+                    LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
+        Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
     }
 
 
     @Test
-    public void testAsyncCreateRollback() throws ResourceAlreadyExistsException, InterruptedException {
+    public void testAsyncCreateRollback() {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
                 generateAas("005"),
                 generateAas("004"));
 
-        registryService.bulkCreateShells(rollbackAASList, OperationHelper.generateOperationHandleId());
+        HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(rollbackAASList);
+        ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
+        Assert.assertNotNull(createResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
+        URI location = createResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullCreate = location.toString().replace("..", createURLWithPort(""));
 
         await()
-                .atMost(3, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullCreate,
+                            String.class);
+                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(400);
                 });
+
+        Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
     }
 
 
