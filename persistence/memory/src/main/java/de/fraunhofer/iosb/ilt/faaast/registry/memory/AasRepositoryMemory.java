@@ -17,8 +17,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -53,9 +54,16 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return new ArrayList<>(
-                shellDescriptors.values().stream().filter(a -> filterAssetType(a, assetType)).filter(b -> filterAssetKind(b, assetKind)).toList());
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
+        int limit = readLimit(paging);
+        int cursor = readCursor(paging);
+        List<AssetAdministrationShellDescriptor> retval = shellDescriptors.values().stream()
+                .filter(a -> filterAssetType(a, assetType))
+                .filter(b -> filterAssetKind(b, assetKind))
+                .skip(cursor)
+                .limit(limit)
+                .toList();
+        return getPage(retval, cursor, shellDescriptors.size());
     }
 
 
@@ -101,17 +109,25 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return aas.getSubmodelDescriptors();
+
+        List<SubmodelDescriptor> list = aas.getSubmodelDescriptors();
+        return getPage(list, readCursor(paging), list.size());
     }
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels() {
-        return new ArrayList<>(submodelDescriptors.values());
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
+        int limit = readLimit(paging);
+        int cursor = readCursor(paging);
+        List<SubmodelDescriptor> submodels = submodelDescriptors.values().stream()
+                .skip(cursor)
+                .limit(limit)
+                .toList();
+        return getPage(submodels, cursor, submodelDescriptors.size());
     }
 
 
@@ -205,4 +221,5 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             return aas.getAssetKind() == assetKind;
         }
     }
+
 }
