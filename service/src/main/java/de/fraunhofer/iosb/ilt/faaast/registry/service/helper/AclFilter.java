@@ -21,6 +21,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermis
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefACL;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefAttributes;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefFormula;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefObjects;
+import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
 import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.FilterChain;
@@ -45,7 +49,6 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
@@ -126,7 +129,7 @@ public class AclFilter extends GenericFilterBean {
         if (jsonFiles != null) {
             for (File file: jsonFiles) {
                 Path filePath = file.toPath().toAbsolutePath();
-                String content = null;
+                String content;
                 try {
                     LOG.trace("readAccessRules: add rule {}", filePath);
                     content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
@@ -165,10 +168,10 @@ public class AclFilter extends GenericFilterBean {
     private static boolean evaluateRule(Rule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
         ACL acl = getAcl(rule, allAccess);
         return acl != null
-                && acl.getATTRIBUTES() != null
+                && getAttributes(acl, allAccess) != null
                 && acl.getRIGHTS() != null
-                && rule.getOBJECTS() != null
-                && rule.getOBJECTS().stream().anyMatch(attr -> {
+                && getObjects(rule, allAccess) != null
+                && getObjects(rule, allAccess).stream().anyMatch(attr -> {
                     if (attr.getROUTE() != null) {
                         return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
                     }
@@ -204,20 +207,78 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
+    private static List<Attribute> getAttributes(ACL acl, AllAccessPermissionRules allAccess) {
+        if (acl.getATTRIBUTES() != null) {
+            return acl.getATTRIBUTES();
+        }
+        else if (acl.getUSEATTRIBUTES() != null) {
+            Optional<DefAttributes> attribute = allAccess.getDEFATTRIBUTES().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName())))
+                    .findAny();
+            if (attribute.isPresent()) {
+                return attribute.get().getAttributes();
+            }
+            else {
+                throw new IllegalArgumentException("DEFATTRIBUTES not found: " + acl.getUSEATTRIBUTES());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: ATTRIBUTES or USEATTRIBUTES must be specified");
+        }
+    }
+
+
+    private static Map<String, Object> getFormula(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getFORMULA() != null) {
+            return rule.getFORMULA();
+        }
+        else if (rule.getUSEFORMULA() != null) {
+            Optional<DefFormula> formula = allAccess.getDEFFORMULAS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (formula.isPresent()) {
+                return formula.get().getFormula();
+            }
+            else {
+                throw new IllegalArgumentException("DEFFORMULA not found: " + rule.getUSEFORMULA());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: FORMULA or USEFORMULA must be specified");
+        }
+    }
+
+
+    private static List<Objects> getObjects(Rule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getOBJECTS() != null) {
+            return rule.getOBJECTS();
+        }
+        else if (rule.getUSEOBJECTS() != null) {
+            Optional<DefObjects> objects = allAccess.getDEFOBJECTS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+            if (objects.isPresent()) {
+                return objects.get().getObjects();
+            }
+            else {
+                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUSEFORMULA());
+            }
+        }
+        else {
+            throw new IllegalArgumentException("invalid rule: OBJECTS or USEOBJECTS must be specified");
+        }
+    }
+
+
     private static boolean verifyAllClaims(Map<String, Object> claims, Rule rule, AllAccessPermissionRules allAccess) {
         ACL acl = getAcl(rule, allAccess);
-        if (acl.getATTRIBUTES().stream()
+        if (getAttributes(acl, allAccess).stream()
                 .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
-                        && Boolean.TRUE.equals(rule.getFORMULA().get("$boolean")))) {
+                        && Boolean.TRUE.equals(getFormula(rule, allAccess).get("$boolean")))) {
             return true;
         }
         if (claims == null) {
             return false;
         }
-        List<String> claimValues = getAcl(rule, allAccess).getATTRIBUTES().stream()
+        List<String> claimValues = getAttributes(getAcl(rule, allAccess), allAccess).stream()
                 .filter(attr -> attr.getGLOBAL() == null)
                 .map(Attribute::getCLAIM)
-                .filter(Objects::nonNull)
+                .filter(java.util.Objects::nonNull)
                 .toList();
         LOG.trace("verifyAllClaims: Anz {}", claimValues.size());
         Map<String, String> claimList = new HashMap<>();
@@ -230,9 +291,7 @@ public class AclFilter extends GenericFilterBean {
         return !claimValues.isEmpty()
                 && claimValues.stream()
                         .allMatch(value -> {
-                            //Object claim = claims.get(value);
-                            //return claim != null
-                            return evaluateFormula(rule.getFORMULA(), claimList);
+                            return evaluateFormula(getFormula(rule, allAccess), claimList);
                         });
     }
 
@@ -244,7 +303,6 @@ public class AclFilter extends GenericFilterBean {
             ctx.put("CLAIM:" + c.getKey(), c.getValue());
             LOG.trace("evaluateFormula: claimName: {}; claimValue: {}", c.getKey(), c.getValue());
         }
-        //ctx.put("CLAIM:" + claimName, claimValue);
         ctx.put("UTCNOW", LocalTime.now(Clock.systemUTC())); // $GLOBAL → UTCNOW
         boolean retval = FormulaEvaluator.evaluate(formula, ctx);
         LOG.trace("evaluateFormula: CTX: {}: Ergebnis: {}", ctx.size(), retval);
@@ -325,7 +383,7 @@ public class AclFilter extends GenericFilterBean {
             return;
         }
         Path folderToWatch = Paths.get(aclFolder);
-        WatchService watchService = null;
+        WatchService watchService;
         try {
             watchService = FileSystems.getDefault().newWatchService();
             // Register the folder with the WatchService for CREATE and DELETE events
