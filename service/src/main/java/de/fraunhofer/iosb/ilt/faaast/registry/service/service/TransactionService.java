@@ -21,8 +21,9 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerErrorException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.TransactionThread;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkOperationStatusStore;
-import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import jakarta.annotation.PostConstruct;
 import java.net.URI;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -46,11 +47,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
-    private static final Object MONITOR = new Object();
+    //private static final Object MONITOR = new Object();
     private final BulkOperationStatusStore statusStore;
 
-    //@Autowired
-    private final AasRepository aasRepository;
+    //private final AasRepository aasRepository;
+    private final TransactionThread transactionThread;
 
     /**
      * Instantiates the Transaction Service.
@@ -61,7 +62,27 @@ public class TransactionService {
     @Autowired
     public TransactionService(AasRepository aasRepository, BulkOperationStatusStore statusStore) {
         this.statusStore = statusStore;
-        this.aasRepository = aasRepository;
+        //this.aasRepository = aasRepository;
+        transactionThread = new TransactionThread(aasRepository, this);
+    }
+
+
+    @PostConstruct
+    private void postConstruct() {
+        if (transactionThread != null) {
+            transactionThread.start();
+        }
+    }
+
+
+    /**
+     * Sets the desired status for the given handle.
+     *
+     * @param handleId id of the operation handle for future reference.
+     * @param state The desired state.
+     */
+    public void updateState(String handleId, ExecutionState state) {
+        statusStore.setStatus(handleId, state);
     }
 
 
@@ -76,47 +97,7 @@ public class TransactionService {
     public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
-        while (aasRepository.getTransactionActive()) {
-            LOGGER.debug("createShells: wait for transaction to finish");
-            synchronized (MONITOR) {
-                MONITOR.wait();
-            }
-            //Thread.sleep(100);
-        }
-
-        try {
-            // don't call rollbackTransaction when startTransaction fails
-            LOGGER.info("createShells start");
-            aasRepository.startTransaction();
-            try {
-                LOGGER.info("createShells execute");
-                statusStore.setStatus(handleId, ExecutionState.RUNNING);
-                for (AssetAdministrationShellDescriptor shell: shells) {
-                    aasRepository.create(shell);
-                    //statusStore.setStatus(handleId, ExecutionState.RUNNING);
-                }
-                Thread.sleep(5000);
-                aasRepository.commitTransaction();
-                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-                LOGGER.info("createShells finished");
-            }
-            catch (Exception ex) {
-                statusStore.setStatus(handleId, ExecutionState.FAILED);
-                aasRepository.rollbackTransaction();
-                LOGGER.info("createShells error");
-            }
-        }
-        catch (Exception ex) {
-            statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("createShells error starting transaction: {}", ex.getMessage(), ex);
-            //throw ex;
-        }
-        finally {
-            synchronized (MONITOR) {
-                LOGGER.debug("createShells: notify next thread");
-                MONITOR.notify();
-            }
-        }
+        transactionThread.createShells(shells, handleId);
     }
 
 
@@ -131,44 +112,7 @@ public class TransactionService {
     public void updateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
-        while (aasRepository.getTransactionActive()) {
-            LOGGER.debug("updateShells: wait for transaction to finish");
-            synchronized (MONITOR) {
-                MONITOR.wait();
-            }
-        }
-
-        try {
-            // don't call rollbackTransaction when startTransaction fails
-            aasRepository.startTransaction();
-            try {
-                LOGGER.debug("updateShells start");
-                statusStore.setStatus(handleId, ExecutionState.RUNNING);
-                for (AssetAdministrationShellDescriptor shell: shells) {
-                    Ensure.requireNonNull(shell);
-                    aasRepository.update(shell.getId(), shell);
-                }
-                aasRepository.commitTransaction();
-                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-                LOGGER.debug("updateShells finished");
-            }
-            catch (Exception ex) {
-                aasRepository.rollbackTransaction();
-                statusStore.setStatus(handleId, ExecutionState.FAILED);
-                LOGGER.info("updateShells error", ex);
-            }
-        }
-        catch (Exception ex) {
-            statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("updateShells error starting transaction: {}", ex.getMessage(), ex);
-            //throw ex;
-        }
-        finally {
-            synchronized (MONITOR) {
-                LOGGER.debug("updateShells: notify next thread");
-                MONITOR.notify();
-            }
-        }
+        transactionThread.updateShells(shells, handleId);
     }
 
 
@@ -182,43 +126,7 @@ public class TransactionService {
     public void deleteShells(List<String> shellIdentifiers, String handleId) throws InterruptedException {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
-        while (aasRepository.getTransactionActive()) {
-            LOGGER.debug("deleteShells: wait for transaction to finish");
-            synchronized (MONITOR) {
-                MONITOR.wait();
-            }
-        }
-
-        try {
-            // don't call rollbackTransaction when startTransaction fails
-            aasRepository.startTransaction();
-            try {
-                LOGGER.debug("deleteShells start");
-                statusStore.setStatus(handleId, ExecutionState.RUNNING);
-                for (String shell: shellIdentifiers) {
-                    Ensure.requireNonNull(shell);
-                    aasRepository.deleteAAS(shell);
-                }
-                aasRepository.commitTransaction();
-                statusStore.setStatus(handleId, ExecutionState.COMPLETED);
-                LOGGER.debug("deleteShells finished");
-            }
-            catch (Exception ex) {
-                aasRepository.rollbackTransaction();
-                statusStore.setStatus(handleId, ExecutionState.FAILED);
-                LOGGER.info("deleteShells error", ex);
-            }
-        }
-        catch (Exception ex) {
-            statusStore.setStatus(handleId, ExecutionState.FAILED);
-            LOGGER.info("deleteShells error starting transaction: {}", ex.getMessage(), ex);
-        }
-        finally {
-            synchronized (MONITOR) {
-                LOGGER.debug("deleteShells: notify next thread");
-                MONITOR.notify();
-            }
-        }
+        transactionThread.deleteShells(shellIdentifiers, handleId);
     }
 
 

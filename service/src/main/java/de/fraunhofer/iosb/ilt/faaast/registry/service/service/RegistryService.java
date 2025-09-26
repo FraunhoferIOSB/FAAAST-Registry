@@ -27,7 +27,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -372,7 +371,7 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When an AAS already exists.
      * @throws InterruptedException The operation was interrupted.
      */
-    @Async
+    //@Async
     //@Transactional
     public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException {
@@ -396,7 +395,7 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @throws InterruptedException The execution was interrupted.
      */
-    @Async
+    //@Async
     public CompletableFuture<String> bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         ConstraintHelper.validate(shells);
@@ -418,7 +417,7 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @throws java.lang.InterruptedException
      */
-    @Async
+    //@Async
     public CompletableFuture<String> bulkDeleteShells(List<String> shellIdentifiers, String handleId)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         transactionService.deleteShells(shellIdentifiers, handleId);
