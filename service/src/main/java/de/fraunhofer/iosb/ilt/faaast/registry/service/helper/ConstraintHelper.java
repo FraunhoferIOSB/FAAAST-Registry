@@ -101,6 +101,25 @@ public class ConstraintHelper {
     }
 
 
+    /**
+     * Validate a list of given Submodel Descriptors.
+     *
+     * @param submodels The desired Submodels Descriptors.
+     */
+    public static void validateSubmodels(List<SubmodelDescriptor> submodels) {
+        if (submodels != null) {
+            for (SubmodelDescriptor submodel: submodels) {
+                try {
+                    validate(submodel);
+                }
+                catch (ConstraintViolatedException e) {
+                    throw new BadRequestException();
+                }
+            }
+        }
+    }
+
+
     private static void checkSubmodels(List<SubmodelDescriptor> submodels) {
         if (submodels != null) {
             submodels.stream().forEach(ConstraintHelper::checkSubmodel);

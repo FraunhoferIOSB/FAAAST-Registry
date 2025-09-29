@@ -29,6 +29,7 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,6 +128,21 @@ public class TransactionService {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.deleteShells(shellIdentifiers, handleId);
+    }
+
+
+    /**
+     * This method implements the logic for POST on the /bulk/shell-descriptors endpoint.
+     * Creates multiple new Asset Administration Shell Descriptors, i.e. registers multiple Asset Administration Shells.
+     *
+     * @param submodels list of submodel descriptors that shall be created.
+     * @param handleId id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
+     */
+    public void createSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        transactionThread.createSubmodels(submodels, handleId);
     }
 
 

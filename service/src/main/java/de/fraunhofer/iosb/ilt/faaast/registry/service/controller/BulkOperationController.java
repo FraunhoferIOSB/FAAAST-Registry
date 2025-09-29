@@ -54,21 +54,28 @@ public class BulkOperationController {
      * Bulk operation for creating multiple submodel descriptors.
      *
      * @param submodels The desired submodel.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException an error occurs.
      */
     @PostMapping(value = "/submodel-descriptors")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkCreateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        try {
-            service.bulkCreateSubmodels(submodels);
-        }
-        catch (ConstraintViolatedException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+    //@ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> bulkCreateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
+        service.bulkCreateSubmodels(submodels, handleId);
+
+        LOGGER.debug("bulkCreateSubmodels: Handle: {}", handleId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("../status/" + handleId));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .headers(headers)
+                .build();
     }
 
 
@@ -120,7 +127,7 @@ public class BulkOperationController {
      * @throws ExecutionException an error occurs.
      */
     @PostMapping(value = "/shell-descriptors")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException,
             ExecutionException {

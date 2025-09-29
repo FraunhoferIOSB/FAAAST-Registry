@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkCreateShellData;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkCreateSubmodelData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkDeleteShellData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkUpdateShellData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.TransactionService;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ public class TransactionThread extends Thread {
                 // TODO: queue handling
                 Object obj = queue.take();
                 while (aasRepository.getTransactionActive()) {
-                    LOGGER.debug("createShells: wait for transaction to finish");
+                    LOGGER.debug("run: wait for transaction to finish");
                     Thread.sleep(50);
                 }
                 
@@ -68,6 +70,9 @@ public class TransactionThread extends Thread {
                 }
                 else if (obj instanceof BulkDeleteShellData deleteData) {
                     doDeleteShells(deleteData.getShellIdentifiers(), deleteData.getHandleId());
+                }
+                else if (obj instanceof BulkCreateSubmodelData createSubmodelData) {
+                    doCreateSubmodels(createSubmodelData.getSubmodels(), createSubmodelData.getHandleId());
                 }
                 
                 //Wait for one sec so it doesn't print too fast
@@ -122,17 +127,18 @@ public class TransactionThread extends Thread {
     }
 
 
+    /**
+     * Adds a task to create a list of shell descriptors.
+     *
+     * @param submodels The desired submodel descriptors.
+     * @param handleId The handle.
+     */
+    public void createSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
+        queue.add(new BulkCreateSubmodelData(submodels, handleId));
+    }
+
+
     private void doCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
-        //statusStore.setStatus(handleId, ExecutionState.INITIATED);
-
-        //while (aasRepository.getTransactionActive()) {
-        //    LOGGER.debug("createShells: wait for transaction to finish");
-        //    synchronized (MONITOR) {
-        //        MONITOR.wait();
-        //    }
-        //    //Thread.sleep(100);
-        //}
-
         try {
             // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("createShells start");
@@ -253,5 +259,34 @@ public class TransactionThread extends Thread {
         //        MONITOR.notify();
         //    }
         //}
+    }
+
+
+    private void doCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+        try {
+            // don't call rollbackTransaction when startTransaction fails
+            LOGGER.info("doCreateSubmodels start");
+            aasRepository.startTransaction();
+            try {
+                LOGGER.info("doCreateSubmodels execute");
+                transactionService.updateState(handleId, ExecutionState.RUNNING);
+                for (SubmodelDescriptor submodel: submodels) {
+                    aasRepository.addSubmodel(submodel);
+                }
+                Thread.sleep(5000);
+                aasRepository.commitTransaction();
+                transactionService.updateState(handleId, ExecutionState.COMPLETED);
+                LOGGER.info("doCreateSubmodels finished");
+            }
+            catch (Exception ex) {
+                transactionService.updateState(handleId, ExecutionState.FAILED);
+                aasRepository.rollbackTransaction();
+                LOGGER.info("doCreateSubmodels error");
+            }
+        }
+        catch (Exception ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            LOGGER.info("doCreateSubmodels error starting transaction: {}", ex.getMessage(), ex);
+        }
     }
 }

@@ -320,13 +320,19 @@ public class RegistryService {
      * Bulk operation for creating multiple submodel descriptors.
      *
      * @param submodels The desired submodel.
+     * @param handleId The asynchronous handle.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The operation was interrupted.
      */
-    public void bulkCreateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        // todo: Change this to loop over all submodels. Use transactions
+    public CompletableFuture<String> bulkCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
+        ConstraintHelper.validateSubmodels(submodels);
+        transactionService.createSubmodels(submodels, handleId);
+        return CompletableFuture.completedFuture(handleId);
     }
 
 
