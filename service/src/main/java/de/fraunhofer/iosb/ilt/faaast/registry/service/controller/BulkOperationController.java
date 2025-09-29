@@ -16,7 +16,6 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import java.net.URI;
 import java.util.List;
@@ -65,8 +64,7 @@ public class BulkOperationController {
     //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
-        String handleId = OperationHelper.generateOperationHandleId();
-        service.bulkCreateSubmodels(submodels, handleId);
+        String handleId = service.bulkCreateSubmodels(submodels);
 
         LOGGER.debug("bulkCreateSubmodels: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
@@ -83,16 +81,24 @@ public class BulkOperationController {
      * Bulk operation for updating multiple submodel descriptors.
      *
      * @param submodels The desired Submodels.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
     @PutMapping(value = "/submodel-descriptors")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
+    //@ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        service.bulkUpdateSubmodels(submodels);
+        String handleId = service.bulkUpdateSubmodels(submodels);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("../status/" + handleId));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .headers(headers)
+                .build();
     }
 
 
@@ -131,8 +137,7 @@ public class BulkOperationController {
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException,
             ExecutionException {
-        String handleId = OperationHelper.generateOperationHandleId();
-        service.bulkCreateShells(shells, handleId);
+        String handleId = service.bulkCreateShells(shells);
 
         LOGGER.debug("bulkCreateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
@@ -157,11 +162,10 @@ public class BulkOperationController {
      * @throws InterruptedException The execution was interrupted.
      */
     @PutMapping(value = "/shell-descriptors")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkUpdateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
-        String handleId = OperationHelper.generateOperationHandleId();
-        service.bulkUpdateShells(shells, handleId);
+        String handleId = service.bulkUpdateShells(shells);
 
         LOGGER.debug("bulkUpdateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
@@ -186,11 +190,10 @@ public class BulkOperationController {
      * @throws InterruptedException The execution was interrupted.
      */
     @DeleteMapping(value = "/shell-descriptors")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkDeleteShells(@RequestBody List<String> shellIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
-        String handleId = OperationHelper.generateOperationHandleId();
-        service.bulkDeleteShells(shellIdentifiers, handleId);
+        String handleId = service.bulkDeleteShells(shellIdentifiers);
 
         LOGGER.debug("bulkDeleteShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();

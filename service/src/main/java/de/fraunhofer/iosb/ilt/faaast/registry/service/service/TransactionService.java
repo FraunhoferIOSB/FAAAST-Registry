@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerErrorException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.OperationHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.TransactionThread;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkOperationStatusStore;
 import jakarta.annotation.PostConstruct;
@@ -92,13 +93,15 @@ public class TransactionService {
      * Creates multiple new Asset Administration Shell Descriptors, i.e. registers multiple Asset Administration Shells.
      *
      * @param shells list of shell descriptors that shall be created.
-     * @param handleId id of the operation handle for future reference.
+     * @return Id of the operation handle for future reference.
      * @throws InterruptedException The execution was interrupted.
      */
-    public void createShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
+    public String createShells(List<AssetAdministrationShellDescriptor> shells) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.createShells(shells, handleId);
+        return handleId;
     }
 
 
@@ -107,13 +110,15 @@ public class TransactionService {
      * Updates multiple Asset Administration Shell Descriptors.
      *
      * @param shells list of shell descriptors that shall be created.
-     * @param handleId id of the operation handle for future reference.
+     * @return Id of the operation handle for future reference.
      * @throws InterruptedException The execution was interrupted.
      */
-    public void updateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
+    public String updateShells(List<AssetAdministrationShellDescriptor> shells) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.updateShells(shells, handleId);
+        return handleId;
     }
 
 
@@ -121,13 +126,15 @@ public class TransactionService {
      * This method deletes multiple AASs based on their identifiers.
      *
      * @param shellIdentifiers The AAS identifiers that shall be deleted.
-     * @param handleId id of the operation handle for future reference.
+     * @return Id of the operation handle for future reference.
      * @throws InterruptedException The execution was interrupted.
      */
-    public void deleteShells(List<String> shellIdentifiers, String handleId) throws InterruptedException {
+    public String deleteShells(List<String> shellIdentifiers) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.deleteShells(shellIdentifiers, handleId);
+        return handleId;
     }
 
 
@@ -136,13 +143,15 @@ public class TransactionService {
      * Creates multiple new Asset Administration Shell Descriptors, i.e. registers multiple Asset Administration Shells.
      *
      * @param submodels list of submodel descriptors that shall be created.
-     * @param handleId id of the operation handle for future reference.
+     * @return Id of the operation handle for future reference.
      * @throws InterruptedException The execution was interrupted.
      */
-    public void createSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+    public String createSubmodels(List<SubmodelDescriptor> submodels) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.createSubmodels(submodels, handleId);
+        return handleId;
     }
 
 

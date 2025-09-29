@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -320,7 +319,6 @@ public class RegistryService {
      * Bulk operation for creating multiple submodel descriptors.
      *
      * @param submodels The desired submodel.
-     * @param handleId The asynchronous handle.
      * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
@@ -328,11 +326,10 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @throws InterruptedException The operation was interrupted.
      */
-    public CompletableFuture<String> bulkCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId)
+    public String bulkCreateSubmodels(List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         ConstraintHelper.validateSubmodels(submodels);
-        transactionService.createSubmodels(submodels, handleId);
-        return CompletableFuture.completedFuture(handleId);
+        return transactionService.createSubmodels(submodels);
     }
 
 
@@ -340,13 +337,15 @@ public class RegistryService {
      * Updates the given Submodels.
      *
      * @param submodels The desired Submodels.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
      */
-    public void bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+    public String bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
         // todo: Change this to loop over all submodels. Use transactions
+        return "";
     }
 
 
@@ -368,7 +367,6 @@ public class RegistryService {
      * Bulk operation for creating multiple aas descriptors.
      *
      * @param shells The desired asset administration shell descriptors.
-     * @param handleId The asynchronous handle.
      * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
@@ -379,13 +377,11 @@ public class RegistryService {
      */
     //@Async
     //@Transactional
-    public CompletableFuture<String> bulkCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
+    public String bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException {
 
         ConstraintHelper.validate(shells);
-        transactionService.createShells(shells, handleId);
-
-        return CompletableFuture.completedFuture(handleId);
+        return transactionService.createShells(shells);
     }
 
 
@@ -393,7 +389,6 @@ public class RegistryService {
      * Bulk operation for updating multiple aas descriptors.
      *
      * @param shells The desired aas.
-     * @param handleId The asynchronous handle.
      * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
@@ -402,12 +397,10 @@ public class RegistryService {
      * @throws InterruptedException The execution was interrupted.
      */
     //@Async
-    public CompletableFuture<String> bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells, String handleId)
+    public String bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         ConstraintHelper.validate(shells);
-        transactionService.updateShells(shells, handleId);
-
-        return CompletableFuture.completedFuture(handleId);
+        return transactionService.updateShells(shells);
     }
 
 
@@ -415,7 +408,6 @@ public class RegistryService {
      * Bulk operation for deleting multiple aas descriptors with the given IDs.
      *
      * @param shellIdentifiers The ID of the desired aas.
-     * @param handleId The asynchronous handle.
      * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
@@ -424,10 +416,9 @@ public class RegistryService {
      * @throws java.lang.InterruptedException
      */
     //@Async
-    public CompletableFuture<String> bulkDeleteShells(List<String> shellIdentifiers, String handleId)
+    public String bulkDeleteShells(List<String> shellIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
-        transactionService.deleteShells(shellIdentifiers, handleId);
-        return CompletableFuture.completedFuture(handleId);
+        return transactionService.deleteShells(shellIdentifiers);
     }
 
 
