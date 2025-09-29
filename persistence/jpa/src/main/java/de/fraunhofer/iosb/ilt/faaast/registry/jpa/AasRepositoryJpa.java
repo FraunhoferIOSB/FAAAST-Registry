@@ -27,26 +27,45 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 
 
 /**
  * Relational database implementation of the Repository.
  */
 @Repository
-@Transactional
 public class AasRepositoryJpa extends AbstractAasRepository {
 
-    @PersistenceContext(name = "AASRepositoryJPA")
-    private final EntityManager entityManager;
+    private static final Logger LOGGER = LoggerFactory.getLogger(AasRepositoryJpa.class);
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Autowired
+    private PlatformTransactionManager txManager;
+
+    private TransactionStatus transactionStatus;
+
+    public AasRepositoryJpa() {}
+
+
+    /**
+     * Constructor with EntityManager as parameter.
+     * Used only for unit test.
+     *
+     * @param entityManager The desired EntityManager.
+     */
     public AasRepositoryJpa(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
@@ -69,34 +88,65 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
-        ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
-        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
-        JpaAssetAdministrationShellDescriptor result = ModelTransformationHelper.convertAAS(descriptor);
-        entityManager.persist(result);
-        return result;
+        AssetAdministrationShellDescriptor retval;
+        if (transactionStatus != null) {
+            retval = doCreate(descriptor);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                retval = doCreate(descriptor);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
+        return retval;
     }
 
 
     @Override
     public void deleteAAS(String aasId) throws ResourceNotFoundException {
-        ensureAasId(aasId);
-        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
-        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        entityManager.remove(aas);
+        if (transactionStatus != null) {
+            doDeleteAAS(aasId);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                doDeleteAAS(aasId);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
     }
 
 
     @Override
     public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
-        ensureAasId(aasId);
-        ensureDescriptorId(descriptor);
-        JpaAssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
-        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
-                .id(aas.getId())
-                .from(descriptor)
-                .build());
+        AssetAdministrationShellDescriptor retval;
+        if (transactionStatus != null) {
+            retval = doUpdate(aasId, descriptor);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                retval = doUpdate(aasId, descriptor);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
+        return retval;
     }
 
 
@@ -144,6 +194,177 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        SubmodelDescriptor retval = null;
+        if (transactionStatus != null) {
+            retval = doAddSubmodel(aasId, descriptor);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                retval = doAddSubmodel(aasId, descriptor);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
+        return retval;
+    }
+
+
+    @Override
+    public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
+        SubmodelDescriptor retval = null;
+        if (transactionStatus != null) {
+            retval = doAddSubmodel(descriptor);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                retval = doAddSubmodel(descriptor);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
+        return retval;
+    }
+
+
+    @Override
+    public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
+        if (transactionStatus != null) {
+            doDeleteSubmodel(aasId, submodelId);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                doDeleteSubmodel(aasId, submodelId);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+        }
+    }
+
+
+    @Override
+    public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
+        if (transactionStatus != null) {
+            doDeleteSubmodel(submodelId);
+        }
+        else {
+            // use internal transaction
+            startTransaction();
+            try {
+                doDeleteSubmodel(submodelId);
+                commitTransaction();
+            }
+            catch (Exception ex) {
+                rollbackTransaction();
+                throw ex;
+            }
+
+        }
+    }
+
+
+    @Override
+    public void startTransaction() {
+        LOGGER.debug("startTransaction");
+        //DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
+        if (txManager != null) {
+            transactionStatus = txManager.getTransaction(null);
+        }
+    }
+
+
+    @Override
+    public void commitTransaction() {
+        LOGGER.debug("commitTransaction");
+        if (txManager != null) {
+            txManager.commit(transactionStatus);
+            transactionStatus = null;
+        }
+    }
+
+
+    @Override
+    public void rollbackTransaction() {
+        LOGGER.debug("rollbackTransaction");
+        if (txManager != null) {
+            txManager.rollback(transactionStatus);
+            transactionStatus = null;
+        }
+    }
+
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("clear not implemented");
+    }
+
+
+    private JpaAssetAdministrationShellDescriptor fetchAAS(String aasId) {
+        try {
+            return entityManager.find(JpaAssetAdministrationShellDescriptor.class, aasId);
+        }
+        catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+
+    private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
+        return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
+    }
+
+
+    @Override
+    public boolean getTransactionActive() {
+        return transactionStatus != null;
+    }
+
+
+    private void doDeleteAAS(String aasId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        entityManager.remove(aas);
+    }
+
+
+    private AssetAdministrationShellDescriptor doCreate(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
+        ensureDescriptorId(descriptor);
+        AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
+        Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
+        JpaAssetAdministrationShellDescriptor result = ModelTransformationHelper.convertAAS(descriptor);
+        entityManager.persist(result);
+        return result;
+    }
+
+
+    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureDescriptorId(descriptor);
+        JpaAssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        return entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
+                .id(aas.getId())
+                .from(descriptor)
+                .build());
+    }
+
+
+    private SubmodelDescriptor doAddSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
@@ -158,8 +379,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    @Override
-    public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
+    private SubmodelDescriptor doAddSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
         SubmodelDescriptor submodel = fetchSubmodelStandalone(descriptor.getId());
         Ensure.require(Objects.isNull(submodel), buildSubmodelAlreadyExistsException(descriptor.getId()));
@@ -169,8 +389,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    @Override
-    public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
+    private void doDeleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
@@ -187,26 +406,10 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    @Override
-    public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
+    private void doDeleteSubmodel(String submodelId) throws ResourceNotFoundException {
         ensureSubmodelId(submodelId);
         SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         entityManager.remove(submodel);
-    }
-
-
-    private JpaAssetAdministrationShellDescriptor fetchAAS(String aasId) {
-        try {
-            return entityManager.find(JpaAssetAdministrationShellDescriptor.class, aasId);
-        }
-        catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-
-    private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
-        return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
     }
 }
