@@ -14,8 +14,12 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.Collection;
@@ -37,8 +41,8 @@ public abstract class AbstractAasRepository implements AasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs() {
-        return getAASs(null, null);
+    public Page<AssetAdministrationShellDescriptor> getAASs(PagingInfo paging) {
+        return getAASs(null, null, paging);
     }
 
 
@@ -164,23 +168,29 @@ public abstract class AbstractAasRepository implements AasRepository {
      *
      * @param descriptors The list of shell descriptors to search.
      * @param specificAssetIds The specificAssetId of the desired shells.
-     * @return List of AAS Descriptors, not null.
+     * @param pagingInfo The pagingInfo
+     * @return Page of AAS Descriptors, not null.
      */
-    protected List<AssetAdministrationShellDescriptor> filterAssetAdministrationShellDescriptors(
-                                                                                                 Collection<AssetAdministrationShellDescriptor> descriptors,
-                                                                                                 List<SpecificAssetId> specificAssetIds) {
+    protected Page<String> filterAssetAdministrationShellDescriptors(
+                                                                     Collection<AssetAdministrationShellDescriptor> descriptors,
+                                                                     List<SpecificAssetId> specificAssetIds,
+                                                                     PagingInfo pagingInfo) {
+
+        int limit = readLimit(pagingInfo);
+        int cursor = readCursor(pagingInfo);
+
         List<String> globalAssetIds = specificAssetIds.stream()
                 .filter(specificAssetId -> specificAssetId.getName().equalsIgnoreCase(FaaastConstants.KEY_GLOBAL_ASSET_ID))
                 .map(SpecificAssetId::getValue)
                 .toList();
 
         if (globalAssetIds.size() > 1) {
-            return List.of();
+            return Page.of();
         }
         else if (globalAssetIds.isEmpty()) {
-            return descriptors.stream()
+            return getPage(descriptors.stream()
                     .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds()).containsAll(specificAssetIds))
-                    .toList();
+                    .map(AssetAdministrationShellDescriptor::getId).toList(), cursor, limit);
         }
 
         String globalAssetId = globalAssetIds.get(0);
@@ -189,10 +199,73 @@ public abstract class AbstractAasRepository implements AasRepository {
                 .filter(specificAssetId -> !specificAssetId.getName().equalsIgnoreCase(FaaastConstants.KEY_GLOBAL_ASSET_ID))
                 .toList();
 
-        return descriptors.stream()
+        List<String> filteredDescriptors = descriptors.stream()
                 .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds()).containsAll(realSpecificAssetIds))
                 .filter(descriptor -> globalAssetId.equals(descriptor.getGlobalAssetId()))
-                .toList();
+                .map(AssetAdministrationShellDescriptor::getId).toList();
+
+        return getPage(filteredDescriptors, cursor, limit);
+    }
+
+
+    /**
+     * Helper method to read the limit as integer from the paging info.
+     *
+     * @param paging The desired paging info.
+     * @return The limit as integer value.
+     */
+    protected static int readLimit(PagingInfo paging) {
+        if (!paging.hasLimit()) {
+            return AasRepository.DEFAULT_LIMIT;
+        }
+        int limit = (int) paging.getLimit();
+        if ((limit <= 0) || (limit > AasRepository.DEFAULT_LIMIT)) {
+            limit = AasRepository.DEFAULT_LIMIT;
+        }
+        return limit;
+    }
+
+
+    /**
+     * Helper method to read the cursor as integer value from the paging info.
+     *
+     * @param paging The desired paging info.
+     * @return The cursor as integer value.
+     */
+    protected static int readCursor(PagingInfo paging) {
+        int cursor = 0;
+        try {
+            if (paging.getCursor() != null) {
+                cursor = Integer.parseInt(paging.getCursor());
+            }
+        }
+        catch (NumberFormatException ex) {
+            throw new BadRequestException("Cursor must be an Integer");
+        }
+        return cursor;
+    }
+
+
+    /**
+     * Constructs a page from the given list.
+     *
+     * @param <T> The class of the list.
+     * @param list The desired list.
+     * @param cursor The cursor.
+     * @param totalSize The total size.
+     * @return The desired page.
+     */
+    protected static <T> Page<T> getPage(List<T> list, int cursor, int totalSize) {
+        String nextCursor = null;
+        if (cursor + list.size() < totalSize) {
+            nextCursor = Integer.toString(cursor + list.size());
+        }
+        return Page.<T> builder()
+                .result(list)
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
     }
 
 }

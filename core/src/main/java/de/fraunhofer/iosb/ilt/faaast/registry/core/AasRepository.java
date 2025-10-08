@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -27,13 +29,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
  * AAS Registry main repository.
  */
 public interface AasRepository {
+    static final int DEFAULT_LIMIT = 500;
 
     /**
      * Retrieves a list of all registered Asset Administration Shells.
      *
+     * @param paging The desired Paging info.
      * @return The list of all registered Asset Administration Shells.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs();
+    public Page<AssetAdministrationShellDescriptor> getAASs(PagingInfo paging);
 
 
     /**
@@ -41,9 +45,10 @@ public interface AasRepository {
      *
      * @param assetType The desired Asset Type.
      * @param assetKind The desired Asset Kind.
-     * @return The list of all registered Asset Administration Shells.
+     * @param paging The desired Paging info.
+     * @return The list of the registered Asset Administration Shells for the desired page.
      */
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind);
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging);
 
 
     /**
@@ -57,14 +62,15 @@ public interface AasRepository {
 
 
     /**
-     * Retrieves the Asset Administration Shells with the given SpecificAssetIDs. *All* of the SpecificAssetIds must match.
+     * Retrieves the Asset Administration Shells Identifiers with the given SpecificAssetIDs. *All* of the SpecificAssetIds
+     * must match.
      *
      * @param specificAssetIds The SpecificAssetIDs of the desired Asset Administration Shells. If a specificAssetId is a
      *            globalAssetId according to AASd-116, it is treated as the globalAssetId of the desired Asset
      *            Administration Shells.
-     * @return The desired Asset Administration Shells.
+     * @return The desired Asset Administration Shells identifiers.
      */
-    public List<AssetAdministrationShellDescriptor> getAAS(List<SpecificAssetId> specificAssetIds);
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo);
 
 
     /**
@@ -101,18 +107,20 @@ public interface AasRepository {
      * Retrieves a list of all Submodels of the given Asset Administration Shell.
      *
      * @param aasId The ID of the desired Asset Administration Shell.
-     * @return The list of Submodels.
+     * @param paging The desired Paging info.
+     * @return The list of Submodels for the desired page.
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException;
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException;
 
 
     /**
      * Retrieves a list of all registered Submodels.
      *
-     * @return The list of Submodels.
+     * @param paging The desired Paging info.
+     * @return The list of Submodels for the desired page.
      */
-    public List<SubmodelDescriptor> getSubmodels();
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging);
 
 
     /**

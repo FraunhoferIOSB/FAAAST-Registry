@@ -22,6 +22,8 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
+import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -52,8 +54,8 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind) {
-        return EntityManagerHelper.getAllAas(entityManager, assetType, assetKind);
+    public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
+        return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, readLimit(paging), readCursor(paging));
     }
 
 
@@ -67,14 +69,14 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public List<AssetAdministrationShellDescriptor> getAAS(List<SpecificAssetId> specificAssetIds) {
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
         Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
 
         List<AssetAdministrationShellDescriptor> shellDescriptors = EntityManagerHelper.getAll(entityManager,
                 JpaAssetAdministrationShellDescriptor.class,
                 AssetAdministrationShellDescriptor.class);
 
-        return filterAssetAdministrationShellDescriptors(shellDescriptors, specificAssetIds);
+        return filterAssetAdministrationShellDescriptors(shellDescriptors, specificAssetIds, pagingInfo);
     }
 
 
@@ -112,17 +114,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels(String aasId) throws ResourceNotFoundException {
+    public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        return aas.getSubmodelDescriptors();
+        List<SubmodelDescriptor> list = aas.getSubmodelDescriptors();
+        return getPage(list, readCursor(paging), list.size());
     }
 
 
     @Override
-    public List<SubmodelDescriptor> getSubmodels() {
-        return EntityManagerHelper.getAll(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class);
+    public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
+        return EntityManagerHelper.getAllPaged(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class, readLimit(paging), readCursor(paging));
     }
 
 

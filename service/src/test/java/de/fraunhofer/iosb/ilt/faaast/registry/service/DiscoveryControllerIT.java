@@ -154,7 +154,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
 

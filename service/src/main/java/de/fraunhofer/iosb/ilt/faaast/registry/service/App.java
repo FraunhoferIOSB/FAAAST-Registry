@@ -47,9 +47,9 @@ public class App implements Runnable {
 
     @Option(names = {
             "-q",
-            "--quite"
+            "--quiet"
     }, description = "Reduces log output (ERROR for FA³ST packages, ERROR for all other packages). Default information about the starting process will still be printed.")
-    public boolean quite = false;
+    public boolean quiet = false;
 
     @Option(names = {
             "-v",
@@ -85,37 +85,37 @@ public class App implements Runnable {
 
 
     private static void printBanner(Environment environment, Class<?> sourceClass, PrintStream out) {
-        out.println("            _____                                                       ");
-        out.println("           |___ /                                                       ");
-        out.println(" ______      |_ \\   _____ _______     _____            _     _              ");
-        out.println("|  ____/\\   ___) | / ____|__   __|   |  __ \\          (_)   | |             ");
-        out.println("| |__ /  \\ |____/ | (___    | |      | |__) |___  __ _ _ ___| |_ _ __ _   _ ");
-        out.println("|  __/ /\\ \\        \\___ \\   | |      |  _  // _ \\/ _` | / __| __| '__| | | |");
-        out.println("| | / ____ \\       ____) |  | |      | | \\ \\  __/ (_| | \\__ \\ |_| |  | |_| |");
-        out.println("|_|/_/    \\_\\     |_____/   |_|      |_|  \\_\\___|\\__, |_|___/\\__|_|   \\__, |");
-        out.println("                                                  __/ |                __/ |");
-        out.println("                                                 |___/                |___/ ");
-        out.println("----------------------------------------------------------------------------");
-        out.println();
-        out.println("FA³ST Registry is now running...");
+        LOGGER.info("            _____                                                       ");
+        LOGGER.info("           |___ /                                                       ");
+        LOGGER.info(" ______      |_ \\   _____ _______     _____            _     _              ");
+        LOGGER.info("|  ____/\\   ___) | / ____|__   __|   |  __ \\          (_)   | |             ");
+        LOGGER.info("| |__ /  \\ |____/ | (___    | |      | |__) |___  __ _ _ ___| |_ _ __ _   _ ");
+        LOGGER.info("|  __/ /\\ \\        \\___ \\   | |      |  _  // _ \\/ _` | / __| __| '__| | | |");
+        LOGGER.info("| | / ____ \\       ____) |  | |      | | \\ \\  __/ (_| | \\__ \\ |_| |  | |_| |");
+        LOGGER.info("|_|/_/    \\_\\     |_____/   |_|      |_|  \\_\\___|\\__, |_|___/\\__|_|   \\__, |");
+        LOGGER.info("                                                  __/ |                __/ |");
+        LOGGER.info("                                                 |___/                |___/ ");
+        LOGGER.info("----------------------------------------------------------------------------");
+        LOGGER.info("");
+        LOGGER.info("FA³ST Registry is now running...");
     }
 
 
     private void configureLogging() {
         if (veryVeryVerbose) {
             FaaastFilter.setLevelFaaast(Level.TRACE);
-            FaaastFilter.setLevelExternal(Level.DEBUG);
+            FaaastFilter.setLevelExternal(Level.TRACE);
         }
         else if (veryVerbose) {
+            FaaastFilter.setLevelFaaast(Level.TRACE);
+            FaaastFilter.setLevelExternal(Level.DEBUG);
+        }
+        else if (verbose) {
             FaaastFilter.setLevelFaaast(Level.DEBUG);
             FaaastFilter.setLevelExternal(Level.INFO);
         }
-        else if (verbose) {
-            FaaastFilter.setLevelFaaast(Level.INFO);
-            FaaastFilter.setLevelExternal(Level.WARN);
-        }
-        else if (quite) {
-            FaaastFilter.setLevelFaaast(Level.ERROR);
+        else if (quiet) {
+            FaaastFilter.setLevelFaaast(Level.WARN);
             FaaastFilter.setLevelExternal(Level.ERROR);
         }
 
