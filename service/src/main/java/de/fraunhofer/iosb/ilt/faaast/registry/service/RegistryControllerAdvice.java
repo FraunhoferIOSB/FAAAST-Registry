@@ -71,13 +71,17 @@ public class RegistryControllerAdvice {
                 HttpStatus.CONFLICT);
     }
 
+
     /**
      * Handles BadRequestException and MethodArgumentConversionNotSupportedException.
      *
      * @param e The desired exception.
      * @return The corresponding response.
      */
-    @ExceptionHandler({ BadRequestException.class, MethodArgumentConversionNotSupportedException.class })
+    @ExceptionHandler({
+            BadRequestException.class,
+            MethodArgumentConversionNotSupportedException.class
+    })
     public ResponseEntity<Result> handleBadRequestException(Exception e) {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()

@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ public class RegistryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
+    public static final String SPECIFIC_ASSET_IDS_NOT_NULL_TXT = "specificAssetIds must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
@@ -83,6 +85,25 @@ public class RegistryService {
      */
     public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
         return aasRepository.getAAS(EncodingHelper.base64UrlDecode(id));
+    }
+
+
+    /**
+     * Retrieves the Asset Administration Shell IDs with the given SpecificAssetIds.
+     *
+     * @param specificAssetIds The SpecificAssetIds of the desired Asset Administration Shells in serialized and
+     *            base64-encoded format.
+     * @param paging The paging information.
+     * @return The desired Asset Administration Shell IDs.
+     */
+    public Page<String> getAASIdsBySpecificAssetId(List<SpecificAssetId> specificAssetIds, PagingInfo paging) {
+        Ensure.requireNonNull(specificAssetIds, SPECIFIC_ASSET_IDS_NOT_NULL_TXT);
+
+        List<String> aasIds = aasRepository.getAAS(specificAssetIds).stream()
+                .map(AssetAdministrationShellDescriptor::getId)
+                .toList();
+
+        return preparePagedResult(aasIds, paging);
     }
 
 
@@ -221,7 +242,8 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS was not found.
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
-    public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
         ConstraintHelper.validate(submodel);
         if (aasId == null) {
             LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
@@ -276,7 +298,8 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the Submodel was not found.
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
-    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
         checkSubmodelIdentifiers(submodel);
@@ -296,7 +319,8 @@ public class RegistryService {
      * @throws ResourceNotFoundException When the AAS was not found.
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
@@ -329,7 +353,8 @@ public class RegistryService {
             long skip;
             try {
                 skip = readCursor(paging.getCursor());
-            } catch (NumberFormatException e) {
+            }
+            catch (NumberFormatException e) {
                 throw new BadRequestException(String.format("invalid cursor (cursor: %s)", paging.getCursor()), e);
             }
             if (skip < 0 || skip >= input.size()) {
@@ -375,7 +400,8 @@ public class RegistryService {
             return null;
         }
         if (!paging.hasLimit()) {
-            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous request did not have a limit set");
+            throw new IllegalStateException("unable to generate next cursor for paging - there should not be more data available if previous " +
+                    "request did not have a limit set");
         }
         if (Objects.isNull(paging.getCursor())) {
             return writeCursor(paging.getLimit());

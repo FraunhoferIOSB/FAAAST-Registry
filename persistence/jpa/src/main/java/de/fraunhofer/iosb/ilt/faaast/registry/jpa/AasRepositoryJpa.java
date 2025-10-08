@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.springframework.stereotype.Repository;
 
@@ -62,6 +63,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         return aas;
+    }
+
+
+    @Override
+    public List<AssetAdministrationShellDescriptor> getAAS(List<SpecificAssetId> specificAssetIds) {
+        Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
+
+        List<AssetAdministrationShellDescriptor> shellDescriptors = EntityManagerHelper.getAll(entityManager,
+                JpaAssetAdministrationShellDescriptor.class,
+                AssetAdministrationShellDescriptor.class);
+
+        return filterAssetAdministrationShellDescriptors(shellDescriptors, specificAssetIds);
     }
 
 
@@ -140,7 +153,8 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);

@@ -17,10 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
@@ -152,6 +156,43 @@ public abstract class AbstractAasRepository implements AasRepository {
                 .filter(x -> Objects.nonNull(x.getId())
                         && Objects.equals(x.getId(), submodelId))
                 .findAny();
+    }
+
+
+    /**
+     * Helper method to filter a shell descriptor list with the desired specificAssetIds and globalAssetId.
+     *
+     * @param descriptors The list of shell descriptors to search.
+     * @param specificAssetIds The specificAssetId of the desired shells.
+     * @return List of AAS Descriptors, not null.
+     */
+    protected List<AssetAdministrationShellDescriptor> filterAssetAdministrationShellDescriptors(
+                                                                                                 Collection<AssetAdministrationShellDescriptor> descriptors,
+                                                                                                 List<SpecificAssetId> specificAssetIds) {
+        List<String> globalAssetIds = specificAssetIds.stream()
+                .filter(specificAssetId -> specificAssetId.getName().equalsIgnoreCase(FaaastConstants.KEY_GLOBAL_ASSET_ID))
+                .map(SpecificAssetId::getValue)
+                .toList();
+
+        if (globalAssetIds.size() > 1) {
+            return List.of();
+        }
+        else if (globalAssetIds.isEmpty()) {
+            return descriptors.stream()
+                    .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds()).containsAll(specificAssetIds))
+                    .toList();
+        }
+
+        String globalAssetId = globalAssetIds.get(0);
+
+        List<SpecificAssetId> realSpecificAssetIds = specificAssetIds.stream()
+                .filter(specificAssetId -> !specificAssetId.getName().equalsIgnoreCase(FaaastConstants.KEY_GLOBAL_ASSET_ID))
+                .toList();
+
+        return descriptors.stream()
+                .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds()).containsAll(realSpecificAssetIds))
+                .filter(descriptor -> globalAssetId.equals(descriptor.getGlobalAssetId()))
+                .toList();
     }
 
 }
