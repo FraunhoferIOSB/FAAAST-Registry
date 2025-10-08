@@ -326,7 +326,12 @@ public class RegistryService {
     private static <T> Page<T> preparePagedResult(List<T> input, PagingInfo paging) {
         Stream<T> result = input.stream();
         if (Objects.nonNull(paging.getCursor())) {
-            long skip = readCursor(paging.getCursor());
+            long skip;
+            try {
+                skip = readCursor(paging.getCursor());
+            } catch (NumberFormatException e) {
+                throw new BadRequestException(String.format("invalid cursor (cursor: %s)", paging.getCursor()), e);
+            }
             if (skip < 0 || skip >= input.size()) {
                 throw new BadRequestException(String.format("invalid cursor (cursor: %s)", paging.getCursor()));
             }
