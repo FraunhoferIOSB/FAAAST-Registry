@@ -14,13 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
-import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants.DISCOVERY_PATH;
-
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import java.util.List;
-import java.util.UUID;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -40,6 +36,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.List;
+import java.util.UUID;
+
+import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants.DISCOVERY_PATH;
 
 
 @RunWith(SpringRunner.class)
@@ -176,6 +177,137 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withOneKnownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = List.of(descriptor.getSpecificAssetIds().stream().findAny().orElseThrow());
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(1, response.getBody().getContent().size());
+        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withOneKnownOneUnknownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = List.of(
+                descriptor.getSpecificAssetIds().stream().findAny().orElseThrow(),
+                new DefaultSpecificAssetId.Builder().name("Unmatchable Specific Asset Id").value(UUID.randomUUID().toString()).build());
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(0, response.getBody().getContent().size());
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withMatchingGlobalAssetIdAndOneUnknownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = List.of(
+                new DefaultSpecificAssetId.Builder().name(FaaastConstants.KEY_GLOBAL_ASSET_ID).value(descriptor.getGlobalAssetId()).build(),
+                new DefaultSpecificAssetId.Builder().name("Unmatchable Specific Asset Id").value(UUID.randomUUID().toString()).build());
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(0, response.getBody().getContent().size());
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withMatchingGlobalAssetIdAndOneKnownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = List.of(
+                descriptor.getSpecificAssetIds().stream().findAny().orElseThrow(),
+                new DefaultSpecificAssetId.Builder().name(FaaastConstants.KEY_GLOBAL_ASSET_ID).value(descriptor.getGlobalAssetId()).build());
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(1, response.getBody().getContent().size());
+        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withMatchingGlobalAssetIdAndTwoKnownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = descriptor.getSpecificAssetIds();
+        toFilterFor.add(new DefaultSpecificAssetId.Builder().name(FaaastConstants.KEY_GLOBAL_ASSET_ID).value(descriptor.getGlobalAssetId()).build());
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(1, response.getBody().getContent().size());
+        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    public void getAllAssetAdministrationShellIdsBySpecificAssetIds_withTwoKnownSpecificAssetId() throws SerializationException {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<SpecificAssetId> toFilterFor = descriptor.getSpecificAssetIds();
+
+        String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
+
+        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
+        Assert.assertNotNull(response);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assert.assertNotNull(response.getBody());
+        Assert.assertNotNull(response.getBody().getContent());
+        Assert.assertEquals(1, response.getBody().getContent().size());
+        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -362,18 +494,21 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private ResponseEntity<Page<String>> getAllAssetAdministrationShellIdsBySpecificAssetIds(String urlWithPort) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<Page<String>>() {});
+        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<Page<String>>() {
+        });
     }
 
 
     private ResponseEntity<List<SpecificAssetId>> getAllAssetLinksById(String urlWithPort) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<List<SpecificAssetId>>() {});
+        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<List<SpecificAssetId>>() {
+        });
     }
 
 
     private ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(String urlWithPort, List<SpecificAssetId> specificAssetIds) {
         return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(specificAssetIds),
-                new ParameterizedTypeReference<List<SpecificAssetId>>() {});
+                new ParameterizedTypeReference<List<SpecificAssetId>>() {
+                });
     }
 
 
