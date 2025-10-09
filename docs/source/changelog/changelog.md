@@ -1,6 +1,13 @@
 # Release Notes
 <!--start:changelog-header-->
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
+
+**New Features & Major Changes**
+- HTTP
+    - Added Discovery API (v3.0.1)
+
+**Internal changes & bugfixes**
+
 ## 1.1.0
 
 **New Features & Major Changes**
