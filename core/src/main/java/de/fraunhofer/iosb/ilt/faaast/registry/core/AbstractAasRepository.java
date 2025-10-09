@@ -22,10 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
-import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -33,6 +29,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
 /**
@@ -40,8 +39,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractAasRepository implements AasRepository {
 
-    protected AbstractAasRepository() {
-    }
+    protected AbstractAasRepository() {}
 
 
     @Override
@@ -97,7 +95,7 @@ public abstract class AbstractAasRepository implements AasRepository {
     /**
      * Creates a new {@link ResourceNotFoundException} for when an AAS does not contain a requested submodel.
      *
-     * @param aasId      the ID of the AAS
+     * @param aasId the ID of the AAS
      * @param submodelId the ID of the submodel
      * @return the exception to throw
      */
@@ -155,7 +153,7 @@ public abstract class AbstractAasRepository implements AasRepository {
     /**
      * Helper method to look for a submodel with the desired submodelId in a given list of submdels.
      *
-     * @param submodels  The list of submodels to search.
+     * @param submodels The list of submodels to search.
      * @param submodelId The ID of the desired submodel.
      * @return The desired submodel if it was found, an empty Optional if not.
      */
@@ -170,15 +168,15 @@ public abstract class AbstractAasRepository implements AasRepository {
     /**
      * Helper method to filter a shell descriptor list with the desired specificAssetIds and globalAssetId.
      *
-     * @param descriptors      The list of shell descriptors to filter.
+     * @param descriptors The list of shell descriptors to filter.
      * @param specificAssetIds The specificAssetIds of the desired shells.
-     * @param pagingInfo       The pagingInfo
+     * @param pagingInfo The pagingInfo
      * @return Page of AAS Descriptors, not null.
      */
     protected Page<String> filterAssetAdministrationShellDescriptors(
-            Collection<AssetAdministrationShellDescriptor> descriptors,
-            Collection<SpecificAssetId> specificAssetIds,
-            PagingInfo pagingInfo) {
+                                                                     Collection<AssetAdministrationShellDescriptor> descriptors,
+                                                                     Collection<SpecificAssetId> specificAssetIds,
+                                                                     PagingInfo pagingInfo) {
 
         int limit = readLimit(pagingInfo);
         int cursor = readCursor(pagingInfo);
@@ -192,7 +190,8 @@ public abstract class AbstractAasRepository implements AasRepository {
         if (globalAssetIds.size() > 1) {
             // An AAS descriptor can only have one globalAssetId.
             return Page.of();
-        } else if (!globalAssetIds.isEmpty()) {
+        }
+        else if (!globalAssetIds.isEmpty()) {
             String globalAssetId = globalAssetIds.get(0).getValue();
             filtered = filtered.filter(descriptor -> Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
         }
@@ -242,7 +241,8 @@ public abstract class AbstractAasRepository implements AasRepository {
             if (paging.getCursor() != null) {
                 cursor = Integer.parseInt(paging.getCursor());
             }
-        } catch (NumberFormatException ex) {
+        }
+        catch (NumberFormatException ex) {
             throw new BadRequestException("Cursor must be an Integer");
         }
         return cursor;
@@ -252,9 +252,9 @@ public abstract class AbstractAasRepository implements AasRepository {
     /**
      * Constructs a page from the given list.
      *
-     * @param <T>       The class of the list.
-     * @param list      The desired list.
-     * @param cursor    The cursor.
+     * @param <T> The class of the list.
+     * @param list The desired list.
+     * @param cursor The cursor.
      * @param totalSize The total size.
      * @return The desired page.
      */
@@ -263,7 +263,7 @@ public abstract class AbstractAasRepository implements AasRepository {
         if (cursor + list.size() < totalSize) {
             nextCursor = Integer.toString(cursor + list.size());
         }
-        return Page.<T>builder()
+        return Page.<T> builder()
                 .result(list)
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor)

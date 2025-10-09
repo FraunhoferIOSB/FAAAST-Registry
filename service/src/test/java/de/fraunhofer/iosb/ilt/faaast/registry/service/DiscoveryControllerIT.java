@@ -14,9 +14,13 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
+import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants.DISCOVERY_PATH;
+
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import java.util.List;
+import java.util.UUID;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -36,11 +40,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.List;
-import java.util.UUID;
-
-import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants.DISCOVERY_PATH;
 
 
 @RunWith(SpringRunner.class)
@@ -494,21 +493,18 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private ResponseEntity<Page<String>> getAllAssetAdministrationShellIdsBySpecificAssetIds(String urlWithPort) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<Page<String>>() {
-        });
+        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<Page<String>>() {});
     }
 
 
     private ResponseEntity<List<SpecificAssetId>> getAllAssetLinksById(String urlWithPort) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<List<SpecificAssetId>>() {
-        });
+        return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<List<SpecificAssetId>>() {});
     }
 
 
     private ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(String urlWithPort, List<SpecificAssetId> specificAssetIds) {
         return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(specificAssetIds),
-                new ParameterizedTypeReference<List<SpecificAssetId>>() {
-                });
+                new ParameterizedTypeReference<List<SpecificAssetId>>() {});
     }
 
 
