@@ -12,17 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.model;
+
+import java.util.List;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+
 
 /**
- * Class with Constant definitions.
+ * Data for CreateSubmodels bulk operations.
  */
-public final class Constants {
+public class BulkCreateSubmodelData extends BulkBaseData {
 
-    public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
-    public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
-    public static final String DESCRIPTION_REQUEST_PATH = "/description";
-    public static final String BULK_REQUEST_PATH = "/bulk";
+    private final List<SubmodelDescriptor> submodels;
 
-    private Constants() {}
+    public BulkCreateSubmodelData(List<SubmodelDescriptor> submodels, String handleId) {
+        super(handleId);
+        this.submodels = submodels;
+    }
+
+
+    public List<SubmodelDescriptor> getSubmodels() {
+        return submodels;
+    }
 }
