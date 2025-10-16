@@ -83,7 +83,7 @@
         <picocli.version>4.7.7</picocli.version>
         <postgres.version>42.7.8</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <protobuf.version>4.32.1</protobuf.version>
+        <protobuf.version>4.33.0</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
         <slf4j.version>2.0.17</slf4j.version>
         <snakeyaml.version>2.5</snakeyaml.version>
