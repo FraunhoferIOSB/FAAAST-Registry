@@ -21,10 +21,16 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
@@ -160,6 +166,52 @@ public abstract class AbstractAasRepository implements AasRepository {
 
 
     /**
+     * Helper method to filter a shell descriptor list with the desired specificAssetIds and globalAssetId.
+     *
+     * @param descriptors The list of shell descriptors to filter.
+     * @param specificAssetIds The specificAssetIds of the desired shells.
+     * @param pagingInfo The pagingInfo
+     * @return Page of AAS Descriptors, not null.
+     */
+    protected Page<String> filterAssetAdministrationShellDescriptors(
+                                                                     Collection<AssetAdministrationShellDescriptor> descriptors,
+                                                                     Collection<SpecificAssetId> specificAssetIds,
+                                                                     PagingInfo pagingInfo) {
+
+        int limit = readLimit(pagingInfo);
+        int cursor = readCursor(pagingInfo);
+
+        Stream<AssetAdministrationShellDescriptor> filtered = descriptors.stream();
+
+        List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
+                .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
+                .toList();
+
+        if (globalAssetIds.size() > 1) {
+            // An AAS descriptor can only have one globalAssetId.
+            return Page.of();
+        }
+        else if (!globalAssetIds.isEmpty()) {
+            String globalAssetId = globalAssetIds.get(0).getValue();
+            filtered = filtered.filter(descriptor -> Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
+        }
+
+        List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(specificAssetIds);
+        realSpecificAssetIds.removeAll(globalAssetIds);
+
+        filtered = filtered
+                .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds())
+                        .containsAll(realSpecificAssetIds));
+
+        List<String> result = filtered
+                .map(AssetAdministrationShellDescriptor::getId)
+                .toList();
+
+        return getPage(result, cursor, limit);
+    }
+
+
+    /**
      * Helper method to read the limit as integer from the paging info.
      *
      * @param paging The desired paging info.
@@ -218,4 +270,5 @@ public abstract class AbstractAasRepository implements AasRepository {
                         .build())
                 .build();
     }
+
 }
