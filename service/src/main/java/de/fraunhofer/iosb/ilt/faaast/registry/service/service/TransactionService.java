@@ -157,7 +157,7 @@ public class TransactionService {
 
     /**
      * This method implements the logic for PUT on the /bulk/submodel-descriptors endpoint.
-     * Creates multiple new Asset Submodel Descriptors, i.e. registers multiple Submodels.
+     * Updates multiple Submodel Descriptors.
      *
      * @param submodels list of Submodel Descriptors that shall be updated.
      * @return Id of the operation handle for future reference.
@@ -173,13 +173,22 @@ public class TransactionService {
 
 
     /**
-     * This method implements the logic for GET on the /bulk/status/{handleId} endpoint.
-     * Returns the status of an asynchronously invoked bulk operation
+     * This method implements the logic for DELETE on the /bulk/submodel-descriptors endpoint.
+     * Deletes multiple Submodel Descriptors.
      *
-     * @param handleId id of the operation handle for future reference.
-     * @return Bulk operation result object containing information that the 'executionState' is still 'Running'
-     * @throws ResourceNotFoundException if there is no handle with that id.
+     * @param submodelIdentifiers list of Submodel Identifiers that shall be deleted.
+     * @return Id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
      */
+    public String deleteSubmodels(List<String> submodelIdentifiers) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        transactionThread.deleteSubmodels(submodelIdentifiers, handleId);
+        return handleId;
+    }
+
+
     /**
      * This method implements the logic for GET on the /bulk/status/{handleId} endpoint.
      * Returns the status of an asynchronously invoked bulk operation

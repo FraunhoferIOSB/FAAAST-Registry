@@ -107,16 +107,25 @@ public class BulkOperationController {
      * Bulk operation for deleting multiple submodel descriptors with the given IDs.
      *
      * @param submodelIdentifiers The ID of the desired Submodels.
+     * @return The ResponseEntity object.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The operation was interrupted.
      */
-    @DeleteMapping(value = "/submodel-descriptors/")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void bulkDeleteSubmodels(@RequestBody List<String> submodelIdentifiers)
-            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
-        service.bulkDeleteSubmodels(submodelIdentifiers);
+    @DeleteMapping(value = "/submodel-descriptors")
+    //@ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Void> bulkDeleteSubmodels(@RequestBody List<String> submodelIdentifiers)
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
+        String handleId = service.bulkDeleteSubmodels(submodelIdentifiers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create("../status/" + handleId));
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .headers(headers)
+                .build();
     }
 
 

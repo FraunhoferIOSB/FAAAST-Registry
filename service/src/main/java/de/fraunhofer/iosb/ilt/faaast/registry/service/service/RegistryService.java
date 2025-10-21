@@ -355,13 +355,17 @@ public class RegistryService {
      * Bulk operation for deleting multiple submodel descriptors with the given IDs.
      *
      * @param submodelIdentifiers The ID of the desired Submodels.
+     * @return The transaction handle.
      * @throws BadRequestException an error occurs.
      * @throws UnauthorizedException an error occurs.
      * @throws ResourceNotFoundException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The operation was interrupted.
      */
-    public void bulkDeleteSubmodels(List<String> submodelIdentifiers) throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException {
+    public String bulkDeleteSubmodels(List<String> submodelIdentifiers)
+            throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         // todo: Change this to loop over all submodels. Use transactions
+        return transactionService.deleteSubmodels(submodelIdentifiers);
     }
 
 

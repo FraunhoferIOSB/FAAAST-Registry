@@ -18,12 +18,19 @@ import java.util.List;
 
 
 /**
- * Data for DeleteShells bulk operations.
+ * Data for ID bulk operations.
  */
-public class BulkDeleteShellData extends BulkStringData {
+public class BulkStringData extends BulkBaseData {
 
-    public BulkDeleteShellData(List<String> shellIdentifiers, String handleId) {
-        super(shellIdentifiers, handleId);
+    private final List<String> identifiers;
+
+    public BulkStringData(List<String> identifiers, String handleId) {
+        super(handleId);
+        this.identifiers = identifiers;
     }
 
+
+    public List<String> getIdentifiers() {
+        return identifiers;
+    }
 }

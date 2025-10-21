@@ -18,12 +18,12 @@ import java.util.List;
 
 
 /**
- * Data for DeleteShells bulk operations.
+ * Data for DeleteSubmodels bulk operations.
  */
-public class BulkDeleteShellData extends BulkStringData {
+public class BulkDeleteSubmodelData extends BulkStringData {
 
-    public BulkDeleteShellData(List<String> shellIdentifiers, String handleId) {
-        super(shellIdentifiers, handleId);
+    public BulkDeleteSubmodelData(List<String> submodelIdentifiers, String handleId) {
+        super(submodelIdentifiers, handleId);
     }
 
 }

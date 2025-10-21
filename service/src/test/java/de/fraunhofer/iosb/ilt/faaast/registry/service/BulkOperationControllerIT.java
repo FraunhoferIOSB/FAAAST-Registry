@@ -246,6 +246,29 @@ public class BulkOperationControllerIT {
                 });
 
         Assert.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
+
+        List<String> submodelIds = new ArrayList<>();
+        for (var aas: commitSubmodelList) {
+            submodelIds.add(aas.getId());
+        }
+        HttpEntity<List<String>> deleteEntity = new HttpEntity<>(submodelIds);
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
+        Assert.assertNotNull(deleteResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
+        location = deleteResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullDelete = location.toString().replace("..", createURLWithPort(""));
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullDelete,
+                            String.class);
+                    LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
+                });
+        Assert.assertEquals(new ArrayList<SubmodelDescriptor>(), aasRepository.getSubmodels(PagingInfo.ALL).getContent());
     }
 
 
