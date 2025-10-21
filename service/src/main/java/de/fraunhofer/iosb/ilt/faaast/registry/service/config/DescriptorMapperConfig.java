@@ -95,7 +95,6 @@ public class DescriptorMapperConfig {
     @Bean
     @Primary
     public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
-        //SimpleModule module = new SimpleModule("AasModel", Version.unknownVersion());
         SimpleModule module = new SimpleModule();
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();

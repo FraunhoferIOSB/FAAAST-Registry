@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = Constants.BULK_REQUEST_PATH)
 public class BulkOperationController {
+    private static final String STATUS_URI = "../status/";
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationController.class);
 
     //@Autowired
@@ -68,7 +69,7 @@ public class BulkOperationController {
 
         LOGGER.debug("bulkCreateSubmodels: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -94,7 +95,7 @@ public class BulkOperationController {
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkUpdateSubmodels(submodels);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -120,7 +121,7 @@ public class BulkOperationController {
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkDeleteSubmodels(submodelIdentifiers);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -151,7 +152,7 @@ public class BulkOperationController {
 
         LOGGER.debug("bulkCreateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -179,7 +180,7 @@ public class BulkOperationController {
 
         LOGGER.debug("bulkUpdateShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
@@ -207,7 +208,7 @@ public class BulkOperationController {
 
         LOGGER.debug("bulkDeleteShells: Handle: {}", handleId);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("../status/" + handleId));
+        headers.setLocation(URI.create(STATUS_URI + handleId));
 
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)

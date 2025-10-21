@@ -14,8 +14,6 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 
-import static org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState.INITIATED;
-
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.InternalServerErrorException;
@@ -49,10 +47,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
-    //private static final Object MONITOR = new Object();
     private final BulkOperationStatusStore statusStore;
 
-    //private final AasRepository aasRepository;
     private final TransactionThread transactionThread;
 
     /**
@@ -64,7 +60,6 @@ public class TransactionService {
     @Autowired
     public TransactionService(AasRepository aasRepository, BulkOperationStatusStore statusStore) {
         this.statusStore = statusStore;
-        //this.aasRepository = aasRepository;
         transactionThread = new TransactionThread(aasRepository, this);
     }
 

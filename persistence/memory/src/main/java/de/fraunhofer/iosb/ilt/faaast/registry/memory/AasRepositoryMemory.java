@@ -215,8 +215,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         }
         transactionActive = true;
         LOGGER.debug("startTransaction");
-        //shellDescriptorsBackup.putAll(shellDescriptors);
-        //submodelDescriptorsBackup.putAll(submodelDescriptors);
         shellDescriptorsBackup = DeepCopyHelper.createBackupMap(shellDescriptors);
         submodelDescriptorsBackup = DeepCopyHelper.createBackupMap(submodelDescriptors);
     }
@@ -235,11 +233,9 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public void rollbackTransaction() {
         LOGGER.debug("rollbackTransaction");
         shellDescriptors.clear();
-        //shellDescriptors.putAll(shellDescriptorsBackup);
         shellDescriptors = DeepCopyHelper.restoreBackupMap(shellDescriptorsBackup, AssetAdministrationShellDescriptor.class);
         shellDescriptorsBackup.clear();
         submodelDescriptors.clear();
-        //submodelDescriptors.putAll(submodelDescriptorsBackup);
         submodelDescriptors = DeepCopyHelper.restoreBackupMap(submodelDescriptorsBackup, SubmodelDescriptor.class);
         submodelDescriptorsBackup.clear();
         transactionActive = false;

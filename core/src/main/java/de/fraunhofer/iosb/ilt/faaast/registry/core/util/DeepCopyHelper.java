@@ -51,7 +51,7 @@ public class DeepCopyHelper {
             return new JsonDeserializer().read(new JsonSerializer().write(descriptor), outputClass);
         }
         catch (SerializationException | DeserializationException e) {
-            throw new RuntimeException("deep copy of descriptor failed", e);
+            throw new IllegalArgumentException("deep copy of descriptor failed", e);
         }
     }
 
@@ -64,8 +64,6 @@ public class DeepCopyHelper {
      * @return a map with descriptor backups.
      */
     public static <T extends Descriptor> Map<String, String> createBackupMap(Map<String, ? extends T> descriptors) {
-        //HashMap<String, String> shallowCopy = (HashMap<String, String>) descriptors.entrySet().stream()
-        //        .collect(Collectors.toMap(Map.Entry::getKey, createBackup(Map.Entry::getValue)));
         HashMap<String, String> retval = new HashMap<>();
         for (var entry: descriptors.entrySet()) {
             retval.put(entry.getKey(), createBackup(entry.getValue()));
@@ -96,7 +94,7 @@ public class DeepCopyHelper {
             return new JsonSerializer().write(descriptor);
         }
         catch (SerializationException e) {
-            throw new RuntimeException("create backup of descriptor failed", e);
+            throw new IllegalArgumentException("create backup of descriptor failed", e);
         }
     }
 
@@ -106,7 +104,7 @@ public class DeepCopyHelper {
             return new JsonDeserializer().read(backupDescriptor, outputClass);
         }
         catch (DeserializationException e) {
-            throw new RuntimeException("restore backup of descriptor failed", e);
+            throw new IllegalArgumentException("restore backup of descriptor failed", e);
         }
     }
 }

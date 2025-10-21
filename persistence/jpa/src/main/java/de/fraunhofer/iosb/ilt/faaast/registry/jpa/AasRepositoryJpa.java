@@ -52,12 +52,13 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Autowired
     private PlatformTransactionManager txManager;
-
     private TransactionStatus transactionStatus;
 
-    public AasRepositoryJpa() {}
+    @Autowired
+    public AasRepositoryJpa(PlatformTransactionManager txManager) {
+        this.txManager = txManager;
+    }
 
 
     /**
@@ -280,7 +281,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public void startTransaction() {
         LOGGER.debug("startTransaction");
-        //DefaultTransactionDefinition definition = new DefaultTransactionDefinition();
         if (txManager != null) {
             transactionStatus = txManager.getTransaction(null);
         }

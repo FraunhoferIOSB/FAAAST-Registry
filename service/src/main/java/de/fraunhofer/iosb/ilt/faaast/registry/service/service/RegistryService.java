@@ -364,7 +364,6 @@ public class RegistryService {
      */
     public String bulkDeleteSubmodels(List<String> submodelIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
-        // todo: Change this to loop over all submodels. Use transactions
         return transactionService.deleteSubmodels(submodelIdentifiers);
     }
 
