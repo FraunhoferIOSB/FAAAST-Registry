@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
@@ -60,11 +58,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.RestTemplate;
 
 
 @RunWith(SpringRunner.class)
@@ -196,6 +192,60 @@ public class BulkOperationControllerIT {
                 });
 
         Assert.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
+    }
+
+
+    @Test
+    public void testAsyncSubmodelCommit() throws SerializationException {
+        List<SubmodelDescriptor> commitSubmodelList = List.of(
+                generateSubmodel("001"),
+                generateSubmodel("002"),
+                generateSubmodel("003"));
+
+        HttpEntity<List<SubmodelDescriptor>> entity = new HttpEntity<>(commitSubmodelList);
+        ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.POST, entity, Void.class);
+        Assert.assertNotNull(createResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
+        URI location = createResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullCreate = location.toString().replace("..", createURLWithPort(""));
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullCreate,
+                            String.class);
+                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
+                });
+
+        Assert.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
+
+        for (var aas: commitSubmodelList) {
+            aas.setIdShort(aas.getIdShort() + "_new");
+        }
+
+        HttpEntity<List<SubmodelDescriptor>> updateEntity = new HttpEntity<>(commitSubmodelList);
+        ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
+        Assert.assertNotNull(updateResponse);
+        Assert.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
+        location = updateResponse.getHeaders().getLocation();
+        Assert.assertNotNull(location);
+        String fullUpdate = location.toString().replace("..", createURLWithPort(""));
+
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    ResponseEntity<String> statusResponse = restTemplate.getForEntity(
+                            fullUpdate,
+                            String.class);
+                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
+                    return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
+                });
+
+        Assert.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
     }
 
 
@@ -376,13 +426,44 @@ public class BulkOperationControllerIT {
     }
 
 
-    public RestTemplate createRestTemplateWithNoRedirects() {
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .disableRedirectHandling()
+    private SubmodelDescriptor generateSubmodel(String id) {
+        return new DefaultSubmodelDescriptor.Builder()
+                .id("http://iosb.fraunhofer.de/IntegrationTest/Submodel" + id)
+                .idShort("SubmodelIT" + id)
+                .administration(new DefaultAdministrativeInformation.Builder()
+                        .version("2")
+                        .revision("5")
+                        .build())
+                .semanticId(new DefaultReference.Builder()
+                        .type(ReferenceTypes.EXTERNAL_REFERENCE)
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.GLOBAL_REFERENCE)
+                                .value(String.format("http://iosb.fraunhofer.de/IntegrationTest/SubmodelIT%s/SemanticId", id))
+                                .build())
+                        .build())
+                .endpoints(new DefaultEndpoint.Builder()
+                        ._interface("http")
+                        .protocolInformation(new DefaultProtocolInformation.Builder()
+                                .endpointProtocol("http")
+                                .href("http://iosb.fraunhofer.de/Endpoints/SubmodelIT" + id)
+                                .endpointProtocolVersion(List.of("2.0"))
+                                .build())
+                        .build())
                 .build();
-
-        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-
-        return new RestTemplate(factory);
     }
+
+
+    private boolean listEquals(List<SubmodelDescriptor> first, List<SubmodelDescriptor> second) {
+        return first.size() == second.size() && first.containsAll(second) && second.containsAll(first);
+    }
+
+    //public RestTemplate createRestTemplateWithNoRedirects() {
+    //    CloseableHttpClient httpClient = HttpClients.custom()
+    //            .disableRedirectHandling()
+    //            .build();
+
+    //    HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+
+    //    return new RestTemplate(factory);
+    //}
 }

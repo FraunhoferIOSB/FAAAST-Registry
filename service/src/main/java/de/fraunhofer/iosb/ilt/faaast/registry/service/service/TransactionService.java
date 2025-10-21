@@ -139,10 +139,10 @@ public class TransactionService {
 
 
     /**
-     * This method implements the logic for POST on the /bulk/shell-descriptors endpoint.
-     * Creates multiple new Asset Administration Shell Descriptors, i.e. registers multiple Asset Administration Shells.
+     * This method implements the logic for POST on the /bulk/submodel-descriptors endpoint.
+     * Creates multiple new Submodel Descriptors, i.e. registers multiple Submodels.
      *
-     * @param submodels list of submodel descriptors that shall be created.
+     * @param submodels list of Submodel Descriptors that shall be created.
      * @return Id of the operation handle for future reference.
      * @throws InterruptedException The execution was interrupted.
      */
@@ -151,6 +151,23 @@ public class TransactionService {
         statusStore.setStatus(handleId, ExecutionState.INITIATED);
 
         transactionThread.createSubmodels(submodels, handleId);
+        return handleId;
+    }
+
+
+    /**
+     * This method implements the logic for PUT on the /bulk/submodel-descriptors endpoint.
+     * Creates multiple new Asset Submodel Descriptors, i.e. registers multiple Submodels.
+     *
+     * @param submodels list of Submodel Descriptors that shall be updated.
+     * @return Id of the operation handle for future reference.
+     * @throws InterruptedException The execution was interrupted.
+     */
+    public String updateSubmodels(List<SubmodelDescriptor> submodels) throws InterruptedException {
+        String handleId = OperationHelper.generateOperationHandleId();
+        statusStore.setStatus(handleId, ExecutionState.INITIATED);
+
+        transactionThread.updateSubmodels(submodels, handleId);
         return handleId;
     }
 

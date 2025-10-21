@@ -342,10 +342,12 @@ public class RegistryService {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException The operation was interrupted.
      */
-    public String bulkUpdateSubmodels(List<SubmodelDescriptor> submodels) throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
-        // todo: Change this to loop over all submodels. Use transactions
-        return "";
+    public String bulkUpdateSubmodels(List<SubmodelDescriptor> submodels)
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
+        ConstraintHelper.validateSubmodels(submodels);
+        return transactionService.updateSubmodels(submodels);
     }
 
 

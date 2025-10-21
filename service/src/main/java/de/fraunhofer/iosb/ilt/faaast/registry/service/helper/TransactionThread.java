@@ -19,6 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkCreateShellData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkCreateSubmodelData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkDeleteShellData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkUpdateShellData;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.model.BulkUpdateSubmodelData;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.TransactionService;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
@@ -73,6 +74,9 @@ public class TransactionThread extends Thread {
                 }
                 else if (obj instanceof BulkCreateSubmodelData createSubmodelData) {
                     doCreateSubmodels(createSubmodelData.getSubmodels(), createSubmodelData.getHandleId());
+                }
+                else if (obj instanceof BulkUpdateSubmodelData updateSubmodelData) {
+                    doUpdateSubmodels(updateSubmodelData.getSubmodels(), updateSubmodelData.getHandleId());
                 }
                 
                 //Wait for one sec so it doesn't print too fast
@@ -135,6 +139,17 @@ public class TransactionThread extends Thread {
      */
     public void createSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
         queue.add(new BulkCreateSubmodelData(submodels, handleId));
+    }
+
+
+    /**
+     * Adds a task to update a list of shell descriptors.
+     *
+     * @param submodels The desired submodel descriptors.
+     * @param handleId The handle.
+     */
+    public void updateSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
+        queue.add(new BulkUpdateSubmodelData(submodels, handleId));
     }
 
 
@@ -287,6 +302,36 @@ public class TransactionThread extends Thread {
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
             LOGGER.info("doCreateSubmodels error starting transaction: {}", ex.getMessage(), ex);
+        }
+    }
+
+
+    private void doUpdateSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+        try {
+            // don't call rollbackTransaction when startTransaction fails
+            LOGGER.info("doUpdateSubmodels start");
+            aasRepository.startTransaction();
+            try {
+                LOGGER.info("doUpdateSubmodels execute");
+                transactionService.updateState(handleId, ExecutionState.RUNNING);
+                for (SubmodelDescriptor submodel: submodels) {
+                    aasRepository.deleteSubmodel(submodel.getId());
+                    aasRepository.addSubmodel(submodel);
+                }
+                Thread.sleep(5000);
+                aasRepository.commitTransaction();
+                transactionService.updateState(handleId, ExecutionState.COMPLETED);
+                LOGGER.info("doUpdateSubmodels finished");
+            }
+            catch (Exception ex) {
+                transactionService.updateState(handleId, ExecutionState.FAILED);
+                aasRepository.rollbackTransaction();
+                LOGGER.info("doUpdateSubmodels error");
+            }
+        }
+        catch (Exception ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            LOGGER.info("doUpdateSubmodels error starting transaction: {}", ex.getMessage(), ex);
         }
     }
 }

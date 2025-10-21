@@ -58,7 +58,7 @@ public class BulkOperationController {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
-     * @throws InterruptedException an error occurs.
+     * @throws InterruptedException the operation was interrupted.
      */
     @PostMapping(value = "/submodel-descriptors")
     //@ResponseStatus(HttpStatus.ACCEPTED)
@@ -86,11 +86,12 @@ public class BulkOperationController {
      * @throws UnauthorizedException an error occurs.
      * @throws ForbiddenException an error occurs.
      * @throws InternalServerErrorException an error occurs.
+     * @throws InterruptedException the operation was interrupted.
      */
     @PutMapping(value = "/submodel-descriptors")
     //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
-            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException {
+            throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkUpdateSubmodels(submodels);
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("../status/" + handleId));

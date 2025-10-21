@@ -19,12 +19,11 @@ import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
 /**
- * Data for CreateSubmodels bulk operations.
+ * Data for UpdateSubmodels bulk operations.
  */
-public class BulkCreateSubmodelData extends BulkSubmodelData {
+public class BulkUpdateSubmodelData extends BulkSubmodelData {
 
-    public BulkCreateSubmodelData(List<SubmodelDescriptor> submodels, String handleId) {
+    public BulkUpdateSubmodelData(List<SubmodelDescriptor> submodels, String handleId) {
         super(submodels, handleId);
     }
-
 }
