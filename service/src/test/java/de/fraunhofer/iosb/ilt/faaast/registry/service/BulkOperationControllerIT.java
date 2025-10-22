@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.*;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -76,9 +75,6 @@ public class BulkOperationControllerIT {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    //@Autowired
-    //private RegistryService registryService;
-
     @Autowired
     private AasRepository aasRepository;
 
@@ -89,7 +85,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncAasCommit() throws SerializationException {
+    public void testAsyncAasCommit() {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
@@ -109,7 +105,6 @@ public class BulkOperationControllerIT {
                     ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                             fullCreate,
                             String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
                     return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
 
@@ -134,7 +129,6 @@ public class BulkOperationControllerIT {
                     ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                             fullUpdate,
                             String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
                     return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
 
@@ -187,7 +181,6 @@ public class BulkOperationControllerIT {
                     ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                             fullCreate,
                             String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
                     return statusResponse.getStatusCode() == HttpStatusCode.valueOf(400);
                 });
 
@@ -196,7 +189,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncSubmodelCommit() throws SerializationException {
+    public void testAsyncSubmodelCommit() {
         List<SubmodelDescriptor> commitSubmodelList = List.of(
                 generateSubmodel("001"),
                 generateSubmodel("002"),
@@ -216,7 +209,6 @@ public class BulkOperationControllerIT {
                     ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                             fullCreate,
                             String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
                     return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
 
@@ -241,7 +233,6 @@ public class BulkOperationControllerIT {
                     ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                             fullUpdate,
                             String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
                     return statusResponse.getStatusCode() == HttpStatusCode.valueOf(204);
                 });
 
@@ -480,13 +471,4 @@ public class BulkOperationControllerIT {
         return first.size() == second.size() && first.containsAll(second) && second.containsAll(first);
     }
 
-    //public RestTemplate createRestTemplateWithNoRedirects() {
-    //    CloseableHttpClient httpClient = HttpClients.custom()
-    //            .disableRedirectHandling()
-    //            .build();
-
-    //    HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-
-    //    return new RestTemplate(factory);
-    //}
 }

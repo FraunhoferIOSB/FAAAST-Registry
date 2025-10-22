@@ -84,6 +84,7 @@ public class TransactionThread extends Thread {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 LOGGER.warn("TransactionThread interrupted");
+                Thread.currentThread().interrupt();
             }
         }
         LOGGER.trace("TransactionThread finished");
@@ -165,7 +166,7 @@ public class TransactionThread extends Thread {
     }
 
 
-    private void doCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) throws InterruptedException {
+    private void doCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
         try {
             // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("createShells start");
@@ -175,7 +176,6 @@ public class TransactionThread extends Thread {
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
             LOGGER.info("createShells error starting transaction: {}", ex.getMessage(), ex);
-            //throw ex;
         }
     }
 
@@ -192,6 +192,12 @@ public class TransactionThread extends Thread {
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("createShells finished");
         }
+        catch (InterruptedException ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            aasRepository.rollbackTransaction();
+            LOGGER.info("createShells interrupted");
+            Thread.currentThread().interrupt();
+        }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
             aasRepository.rollbackTransaction();
@@ -205,22 +211,7 @@ public class TransactionThread extends Thread {
         try {
             // don't call rollbackTransaction when startTransaction fails
             aasRepository.startTransaction();
-            try {
-                LOGGER.debug("updateShells start");
-                transactionService.updateState(handleId, ExecutionState.RUNNING);
-                for (AssetAdministrationShellDescriptor shell: shells) {
-                    Ensure.requireNonNull(shell);
-                    aasRepository.update(shell.getId(), shell);
-                }
-                aasRepository.commitTransaction();
-                transactionService.updateState(handleId, ExecutionState.COMPLETED);
-                LOGGER.debug("updateShells finished");
-            }
-            catch (Exception ex) {
-                aasRepository.rollbackTransaction();
-                transactionService.updateState(handleId, ExecutionState.FAILED);
-                LOGGER.info("updateShells error", ex);
-            }
+            doUpdateShellsIntern(handleId, shells);
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
@@ -229,7 +220,27 @@ public class TransactionThread extends Thread {
     }
 
 
-    private void doDeleteShells(List<String> shellIdentifiers, String handleId) throws InterruptedException {
+    private void doUpdateShellsIntern(String handleId, List<AssetAdministrationShellDescriptor> shells) {
+        try {
+            LOGGER.debug("updateShells start");
+            transactionService.updateState(handleId, ExecutionState.RUNNING);
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                Ensure.requireNonNull(shell);
+                aasRepository.update(shell.getId(), shell);
+            }
+            aasRepository.commitTransaction();
+            transactionService.updateState(handleId, ExecutionState.COMPLETED);
+            LOGGER.debug("updateShells finished");
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction();
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            LOGGER.info("updateShells error", ex);
+        }
+    }
+
+
+    private void doDeleteShells(List<String> shellIdentifiers, String handleId) {
 
         try {
             // don't call rollbackTransaction when startTransaction fails
@@ -263,7 +274,7 @@ public class TransactionThread extends Thread {
     }
 
 
-    private void doCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+    private void doCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
         try {
             // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doCreateSubmodels start");
@@ -289,6 +300,12 @@ public class TransactionThread extends Thread {
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doCreateSubmodels finished");
         }
+        catch (InterruptedException ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            aasRepository.rollbackTransaction();
+            LOGGER.info("doCreateSubmodels interrupted");
+            Thread.currentThread().interrupt();
+        }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
             aasRepository.rollbackTransaction();
@@ -297,7 +314,7 @@ public class TransactionThread extends Thread {
     }
 
 
-    private void doUpdateSubmodels(List<SubmodelDescriptor> submodels, String handleId) throws InterruptedException {
+    private void doUpdateSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
         try {
             // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doUpdateSubmodels start");
@@ -324,6 +341,12 @@ public class TransactionThread extends Thread {
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doUpdateSubmodels finished");
         }
+        catch (InterruptedException ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            aasRepository.rollbackTransaction();
+            LOGGER.info("doUpdateSubmodels interrupted");
+            Thread.currentThread().interrupt();
+        }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
             aasRepository.rollbackTransaction();
@@ -332,7 +355,7 @@ public class TransactionThread extends Thread {
     }
 
 
-    private void doDeleteSubmodels(List<String> submodelIdentifiers, String handleId) throws InterruptedException {
+    private void doDeleteSubmodels(List<String> submodelIdentifiers, String handleId) {
         try {
             // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doDeleteSubmodels start");
@@ -357,6 +380,12 @@ public class TransactionThread extends Thread {
             aasRepository.commitTransaction();
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doDeleteSubmodels finished");
+        }
+        catch (InterruptedException ex) {
+            transactionService.updateState(handleId, ExecutionState.FAILED);
+            aasRepository.rollbackTransaction();
+            LOGGER.info("doDeleteSubmodels interrupted");
+            Thread.currentThread().interrupt();
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED);
