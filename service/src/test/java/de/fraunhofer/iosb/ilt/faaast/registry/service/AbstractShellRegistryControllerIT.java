@@ -56,15 +56,16 @@ public abstract class AbstractShellRegistryControllerIT {
 
     private final String baseResourceName;
 
-    public AbstractShellRegistryControllerIT(String baseResourceName) {
-        this.baseResourceName = baseResourceName;
-    }
-
     @LocalServerPort
     protected int port;
 
     @Autowired
     protected TestRestTemplate restTemplate;
+
+    public AbstractShellRegistryControllerIT(String baseResourceName) {
+        this.baseResourceName = baseResourceName;
+    }
+
 
     protected void createAas(AssetAdministrationShellDescriptor aas) {
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
