@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.AssetKindConverter;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.SpecificAssetIdListConverter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -104,6 +105,7 @@ public class ControllerConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new AssetKindConverter());
+        registry.addConverter(new SpecificAssetIdListConverter());
     }
 
 

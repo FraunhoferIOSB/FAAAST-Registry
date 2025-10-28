@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
@@ -73,6 +74,14 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(id);
         Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
+    }
+
+
+    @Override
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
+        Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
+
+        return filterAssetAdministrationShellDescriptors(shellDescriptors.values(), specificAssetIds, pagingInfo);
     }
 
 
@@ -153,7 +162,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException,
+            ResourceAlreadyExistsException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
