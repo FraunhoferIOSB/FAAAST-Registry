@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -96,7 +95,7 @@ public class DescriptorMapperConfig {
     @Bean
     @Primary
     public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
-        SimpleModule module = new SimpleModule("AasModel", Version.unknownVersion());
+        SimpleModule module = new SimpleModule();
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(AssetAdministrationShellDescriptor.class, DefaultAssetAdministrationShellDescriptor.class);
