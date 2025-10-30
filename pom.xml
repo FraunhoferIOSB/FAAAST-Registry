@@ -60,6 +60,7 @@
         <jackson.annotations.version>2.20</jackson.annotations.version>
         <jackson.version>2.20.0</jackson.version>
         <janino.version>3.1.12</janino.version>
+        <jsonschema2pojo.version>1.2.1</jsonschema2pojo.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.20</logback.version>
         <maven.compiler.source>17</maven.compiler.source>

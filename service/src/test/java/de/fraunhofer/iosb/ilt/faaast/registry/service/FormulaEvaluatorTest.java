@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.FormulaEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.LogicalExpression;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
@@ -92,8 +93,8 @@ public class FormulaEvaluatorTest {
                                     ]
                                 }
                 """;
-        Map<String, Object> formula = MAPPER.readValue(
-                json, new TypeReference<Map<String, Object>>() {});
+        LogicalExpression formula = MAPPER.readValue(
+                json, new TypeReference<>() {});
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("CLAIM:organization", "Company2");
         ctx.put("CLAIM:email", "user2@company2.com");

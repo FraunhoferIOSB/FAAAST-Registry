@@ -14,18 +14,20 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.config.ControllerConfig;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.ACL;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRules;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.AllAccessPermissionRulesRoot;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Attribute;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefACL;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefAttributes;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefFormula;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.DefObjects;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Objects;
-import de.fraunhofer.iosb.ilt.faaast.service.model.security.json.Rule;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.AccessPermissionRule;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Acl;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.AllAccessPermissionRules;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.AttributeItem;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Defacl;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Defattribute;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Defformula;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Defobject;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.ObjectItem;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.RightsEnum;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -47,9 +49,12 @@ import java.nio.file.WatchService;
 import java.time.Clock;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +74,7 @@ public class AclFilter extends GenericFilterBean {
     private static final String INVALID_ACL_FOLDER_MSG = "Invalid ACL folder path, AAS Security will not enforce rules.)";
 
     private final String aclFolder;
-    private final Map<Path, AllAccessPermissionRulesRoot> aclList;
+    private final Map<Path, AllAccessPermissionRules> aclList;
 
     public AclFilter(String aclFolder) {
         aclList = new ConcurrentHashMap<>();
@@ -129,12 +134,19 @@ public class AclFilter extends GenericFilterBean {
         if (jsonFiles != null) {
             for (File file: jsonFiles) {
                 Path filePath = file.toPath().toAbsolutePath();
-                String content;
+                String jsonContent;
                 try {
                     LOG.trace("readAccessRules: add rule {}", filePath);
-                    content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-                    aclList.put(filePath, mapper.readValue(
-                            content, AllAccessPermissionRulesRoot.class));
+                    jsonContent = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
+                    JsonNode rootNode = mapper.readTree(jsonContent);
+                    AllAccessPermissionRules allRules;
+                    if (rootNode.has("AllAccessPermissionRules")) {
+                        allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
+                    }
+                    else {
+                        allRules = mapper.readValue(jsonContent, AllAccessPermissionRules.class);
+                    }
+                    aclList.put(filePath, allRules);
                 }
                 catch (IOException e) {
                     LOG.error(INVALID_ACL_FOLDER_MSG, e);
@@ -152,53 +164,54 @@ public class AclFilter extends GenericFilterBean {
      * @param request
      * @return
      */
-    private static boolean filterRules(Map<Path, AllAccessPermissionRulesRoot> aclList, Map<String, Object> claims, HttpServletRequest request) {
+    private static boolean filterRules(Map<Path, AllAccessPermissionRules> aclList, Map<String, Object> claims, HttpServletRequest request) {
         String requestPath = request.getRequestURI();
         String path = requestPath.startsWith(ControllerConfig.getApiPrefix()) ? requestPath.substring(9) : requestPath;
         String method = request.getMethod();
-        List<AllAccessPermissionRulesRoot> relevantRules = aclList.values().stream()
-                .filter(a -> a.getAllAccessPermissionRules()
-                        .getRules().stream()
-                        .anyMatch(r -> evaluateRule(r, path, method, claims, a.getAllAccessPermissionRules())))
+        List<AllAccessPermissionRules> relevantRules = aclList.values().stream()
+                .filter(a -> a.getRules().stream()
+                        .anyMatch(r -> evaluateRule(r, path, method, claims, a)))
                 .toList();
         return !relevantRules.isEmpty();
     }
 
 
-    private static boolean evaluateRule(Rule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
-        ACL acl = getAcl(rule, allAccess);
+    private static boolean evaluateRule(AccessPermissionRule rule, String path, String method, Map<String, Object> claims, AllAccessPermissionRules allAccess) {
+        Acl acl = getAcl(rule, allAccess);
         return acl != null
                 && getAttributes(acl, allAccess) != null
-                && acl.getRIGHTS() != null
+                && acl.getRights() != null
                 && getObjects(rule, allAccess) != null
                 && getObjects(rule, allAccess).stream().anyMatch(attr -> {
-                    if (attr.getROUTE() != null) {
-                        return "*".equals(attr.getROUTE()) || attr.getROUTE().contains(path);
+                    if (attr.getRoute() != null) {
+                        return "*".equals(attr.getRoute()) || attr.getRoute().contains(path);
                     }
-                    else if (attr.getDESCRIPTOR() != null) {
-                        return checkDescriptor(path, attr.getDESCRIPTOR());
+                    else if (attr.getDescriptor() != null) {
+                        return checkDescriptor(path, attr.getDescriptor());
                     }
                     else {
                         return false;
                     }
                 })
-                && "ALLOW".equals(acl.getACCESS())
-                && evaluateRights(acl.getRIGHTS(), method, path)
+                && Acl.Access.ALLOW.equals(acl.getAccess())
+                && evaluateRights(acl.getRights(), method, path)
                 && verifyAllClaims(claims, rule, allAccess);
     }
 
 
-    private static ACL getAcl(Rule rule, AllAccessPermissionRules allAccess) {
-        if (rule.getACL() != null) {
-            return rule.getACL();
+    private static Acl getAcl(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getAcl() != null) {
+            return rule.getAcl();
         }
-        else if (rule.getUSEACL() != null) {
-            Optional<DefACL> acl = allAccess.getDEFACLS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+        else if (rule.getUseacl() != null) {
+            Optional<Defacl> acl = allAccess.getDefacls().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUseacl()))
+                    .findAny();
             if (acl.isPresent()) {
                 return acl.get().getAcl();
             }
             else {
-                throw new IllegalArgumentException("DEFACL not found: " + rule.getUSEACL());
+                throw new IllegalArgumentException("DEFACL not found: " + rule.getUseacl());
             }
         }
         else {
@@ -207,18 +220,19 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static List<Attribute> getAttributes(ACL acl, AllAccessPermissionRules allAccess) {
-        if (acl.getATTRIBUTES() != null) {
-            return acl.getATTRIBUTES();
+    private static List<AttributeItem> getAttributes(Acl acl, AllAccessPermissionRules allAccess) {
+        if ((acl.getAttributes() != null) && (!acl.getAttributes().isEmpty())) {
+            return acl.getAttributes();
         }
-        else if (acl.getUSEATTRIBUTES() != null) {
-            Optional<DefAttributes> attribute = allAccess.getDEFATTRIBUTES().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName())))
+        else if (acl.getUseattributes() != null) {
+            Optional<Defattribute> attribute = allAccess.getDefattributes().stream()
+                    .filter(a -> Objects.equals(a.getName(), acl.getUseattributes()))
                     .findAny();
             if (attribute.isPresent()) {
                 return attribute.get().getAttributes();
             }
             else {
-                throw new IllegalArgumentException("DEFATTRIBUTES not found: " + acl.getUSEATTRIBUTES());
+                throw new IllegalArgumentException("DEFATTRIBUTES not found: " + acl.getUseattributes());
             }
         }
         else {
@@ -227,17 +241,20 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static Map<String, Object> getFormula(Rule rule, AllAccessPermissionRules allAccess) {
-        if (rule.getFORMULA() != null) {
-            return rule.getFORMULA();
+    //private static Map<String, Object> getFormula(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+    private static LogicalExpression getFormula(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        if (rule.getFormula() != null) {
+            return rule.getFormula();
         }
-        else if (rule.getUSEFORMULA() != null) {
-            Optional<DefFormula> formula = allAccess.getDEFFORMULAS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
+        else if (rule.getUseformula() != null) {
+            Optional<Defformula> formula = allAccess.getDefformulas().stream()
+                    .filter(a -> Objects.equals(a.getName(), rule.getUseformula()))
+                    .findAny();
             if (formula.isPresent()) {
                 return formula.get().getFormula();
             }
             else {
-                throw new IllegalArgumentException("DEFFORMULA not found: " + rule.getUSEFORMULA());
+                throw new IllegalArgumentException("DEFFORMULA not found: " + rule.getUseformula());
             }
         }
         else {
@@ -246,17 +263,24 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static List<Objects> getObjects(Rule rule, AllAccessPermissionRules allAccess) {
-        if (rule.getOBJECTS() != null) {
-            return rule.getOBJECTS();
+    private static List<ObjectItem> getObjects(AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        if ((rule.getObjects() != null) && (!rule.getObjects().isEmpty())) {
+            return rule.getObjects();
         }
-        else if (rule.getUSEOBJECTS() != null) {
-            Optional<DefObjects> objects = allAccess.getDEFOBJECTS().stream().filter(a -> (a.getName() == null ? a.getName() == null : a.getName().equals(a.getName()))).findAny();
-            if (objects.isPresent()) {
-                return objects.get().getObjects();
+        else if (rule.getUseobjects() != null) {
+            // We must collect all Defobjects in all Useobjects
+            List<Defobject> objectList = allAccess.getDefobjects().stream()
+                    .filter(a -> rule.getUseobjects().contains(a.getName()))
+                    .toList();
+            if (objectList.isEmpty()) {
+                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUseobjects());
             }
             else {
-                throw new IllegalArgumentException("DEFOBJECTS not found: " + rule.getUSEFORMULA());
+                Set<ObjectItem> retval = new HashSet<>();
+                for (Defobject item: objectList) {
+                    retval.addAll(item.getObjects());
+                }
+                return retval.stream().toList();
             }
         }
         else {
@@ -265,19 +289,28 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static boolean verifyAllClaims(Map<String, Object> claims, Rule rule, AllAccessPermissionRules allAccess) {
-        ACL acl = getAcl(rule, allAccess);
+    private static boolean verifyAllClaims(Map<String, Object> claims, AccessPermissionRule rule, AllAccessPermissionRules allAccess) {
+        Acl acl = getAcl(rule, allAccess);
         if (getAttributes(acl, allAccess).stream()
-                .anyMatch(attr -> "ANONYMOUS".equals(attr.getGLOBAL())
-                        && Boolean.TRUE.equals(getFormula(rule, allAccess).get("$boolean")))) {
+                .anyMatch(attr -> AttributeItem.Global.ANONYMOUS.equals(attr.getGlobal())
+                        && Boolean.TRUE.equals(getFormula(rule, allAccess).get$boolean()))) {
             return true;
         }
         if (claims == null) {
             return false;
         }
+
+        //List<AttributeItem> attributes = getAttributes(getAcl(rule, allAccess), allAccess);
+        //attributes = attributes.stream()
+        //        .filter(attr -> attr.getGlobal() == null)
+        //        .toList();
+        //List<String> claimValues2 = attributes.stream()
+        //        .map(AttributeItem::getClaim)
+        //        .toList();
+
         List<String> claimValues = getAttributes(getAcl(rule, allAccess), allAccess).stream()
-                .filter(attr -> attr.getGLOBAL() == null)
-                .map(Attribute::getCLAIM)
+                .filter(attr -> attr.getGlobal() == null)
+                .map(AttributeItem::getClaim)
                 .filter(java.util.Objects::nonNull)
                 .toList();
         LOG.trace("verifyAllClaims: Anz {}", claimValues.size());
@@ -296,7 +329,7 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static boolean evaluateFormula(Map<String, Object> formula,
+    private static boolean evaluateFormula(LogicalExpression formula,
                                            Map<String, String> claims) {
         Map<String, Object> ctx = new HashMap<>();
         for (var c: claims.entrySet()) {
@@ -310,11 +343,11 @@ public class AclFilter extends GenericFilterBean {
     }
 
 
-    private static boolean evaluateRights(List<String> aclRights, String method, String path) {
+    private static boolean evaluateRights(List<RightsEnum> aclRights, String method, String path) {
         // We need the path to check if the request is an operation invocation (EXECUTE)
         String requiredRight = isOperationRequest(method, path) ? "EXECUTE" : getRequiredRight(method);
 
-        return aclRights.contains("ALL") || aclRights.contains(requiredRight);
+        return aclRights.contains(RightsEnum.ALL) || aclRights.contains(RightsEnum.valueOf(requiredRight));
     }
 
 
@@ -351,7 +384,7 @@ public class AclFilter extends GenericFilterBean {
             if (!path.startsWith("/shell-descriptors")) {
                 return false;
             }
-            if (descriptor.equals("(aasDesc)*")) {
+            if ("(aasDesc)*".equals(descriptor)) {
                 return true;
             }
             else if (descriptor.startsWith("(aasDesc)")) {
@@ -363,7 +396,7 @@ public class AclFilter extends GenericFilterBean {
             if (!path.startsWith("/submodel-descriptors")) {
                 return false;
             }
-            if (descriptor.equals("(smDesc)*")) {
+            if ("(smDesc)*".equals(descriptor)) {
                 return true;
             }
             else if (descriptor.startsWith("(smDesc)")) {
@@ -405,12 +438,14 @@ public class AclFilter extends GenericFilterBean {
         ObjectMapper mapper = new ObjectMapper();
         Thread monitoringThread = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                WatchKey watchKey = null;
+                WatchKey watchKey;
                 try {
                     watchKey = watchService.take();
                 }
                 catch (InterruptedException e) {
-                    LOG.error(INVALID_ACL_FOLDER_MSG);
+                    Thread.currentThread().interrupt(); // restore interrupt status
+                    LOG.warn("ACL monitoring thread interrupted", e);
+                    break; // exit loop
                 }
                 boolean valid;
                 if (watchKey != null) {
@@ -422,8 +457,16 @@ public class AclFilter extends GenericFilterBean {
                         if (filePath.toString().toLowerCase().endsWith(".json")) {
                             if ((kind == StandardWatchEventKinds.ENTRY_CREATE) || (kind == StandardWatchEventKinds.ENTRY_MODIFY)) {
                                 try {
-                                    aclList.put(absolutePath, mapper.readValue(
-                                            new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8), AllAccessPermissionRulesRoot.class));
+                                    String jsonContent = new String(Files.readAllBytes(absolutePath), StandardCharsets.UTF_8);
+                                    JsonNode rootNode = mapper.readTree(jsonContent);
+                                    AllAccessPermissionRules allRules;
+                                    if (rootNode.has("AllAccessPermissionRules")) {
+                                        allRules = mapper.treeToValue(rootNode.get("AllAccessPermissionRules"), AllAccessPermissionRules.class);
+                                    }
+                                    else {
+                                        allRules = mapper.readValue(jsonContent, AllAccessPermissionRules.class);
+                                    }
+                                    aclList.put(absolutePath, allRules);
                                 }
                                 catch (IOException e) {
                                     LOG.error(INVALID_ACL_FOLDER_MSG);
@@ -447,7 +490,7 @@ public class AclFilter extends GenericFilterBean {
                     valid = false;
                 }
                 if (!valid) {
-                    LOG.warn("monitorLoop: WatchKey no longer valid; exiting.");
+                    LOG.info("monitorLoop: WatchKey no longer valid; exiting.");
                     break;
                 }
             }
