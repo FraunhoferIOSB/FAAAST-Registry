@@ -5,7 +5,7 @@
 **New Features & Major Changes**
 - HTTP
 	- Ignore trailing slashes in URLs
-	- support Async Bulk APIs
+	- Support Async Bulk APIs
 
 **Internal changes & bugfixes**
 - General
