@@ -31,6 +31,7 @@ public class BulkOperationStatusStore {
     private static final int MAX_QUEUE_SIZE = 100;
     private final ConcurrentHashMap<String, ExecutionState> statusMap = new ConcurrentHashMap<>();
     private final Queue<String> handles = new LinkedList<>();
+    private final ConcurrentHashMap<String, String> errorMessages = new ConcurrentHashMap<>();
 
     /**
      * Sets the status of a bulk operation.
@@ -43,11 +44,42 @@ public class BulkOperationStatusStore {
             if (!statusMap.containsKey(handleId)) {
                 handles.add(handleId);
                 if (handles.size() > MAX_QUEUE_SIZE) {
-                    statusMap.remove(handles.remove());
+                    String rem = handles.remove();
+                    statusMap.remove(rem);
+                    if (errorMessages.containsKey(rem)) {
+                        errorMessages.remove(rem);
+                    }
                 }
             }
             statusMap.put(handleId, status);
         }
+    }
+
+
+    /**
+     * Gets an error message of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @return The corresponding error message, null if no message was found.
+     */
+    public String getErrorMessage(String handleId) {
+        if (errorMessages.containsKey(handleId)) {
+            return errorMessages.get(handleId);
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Sets an error message of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @param message The desired error message.
+     */
+    public void setErrorMessage(String handleId, String message) {
+        errorMessages.put(handleId, message);
     }
 
 

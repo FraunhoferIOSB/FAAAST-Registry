@@ -84,6 +84,19 @@ public class TransactionService {
 
 
     /**
+     * Sets the desired status for the given handle.
+     *
+     * @param handleId id of the operation handle for future reference.
+     * @param state The desired state.
+     * @param message The error message.
+     */
+    public void updateState(String handleId, ExecutionState state, String message) {
+        updateState(handleId, state);
+        statusStore.setErrorMessage(handleId, message);
+    }
+
+
+    /**
      * This method implements the logic for POST on the /bulk/shell-descriptors endpoint.
      * Creates multiple new Asset Administration Shell Descriptors, i.e. registers multiple Asset Administration Shells.
      *
@@ -238,6 +251,10 @@ public class TransactionService {
             return;
         }
 
-        throw new BadRequestException("One or more items failed.");
+        String msg = "One or more items failed.";
+        if (statusStore.getErrorMessage(handleId) != null) {
+            msg = statusStore.getErrorMessage(handleId);
+        }
+        throw new BadRequestException(msg);
     }
 }
