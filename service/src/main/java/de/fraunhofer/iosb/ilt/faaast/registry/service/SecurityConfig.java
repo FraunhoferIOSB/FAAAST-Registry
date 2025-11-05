@@ -36,6 +36,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -92,7 +93,7 @@ public class SecurityConfig {
     @Bean
     public JwtDecoder jwtDecoder() {
 
-        JwtDecoder jwtDecoderDefault = NimbusJwtDecoder.withIssuerLocation(issuerUri).build();
+        NimbusJwtDecoder jwtDecoderDefault = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
         JwtDecoder jwtDecoderAt = NimbusJwtDecoder.withIssuerLocation(issuerUri).jwtProcessorCustomizer(customizer -> {
             customizer.setJWSTypeVerifier(new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("at+jwt")));
         }).build();
@@ -105,8 +106,6 @@ public class SecurityConfig {
                     String[] chunks = token.split("\\.");
                     String header = EncodingHelper.base64UrlDecode(chunks[0]);
                     LOGGER.info("Header: {}", header);
-                    //JwtParser jwtParser = Jwts.parser().build();
-                    //jwtParser.parse(chunks{0]).
                     Map<String, Object> headerMapping = new ObjectMapper().readValue(header, HashMap.class);
                     Jwt jwt;
                     if (headerMapping.containsKey(JWT_TYP)) {
@@ -125,7 +124,6 @@ public class SecurityConfig {
                         jwt = jwtDecoderDefault.decode(token);
                     }
 
-                    //LOGGER.info("jwt: {}", jwt);
                     LOGGER.debug("jwt ID: {}", jwt.getId());
                     LOGGER.debug("jwt Subject: {}", jwt.getSubject());
                     LOGGER.debug("jwt token expires: {}", LocalDateTime.ofInstant(jwt.getExpiresAt(), ZoneId.systemDefault()));
