@@ -29,7 +29,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * Configuration for disabled Security.
  */
 @Configuration
-@ConditionalOnProperty(name = "security.enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "service.security.enabled", havingValue = "false", matchIfMissing = true)
 public class DisableSecurityConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DisableSecurityConfig.class);
