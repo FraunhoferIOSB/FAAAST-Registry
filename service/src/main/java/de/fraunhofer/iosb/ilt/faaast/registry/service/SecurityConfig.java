@@ -27,6 +27,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,6 +49,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
  */
 @Configuration
 @EnableWebSecurity
+@ConditionalOnProperty(name = "security.enabled", havingValue = "true")
 public class SecurityConfig {
 
     private static final String JWT_TYP = "typ";
@@ -65,7 +67,7 @@ public class SecurityConfig {
      *
      * @param http The security configuration.
      * @return The security filter chain.
-     * @throws Exception When an erro occurs.
+     * @throws Exception When an error occurs.
      */
     @Bean
     @Profile("!test")
