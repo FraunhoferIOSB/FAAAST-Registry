@@ -69,9 +69,8 @@ public abstract class AbstractShellRegistryControllerIT {
 
     protected void createAas(AssetAdministrationShellDescriptor aas) {
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + "/api/v3" +
-                ".0/shell-descriptors", HttpMethod.POST, entity,
-                AssetAdministrationShellDescriptor.class);
+        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + "/api/v3" + ".0/shell-descriptors", HttpMethod.POST,
+                entity, AssetAdministrationShellDescriptor.class);
         Assert.assertNotNull(responsePost);
         Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
         Assert.assertEquals(aas, responsePost.getBody());

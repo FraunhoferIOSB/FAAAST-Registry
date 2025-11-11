@@ -249,8 +249,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
-        List<SpecificAssetId> toFilterFor = List.of(
-                descriptor.getSpecificAssetIds().stream().findAny().orElseThrow(),
+        List<SpecificAssetId> toFilterFor = List.of(descriptor.getSpecificAssetIds().stream().findAny().orElseThrow(),
                 new DefaultSpecificAssetId.Builder().name(FaaastConstants.KEY_GLOBAL_ASSET_ID).value(descriptor.getGlobalAssetId()).build());
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
@@ -351,8 +350,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
                 .value(newGlobalAssetId)
                 .build());
 
-        ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(updatedSpecificAssetIds),
-                Object.class);
+        ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(updatedSpecificAssetIds), Object.class);
 
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -487,8 +485,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private void assertSameSpecificAssetIds(AssetAdministrationShellDescriptor expected, List<SpecificAssetId> actual) {
-        Assert.assertEquals(expected.getSpecificAssetIds(), actual.stream()
-                .filter(id -> !FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName())).toList());
+        Assert.assertEquals(expected.getSpecificAssetIds(), actual.stream().filter(id -> !FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName())).toList());
     }
 
 
@@ -503,13 +500,11 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(String urlWithPort, List<SpecificAssetId> specificAssetIds) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(specificAssetIds),
-                new ParameterizedTypeReference<>() {});
+        return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(specificAssetIds), new ParameterizedTypeReference<>() {});
     }
 
 
     private ResponseEntity<Void> deleteAllAssetLinksById(String urlWithPort) {
-        return restTemplate.exchange(urlWithPort, HttpMethod.DELETE, null,
-                Void.class);
+        return restTemplate.exchange(urlWithPort, HttpMethod.DELETE, null, Void.class);
     }
 }

@@ -66,8 +66,8 @@ public interface AasRepository {
      * must match.
      *
      * @param specificAssetIds The SpecificAssetIDs of the desired Asset Administration Shells. If a specificAssetId is a
-     *            globalAssetId according to AASd-116, it is treated as the globalAssetId of the desired Asset
-     *            Administration Shells.
+     *            globalAssetId according to AASd-116, it is treated
+     *            as the globalAssetId of the desired Asset Administration Shells.
      * @return The desired Asset Administration Shells identifiers.
      */
     public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo);
@@ -153,8 +153,7 @@ public interface AasRepository {
      * @throws ResourceNotFoundException if the aas does not exist
      * @throws ResourceAlreadyExistsException if the submodel already exists
      */
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException,
-            ResourceAlreadyExistsException;
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException;
 
 
     /**

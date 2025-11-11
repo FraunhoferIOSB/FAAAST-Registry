@@ -24,7 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -173,11 +172,9 @@ public abstract class AbstractAasRepository implements AasRepository {
      * @param pagingInfo The pagingInfo
      * @return Page of AAS Descriptors, not null.
      */
-    protected Page<String> filterAssetAdministrationShellDescriptors(
-                                                                     Collection<AssetAdministrationShellDescriptor> descriptors,
+    protected Page<String> filterAssetAdministrationShellDescriptors(Collection<AssetAdministrationShellDescriptor> descriptors,
                                                                      Collection<SpecificAssetId> specificAssetIds,
                                                                      PagingInfo pagingInfo) {
-
         int limit = readLimit(pagingInfo);
         int cursor = readCursor(pagingInfo);
 
@@ -199,13 +196,9 @@ public abstract class AbstractAasRepository implements AasRepository {
         List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(specificAssetIds);
         realSpecificAssetIds.removeAll(globalAssetIds);
 
-        filtered = filtered
-                .filter(descriptor -> new HashSet<>(descriptor.getSpecificAssetIds())
-                        .containsAll(realSpecificAssetIds));
+        filtered = filtered.filter(descriptor -> descriptor.getSpecificAssetIds().containsAll(realSpecificAssetIds));
 
-        List<String> result = filtered
-                .map(AssetAdministrationShellDescriptor::getId)
-                .toList();
+        List<String> result = filtered.map(AssetAdministrationShellDescriptor::getId).toList();
 
         return getPage(result, cursor, limit);
     }
@@ -270,5 +263,4 @@ public abstract class AbstractAasRepository implements AasRepository {
                         .build())
                 .build();
     }
-
 }
