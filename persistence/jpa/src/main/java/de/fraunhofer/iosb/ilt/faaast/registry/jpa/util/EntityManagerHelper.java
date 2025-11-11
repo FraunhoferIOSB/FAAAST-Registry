@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 
 
 /**
@@ -118,6 +119,36 @@ public class EntityManagerHelper {
         }
         queryCriteria.orderBy(builder.asc(root.get("id")));
         return doPaging(entityManager, AssetAdministrationShellDescriptor.class, limit, cursor, queryCriteria);
+    }
+
+
+    /**
+     * Fetches all instances of aasIdentifiers, matching the given criteria.
+     *
+     * @param entityManager The entityManager to use.
+     * @param specificAssetIds The desired specificAssetIds.
+     * @param globalAssetId The desired globalAssetId.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @return All aasIdentifiers matching the given criteria.
+     */
+    public static Page<String> getPagedAasIds(EntityManager entityManager, List<SpecificAssetId> specificAssetIds, String globalAssetId, int limit, int cursor) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<String> queryCriteria = builder.createQuery(String.class);
+        Root<JpaAssetAdministrationShellDescriptor> root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
+        List<Predicate> predicates = new ArrayList<>();
+        if (specificAssetIds != null) {
+            predicates.add(builder.equal(root.get("specificAssetIds"), specificAssetIds));
+        }
+        if (globalAssetId != null) {
+            predicates.add(builder.equal(root.get("globalAssetId"), globalAssetId));
+        }
+        queryCriteria.select(root.get("id"));
+        if (!predicates.isEmpty()) {
+            queryCriteria.where(predicates.toArray(Predicate[]::new));
+        }
+        queryCriteria.orderBy(builder.asc(root.get("id")));
+        return doPaging(entityManager, String.class, limit, cursor, queryCriteria);
     }
 
 

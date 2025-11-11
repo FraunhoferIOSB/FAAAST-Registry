@@ -51,16 +51,20 @@ public class DiscoveryController {
     @Autowired
     RegistryService service;
 
-
     /**
-     * Returns a list of Asset Administration Shell ids linked to specific Asset identifiers. "Identifiers of all Asset Administration Shells which contain all asset identifier
-     * key-value-pairs in their asset information, i.e. AND-match of key-value-pairs per Asset Administration Shell." (AAS Part 2: API, v3.0.1, p.75)
+     * Returns a list of Asset Administration Shell ids linked to specific Asset identifiers. "Identifiers of all Asset
+     * Administration Shells which contain all asset identifier
+     * key-value-pairs in their asset information, i.e. AND-match of key-value-pairs per Asset Administration Shell." (AAS
+     * Part 2: API, v3.0.1, p.75)
      *
-     * @param assetIds A list of specific Asset identifiers. Each Asset identifier is a base64-url-encoded SpecificAssetId. An AssetLink might be either derived from a
-     *         SpecificAssetId ("name": "'specificAssetId.name'", "value": "'specificAssetId.value'") - globalAssetId ("name": "globalAssetId", "value": "'globalAssetId-value'").
-     *         The default value is an empty list.
+     * @param assetIds A list of specific Asset identifiers. Each Asset identifier is a base64-url-encoded SpecificAssetId.
+     *            An AssetLink might be either derived from a
+     *            SpecificAssetId ("name": "'specificAssetId.name'", "value": "'specificAssetId.value'") - globalAssetId
+     *            ("name": "globalAssetId", "value": "'globalAssetId-value'").
+     *            The default value is an empty list.
      * @param limit The maximum number of elements in the response array. minimum: 1
-     * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the result listing should continue.
+     * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the
+     *            result listing should continue.
      * @return Requested Asset Administration Shell ids.
      */
     @GetMapping
@@ -74,7 +78,8 @@ public class DiscoveryController {
 
 
     /**
-     * Returns a list of specific Asset identifiers based on an Asset Administration Shell id to edit discoverable content. The global asset ID - if available - is returned as a
+     * Returns a list of specific Asset identifiers based on an Asset Administration Shell id to edit discoverable content.
+     * The global asset ID - if available - is returned as a
      * specific Asset identifier with "name" equal to "globalAssetId" (AASd-116).
      *
      * @param aasIdentifier The Asset Administration Shell’s unique id (UTF8-BASE64-URL-encoded).
@@ -97,7 +102,8 @@ public class DiscoveryController {
 
 
     /**
-     * Creates specific Asset identifiers linked to an Asset Administration Shell to edit discoverable content. The global asset ID can be passed as and is returned as specific
+     * Creates specific Asset identifiers linked to an Asset Administration Shell to edit discoverable content. The global
+     * asset ID can be passed as and is returned as specific
      * asset ID with "name" equal to "globalAssetId" (AASd-116).
      *
      * @param aasIdentifier The Asset Administration Shell’s unique id (UTF8-BASE64-URL-encoded).

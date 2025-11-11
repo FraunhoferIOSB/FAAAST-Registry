@@ -25,6 +25,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -72,11 +73,24 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
         Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
 
-        List<AssetAdministrationShellDescriptor> shellDescriptors = EntityManagerHelper.getAll(entityManager,
-                JpaAssetAdministrationShellDescriptor.class,
-                AssetAdministrationShellDescriptor.class);
+        List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
+                .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
+                .toList();
 
-        return filterAssetAdministrationShellDescriptors(shellDescriptors, specificAssetIds, pagingInfo);
+        String globalAssetIdString = null;
+
+        if (globalAssetIds.size() > 1) {
+            // An AAS descriptor can only have one globalAssetId.
+            return Page.of();
+        }
+        else if (!globalAssetIds.isEmpty()) {
+            SpecificAssetId globalAssetId = globalAssetIds.get(0);
+            // Disentangle specificAssetId from globalAssetId
+            specificAssetIds.remove(globalAssetId);
+            globalAssetIdString = globalAssetIds.get(0).getValue();
+        }
+
+        return EntityManagerHelper.getPagedAasIds(entityManager, specificAssetIds, globalAssetIdString, readLimit(pagingInfo), readCursor(pagingInfo));
     }
 
 
@@ -156,8 +170,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException,
-            ResourceAlreadyExistsException {
+    public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
