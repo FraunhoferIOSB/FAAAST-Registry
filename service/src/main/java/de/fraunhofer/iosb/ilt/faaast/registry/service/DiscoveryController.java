@@ -48,8 +48,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping(value = Constants.DISCOVERY_PATH)
 public class DiscoveryController {
 
+    private final RegistryService service;
+
     @Autowired
-    RegistryService service;
+    public DiscoveryController(RegistryService service) {
+        this.service = service;
+    }
+
 
     /**
      * Returns a list of Asset Administration Shell ids linked to specific Asset identifiers. "Identifiers of all Asset

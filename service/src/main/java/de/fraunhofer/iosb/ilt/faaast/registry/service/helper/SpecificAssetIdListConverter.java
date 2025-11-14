@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
@@ -32,7 +33,7 @@ public class SpecificAssetIdListConverter implements Converter<String, List<Spec
     private final JsonDeserializer jsonDeserializer = new JsonDeserializer();
 
     @Override
-    public List<SpecificAssetId> convert(@Nonnull String source) {
+    public @Nullable List<SpecificAssetId> convert(@Nonnull String source) {
         try {
             return jsonDeserializer.readList(EncodingHelper.base64UrlDecode(source), SpecificAssetId.class);
         }
