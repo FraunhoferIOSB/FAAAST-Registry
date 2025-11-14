@@ -126,7 +126,8 @@ public class EntityManagerHelper {
 
 
     /**
-     * Returns a list of AAS descriptors filtered by the given globalAssetId and SpecificAssetId's "name" and "value" fields
+     * Returns a list of AAS descriptors filtered by the given globalAssetId and SpecificAssetId's "name" and "value"
+     * fields.
      *
      * @param entityManager The entityManager to use.
      * @param specificAssetIdNamesValues The desired specificAssetIds "name" and "value" fields.

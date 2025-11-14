@@ -17,11 +17,10 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
@@ -312,12 +311,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
         List<SpecificAssetId> specificAssetIds = new ArrayList<>();
         aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
-                        .name(sid.getName())
-                        .value(sid.getValue())
-                        .supplementalSemanticIds(sid.getSupplementalSemanticIds())
-                        .semanticId(sid.getSemanticId())
-                        .externalSubjectId(sid.getExternalSubjectId())
-                        .build())
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(sid.getSupplementalSemanticIds())
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
                 .forEach(specificAssetIds::add);
 
         String globalAssetId = aasWithSubmodel.getGlobalAssetId();
@@ -344,12 +343,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
         List<SpecificAssetId> specificAssetIds = new ArrayList<>();
         aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
-                        .name(sid.getName())
-                        .value(sid.getValue())
-                        .supplementalSemanticIds(sid.getSupplementalSemanticIds())
-                        .semanticId(sid.getSemanticId())
-                        .externalSubjectId(sid.getExternalSubjectId())
-                        .build())
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(sid.getSupplementalSemanticIds())
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
                 .forEach(specificAssetIds::add);
 
         String globalAssetId = aasWithSubmodel.getGlobalAssetId();
@@ -383,12 +382,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
         List<SpecificAssetId> specificAssetIds = new ArrayList<>();
         aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
-                        .name(sid.getName())
-                        .value(sid.getValue())
-                        .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
-                        .semanticId(sid.getSemanticId())
-                        .externalSubjectId(sid.getExternalSubjectId())
-                        .build())
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
                 .forEach(specificAssetIds::add);
 
         String globalAssetId = aasWithSubmodel.getGlobalAssetId();
@@ -422,12 +421,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
         List<SpecificAssetId> specificAssetIds = new ArrayList<>();
         aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
-                        .name(sid.getName())
-                        .value(sid.getValue())
-                        .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
-                        .semanticId(sid.getSemanticId())
-                        .externalSubjectId(sid.getExternalSubjectId())
-                        .build())
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
                 .forEach(specificAssetIds::add);
 
         String globalAssetId = aasWithSubmodel.getGlobalAssetId();
