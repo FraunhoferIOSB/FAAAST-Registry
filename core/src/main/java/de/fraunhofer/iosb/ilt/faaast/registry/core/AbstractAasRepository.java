@@ -212,10 +212,9 @@ public abstract class AbstractAasRepository implements AasRepository {
     private boolean contains(List<SpecificAssetId> subset, List<SpecificAssetId> superset) {
         // Remove all that are contained in the superset (i.e. keep all that are not in superset)
         for (SpecificAssetId subId: subset) {
-            if (superset.stream().anyMatch(superId -> specificAssetIdEquality(superId, subId))) {
-                continue;
+            if (superset.stream().noneMatch(superId -> specificAssetIdEquality(superId, subId))) {
+                return false;
             }
-            return false;
         }
         return true;
     }
