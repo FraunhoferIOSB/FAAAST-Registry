@@ -61,6 +61,7 @@ public class DescriptionControllerIT {
         ServiceDescription expected = ServiceDescription.builder()
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
+                .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
                 .build();
         Assert.assertEquals(expected, response.getBody());
     }

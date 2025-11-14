@@ -18,8 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
@@ -57,6 +59,18 @@ public interface AasRepository {
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
     public AssetAdministrationShellDescriptor getAAS(String aasId) throws ResourceNotFoundException;
+
+
+    /**
+     * Retrieves the Asset Administration Shells Identifiers with the given SpecificAssetIDs. *All* of the SpecificAssetIds
+     * must match.
+     *
+     * @param specificAssetIds The SpecificAssetIDs of the desired Asset Administration Shells. If a specificAssetId is a
+     *            globalAssetId according to AASd-116, it is treated
+     *            as the globalAssetId of the desired Asset Administration Shells.
+     * @return The desired Asset Administration Shells identifiers.
+     */
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo);
 
 
     /**

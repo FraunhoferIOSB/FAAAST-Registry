@@ -39,6 +39,7 @@ public class DescriptionController {
         return ServiceDescription.builder()
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
+                .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
                 .build();
     }
 
