@@ -29,7 +29,9 @@ import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -90,7 +92,14 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             globalAssetIdString = globalAssetIds.get(0).getValue();
         }
 
-        return EntityManagerHelper.getPagedAasIds(entityManager, specificAssetIds, globalAssetIdString, readLimit(pagingInfo), readCursor(pagingInfo));
+        Map<String, String> specificAssetIdNameValueMap = new HashMap<>();
+        specificAssetIds.forEach(id -> specificAssetIdNameValueMap.put(id.getName(), id.getValue()));
+
+        // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
+        List<AssetAdministrationShellDescriptor> prefilteredDescriptors = EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
+
+        // We already filtered for global asset id -> No need to add it to specific asset ids again
+        return filterAssetAdministrationShellDescriptors(prefilteredDescriptors, specificAssetIds, pagingInfo);
     }
 
 

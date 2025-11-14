@@ -27,7 +27,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
+
+import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -164,6 +165,8 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
+
+
     /**
      * Helper method to filter a shell descriptor list with the desired specificAssetIds and globalAssetId.
      *
@@ -178,7 +181,7 @@ public abstract class AbstractAasRepository implements AasRepository {
         int limit = readLimit(pagingInfo);
         int cursor = readCursor(pagingInfo);
 
-        Stream<AssetAdministrationShellDescriptor> filtered = descriptors.stream();
+        List<AssetAdministrationShellDescriptor> filteredDescriptors = new ArrayList<>(descriptors);
 
         List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
                 .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
@@ -190,17 +193,49 @@ public abstract class AbstractAasRepository implements AasRepository {
         }
         else if (!globalAssetIds.isEmpty()) {
             String globalAssetId = globalAssetIds.get(0).getValue();
-            filtered = filtered.filter(descriptor -> Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
+            filteredDescriptors.removeIf(descriptor -> !Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
         }
 
         List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(specificAssetIds);
         realSpecificAssetIds.removeAll(globalAssetIds);
 
-        filtered = filtered.filter(descriptor -> descriptor.getSpecificAssetIds().containsAll(realSpecificAssetIds));
+        List<String> filteredDescriptorIds = new ArrayList<>();
 
-        List<String> result = filtered.map(AssetAdministrationShellDescriptor::getId).toList();
+        for (AssetAdministrationShellDescriptor descriptor: filteredDescriptors) {
+            if (contains(realSpecificAssetIds, descriptor.getSpecificAssetIds())) {
+                filteredDescriptorIds.add(descriptor.getId());
+            }
+        }
 
-        return getPage(result, cursor, limit);
+        return getPage(filteredDescriptorIds, cursor, limit);
+    }
+
+
+    /* Returns true if all elements of subset are contained in superset */
+    private boolean contains(List<SpecificAssetId> subset, List<SpecificAssetId> superset) {
+        // Remove all that are contained in the superset (i.e. keep all that are not in superset)
+        for (SpecificAssetId subId: subset) {
+            if (superset.stream().anyMatch(superId -> specificAssetIdEquality(superId, subId))) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean specificAssetIdEquality(SpecificAssetId a, SpecificAssetId b) {
+        return Objects.equals(a.getName(), b.getName()) &&
+                Objects.equals(a.getValue(), b.getValue()) &&
+                ReferenceHelper.equals(a.getSemanticId(), b.getSemanticId()) &&
+                ReferenceHelper.equals(a.getExternalSubjectId(), b.getExternalSubjectId()) &&
+                a.getSupplementalSemanticIds().stream()
+                        .allMatch(aSuppId -> b.getSupplementalSemanticIds().stream()
+                                .anyMatch(bSuppId -> ReferenceHelper.equals(aSuppId, bSuppId)))
+                &&
+                b.getSupplementalSemanticIds().stream()
+                        .allMatch(aSuppId -> a.getSupplementalSemanticIds().stream()
+                                .anyMatch(bSuppId -> ReferenceHelper.equals(aSuppId, bSuppId)));
     }
 
 
