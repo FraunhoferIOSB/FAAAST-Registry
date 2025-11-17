@@ -23,8 +23,10 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ public class RegistryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     public static final String AAS_NOT_NULL_TXT = "aas must be non-null";
+    public static final String SPECIFIC_ASSET_IDS_NOT_NULL_TXT = "specificAssetIds must be non-null";
     public static final String SUBMODEL_NOT_NULL_TXT = "submodel must be non-null";
 
     @Autowired
@@ -78,6 +81,21 @@ public class RegistryService {
      */
     public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
         return aasRepository.getAAS(EncodingHelper.base64UrlDecode(id));
+    }
+
+
+    /**
+     * Retrieves the Asset Administration Shell IDs with the given SpecificAssetIds.
+     *
+     * @param specificAssetIds The SpecificAssetIds of the desired Asset Administration Shells in serialized and
+     *            base64-encoded format.
+     * @param paging The paging information.
+     * @return The desired Asset Administration Shell IDs.
+     */
+    public Page<String> getAASIdsBySpecificAssetId(List<SpecificAssetId> specificAssetIds, PagingInfo paging) {
+        Ensure.requireNonNull(specificAssetIds, SPECIFIC_ASSET_IDS_NOT_NULL_TXT);
+
+        return aasRepository.getAASIdentifiers(specificAssetIds, paging);
     }
 
 
