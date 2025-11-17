@@ -6,7 +6,7 @@ Please be aware, that HTTPS is used.
 
 ## Supported API calls
 
-- Asset Administration Shell Registry Interface 
+- Asset Administration Shell Registry Interface
   - /shell-descriptors ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
   - /shell-descriptors/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
   - /shell-descriptors/{aasIdentifier}/submodel-descriptors ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
