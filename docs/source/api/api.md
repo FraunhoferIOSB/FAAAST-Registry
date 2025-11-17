@@ -16,6 +16,10 @@ Please be aware, that HTTPS is used.
     -   /submodel-descriptors ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-brightgreen)
     -   /submodel-descriptors/{submodelIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
 
+- Discovery Interface
+  - api/v3.0/lookup/shells ![GET](https://img.shields.io/badge/GET-blue)
+  - api/v3.0/lookup/shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
+
 -   Description Interface
     -   /description ![GET](https://img.shields.io/badge/GET-blue)
 

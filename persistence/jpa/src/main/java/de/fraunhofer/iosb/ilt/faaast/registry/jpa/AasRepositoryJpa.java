@@ -25,14 +25,18 @@ import de.fraunhofer.iosb.ilt.faaast.registry.jpa.util.ModelTransformationHelper
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.springframework.stereotype.Repository;
 
@@ -64,6 +68,38 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         return aas;
+    }
+
+
+    @Override
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
+        Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
+
+        List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
+                .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
+                .toList();
+
+        String globalAssetIdString = null;
+
+        if (globalAssetIds.size() > 1) {
+            // An AAS descriptor can only have one globalAssetId.
+            return Page.of();
+        }
+        else if (!globalAssetIds.isEmpty()) {
+            SpecificAssetId globalAssetId = globalAssetIds.get(0);
+            // Disentangle specificAssetId from globalAssetId
+            specificAssetIds.remove(globalAssetId);
+            globalAssetIdString = globalAssetIds.get(0).getValue();
+        }
+
+        Map<String, String> specificAssetIdNameValueMap = new HashMap<>();
+        specificAssetIds.forEach(id -> specificAssetIdNameValueMap.put(id.getName(), id.getValue()));
+
+        // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
+        List<AssetAdministrationShellDescriptor> prefilteredDescriptors = EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
+
+        // We already filtered for global asset id -> No need to add it to specific asset ids again
+        return filterAssetAdministrationShellDescriptors(prefilteredDescriptors, specificAssetIds, pagingInfo);
     }
 
 
