@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
 
 
 /**
@@ -73,12 +74,15 @@ public class RegistryControllerAdvice {
 
 
     /**
-     * Handles BadRequestException.
+     * Handles BadRequestException and MethodArgumentConversionNotSupportedException.
      *
      * @param e The desired exception.
      * @return The corresponding response.
      */
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler({
+            BadRequestException.class,
+            MethodArgumentConversionNotSupportedException.class
+    })
     public ResponseEntity<Result> handleBadRequestException(Exception e) {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
@@ -97,6 +101,7 @@ public class RegistryControllerAdvice {
      * @param e The desired exception.
      * @return The corresponding response.
      */
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<Result> handleExceptions(Exception e) {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
