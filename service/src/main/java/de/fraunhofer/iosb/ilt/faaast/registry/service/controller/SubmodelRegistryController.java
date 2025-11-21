@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExis
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.CommonConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -52,8 +53,14 @@ public class SubmodelRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelRegistryController.class);
 
+    //@Autowired
+    private final RegistryService service;
+
     @Autowired
-    RegistryService service;
+    public SubmodelRegistryController(RegistryService service) {
+        this.service = service;
+    }
+
 
     /**
      * Retrieves a list of all registered Submodels.

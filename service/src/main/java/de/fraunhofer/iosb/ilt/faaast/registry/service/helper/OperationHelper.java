@@ -14,16 +14,23 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
+import java.util.UUID;
+
+
 /**
- * Class with Constant definitions.
+ * Utility class for handling operation-related helper methods.
  */
-public final class Constants {
+public class OperationHelper {
 
-    public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
-    public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
-    public static final String DESCRIPTION_REQUEST_PATH = "/description";
-    public static final String BULK_REQUEST_PATH = "/bulk";
-    public static final String DISCOVERY_PATH = "/lookup/shells";
+    private OperationHelper() {}
 
-    private Constants() {}
+
+    /**
+     * Generates a unique identifier for a bulk operation handle.
+     *
+     * @return a unique operation handle ID as a {@link String}
+     */
+    public static String generateOperationHandleId() {
+        return "OperationHandle-" + UUID.randomUUID();
+    }
 }
