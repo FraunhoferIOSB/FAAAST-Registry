@@ -35,13 +35,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 /**
- * Class with configuration for enum converters.
- * They are necessary for the request parameter.
+ * Class with configuration for enum converters. They are necessary for the request parameter.
  */
 @Configuration
 public class ControllerConfig implements WebMvcConfigurer {
 
-    private static final String URL_PATH1 = "%s/**";
+    private static final String URL_PATH1 = "/**";
     private static final String URL_PATH2 = "%s%s/**";
 
     @Value("${cors.enabled:false}")
@@ -92,8 +91,14 @@ public class ControllerConfig implements WebMvcConfigurer {
         if (!corsEnabled) {
             return;
         }
-        CorsRegistration registration = registry.addMapping(String.format(URL_PATH1, apiPrefix));
-        registration.allowedOrigins(corsAllowedOrigins.toArray(String[]::new));
+        CorsRegistration registration = registry.addMapping(URL_PATH1);
+        if (corsAllowedOrigins == null || corsAllowedOrigins.isEmpty()) {
+            registration.allowedOriginPatterns(""); // safe default; use explicit origins if credentials are needed
+        }
+        else {
+            // If you ever set allowCredentials=true, don’t use allowedOrigins(""); use allowedOriginPatterns("*") or explicit origins
+            registration.allowedOrigins(corsAllowedOrigins.toArray(String[]::new));
+        }
         registration.allowedMethods(corsAllowedMethods.toArray(String[]::new));
         registration.allowedHeaders(corsAllowedHeaders.toArray(String[]::new));
         registration.exposedHeaders(corsExposedHeaders.toArray(String[]::new));
