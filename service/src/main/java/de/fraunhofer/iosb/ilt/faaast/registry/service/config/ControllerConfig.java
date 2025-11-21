@@ -92,12 +92,29 @@ public class ControllerConfig implements WebMvcConfigurer {
             return;
         }
         CorsRegistration registration = registry.addMapping(URL_PATH1);
-        if (corsAllowedOrigins == null || corsAllowedOrigins.isEmpty()) {
-            registration.allowedOriginPatterns(""); // safe default; use explicit origins if credentials are needed
+        String[] origins = (corsAllowedOrigins == null)
+                ? new String[0]
+                : corsAllowedOrigins.stream().map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+
+        boolean containsWildcard = java.util.Arrays.stream(origins).anyMatch("*"::equals);
+        if (corsAllowCredentials) {
+            // With credentials, never use allowedOrigins("*"). Use patterns or explicit origins.
+            if (containsWildcard) {
+                registration.allowedOriginPatterns("*");
+            }
+            else if (origins.length > 0) {
+                registration.allowedOriginPatterns(origins);
+            }
+            // else: no origin configured -> none allowed (safe default)
         }
         else {
-            // If you ever set allowCredentials=true, don’t use allowedOrigins(""); use allowedOriginPatterns("*") or explicit origins
-            registration.allowedOrigins(corsAllowedOrigins.toArray(String[]::new));
+            // No credentials: "*" is allowed with allowedOrigins
+            if (origins.length == 0 || containsWildcard) {
+                registration.allowedOrigins("*");
+            }
+            else {
+                registration.allowedOrigins(origins);
+            }
         }
         registration.allowedMethods(corsAllowedMethods.toArray(String[]::new));
         registration.allowedHeaders(corsAllowedHeaders.toArray(String[]::new));
