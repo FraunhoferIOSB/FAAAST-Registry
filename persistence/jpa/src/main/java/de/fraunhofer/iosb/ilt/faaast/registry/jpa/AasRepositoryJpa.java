@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSubmodelDescriptorStandalone;
@@ -193,6 +194,13 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         entityManager.remove(submodel);
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging) {
+        return EntityManagerHelper.getAllQueryPaged(entityManager, JpaAssetAdministrationShellDescriptor.class, AssetAdministrationShellDescriptor.class, readLimit(paging),
+                readCursor(paging), query);
     }
 
 

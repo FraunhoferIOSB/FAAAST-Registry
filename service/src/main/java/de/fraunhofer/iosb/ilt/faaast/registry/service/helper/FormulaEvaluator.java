@@ -14,10 +14,10 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.AttributeItem;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.LogicalExpression;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.StringValue;
-import de.fraunhofer.iosb.ilt.faaast.registry.service.query.json.Value;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.AttributeItem;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.LogicalExpression;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.StringValue;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Value;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;

@@ -14,6 +14,8 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
@@ -25,8 +27,10 @@ import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Descriptor;
 
 
 /**
@@ -92,6 +96,28 @@ public class EntityManagerHelper {
 
 
     /**
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
+     *
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @param query The desired AAS query.
+     * @return all instances of given type matching the query cast to return type
+     */
+    public static <R extends Descriptor, T extends R> Page<R> getAllQueryPaged(EntityManager entityManager, Class<T> type, Class<R> returnType, int limit, int cursor,
+                                                                               Query query) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> queryCriteria = builder.createQuery(type);
+        queryCriteria.select(queryCriteria.from(type));
+        return doQueryPaging(entityManager, returnType, limit, cursor, queryCriteria, query);
+    }
+
+
+    /**
      * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
      *
      * @param entityManager The entityManager to use.
@@ -132,6 +158,29 @@ public class EntityManagerHelper {
         }
         return Page.<R> builder()
                 .result(list.stream().limit(limit).toList())
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
+    }
+
+
+    private static <R extends Descriptor, T extends R> Page<R> doQueryPaging(EntityManager entityManager, Class<R> returnType, int limit, int cursor,
+                                                                             CriteriaQuery<T> queryCriteria, Query aasQuery) {
+        var entityQuery = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        Stream<R> list = entityQuery.getResultList().stream()
+                .map(returnType::cast);
+        //.toList();
+        String nextCursor = null;
+        if (list.count() > limit) {
+            nextCursor = Integer.toString(cursor + limit);
+        }
+        QueryEvaluator evaluator = new QueryEvaluator();
+        return Page.<R> builder()
+                .result(list
+                        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                        .limit(limit)
+                        .toList())
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor)
                         .build())

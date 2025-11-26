@@ -17,14 +17,18 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -194,6 +198,26 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         Ensure.require(submodelDescriptors.containsKey(submodelId), buildSubmodelNotFoundException(submodelId));
         submodelDescriptors.remove(submodelId);
+    }
+
+
+    @Override
+    public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging) {
+        Stream<AssetAdministrationShellDescriptor> stream = shellDescriptors.values().stream();
+        QueryEvaluator evaluator = new QueryEvaluator();
+        List<AssetAdministrationShellDescriptor> retval;
+        int limit = readLimit(paging);
+        int cursor = readCursor(paging);
+        if (query != null) {
+            retval = stream.filter(aas -> evaluator.matches(query.get$condition(), aas))
+                    .skip(cursor)
+                    .limit(limit)
+                    .toList();
+        }
+        else {
+            retval = new ArrayList<>();
+        }
+        return getPage(retval, cursor, shellDescriptors.size());
     }
 
 

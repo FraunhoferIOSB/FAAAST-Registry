@@ -18,6 +18,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
@@ -299,6 +300,20 @@ public class RegistryService {
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
         aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
         return aasRepository.addSubmodel(aasIdDecoded, submodel);
+    }
+
+
+    /**
+     * Queries for specific AASs.
+     *
+     * @param query The desired query.
+     * @param paging The paging information.
+     * @return The list of matching Asset Administration Shells.
+     */
+    public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging) {
+        Ensure.requireNonNull(query);
+        LOGGER.debug("queryAASs: {}", query);
+        return aasRepository.queryAASs(query, paging);
     }
 
 

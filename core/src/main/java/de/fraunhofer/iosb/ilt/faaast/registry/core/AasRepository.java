@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -169,4 +170,14 @@ public interface AasRepository {
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException;
+
+
+    /**
+     * Execute queries for specific AASs.
+     *
+     * @param query The desired query.
+     * @param paging The requested Paging info.
+     * @return The list of matching Asset Administration Shells.
+     */
+    public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging);
 }
