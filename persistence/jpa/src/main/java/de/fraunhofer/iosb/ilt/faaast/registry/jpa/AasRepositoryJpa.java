@@ -204,6 +204,13 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
+    @Override
+    public Page<SubmodelDescriptor> querySubmodels(Query query, PagingInfo paging) {
+        return EntityManagerHelper.getAllQueryPaged(entityManager, JpaSubmodelDescriptorStandalone.class, SubmodelDescriptor.class, readLimit(paging),
+                readCursor(paging), query);
+    }
+
+
     private JpaAssetAdministrationShellDescriptor fetchAAS(String aasId) {
         try {
             return entityManager.find(JpaAssetAdministrationShellDescriptor.class, aasId);
@@ -217,4 +224,5 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     private JpaSubmodelDescriptorStandalone fetchSubmodelStandalone(String submodelId) {
         return entityManager.find(JpaSubmodelDescriptorStandalone.class, submodelId);
     }
+
 }

@@ -21,6 +21,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = Constants.QUERY_PATH)
 public class QueryController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryController.class);
 
-    RegistryService service;
+    private final RegistryService service;
 
     @Autowired
     public QueryController(RegistryService service) {
@@ -70,9 +71,36 @@ public class QueryController {
             pageBuilder.limit(limit);
         }
         else {
+            LOGGER.trace("queryAASs: no limit set - use default limit {}", AasRepository.DEFAULT_LIMIT);
             pageBuilder.limit(AasRepository.DEFAULT_LIMIT);
         }
         return service.queryAASs(query, pageBuilder.build());
     }
 
+
+    /**
+     * Queries for specific Submodels.
+     *
+     * @param limit The limit value.
+     * @param cursor The cursor value.
+     * @param query The desired query.
+     * @return The list of matching Submodels.
+     */
+    @PostMapping(value = "/submodel-descriptors")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<SubmodelDescriptor> querySubmodels(@RequestParam(name = "limit", required = false) Long limit,
+                                                   @RequestParam(name = "cursor", required = false) String cursor, @RequestBody Query query) {
+        PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
+        if (limit != null) {
+            if (limit == 0) {
+                throw new BadRequestException("Limit must be greater than 0");
+            }
+            pageBuilder.limit(limit);
+        }
+        else {
+            LOGGER.trace("querySubmodels: no limit set - use default limit {}", AasRepository.DEFAULT_LIMIT);
+            pageBuilder.limit(AasRepository.DEFAULT_LIMIT);
+        }
+        return service.querySubmodels(query, pageBuilder.build());
+    }
 }

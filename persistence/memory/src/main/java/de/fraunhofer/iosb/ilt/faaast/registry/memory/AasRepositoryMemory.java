@@ -22,7 +22,6 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,10 +40,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     private final Map<String, AssetAdministrationShellDescriptor> shellDescriptors;
     private final Map<String, SubmodelDescriptor> submodelDescriptors;
+    private final QueryEvaluator evaluator;
 
     public AasRepositoryMemory() {
         shellDescriptors = new ConcurrentHashMap<>();
         submodelDescriptors = new ConcurrentHashMap<>();
+        evaluator = new QueryEvaluator();
     }
 
 
@@ -204,20 +205,30 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     @Override
     public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging) {
         Stream<AssetAdministrationShellDescriptor> stream = shellDescriptors.values().stream();
-        QueryEvaluator evaluator = new QueryEvaluator();
-        List<AssetAdministrationShellDescriptor> retval;
         int limit = readLimit(paging);
         int cursor = readCursor(paging);
-        if (query != null) {
-            retval = stream.filter(aas -> evaluator.matches(query.get$condition(), aas))
-                    .skip(cursor)
-                    .limit(limit)
-                    .toList();
-        }
-        else {
-            retval = new ArrayList<>();
-        }
-        return getPage(retval, cursor, shellDescriptors.size());
+        List<AssetAdministrationShellDescriptor> retval = stream.filter(aas -> evaluator.matches(query.get$condition(), aas)).toList();
+        int count = retval.size();
+        retval = retval.stream()
+                .skip(cursor)
+                .limit(limit)
+                .toList();
+        return getPage(retval, cursor, count);
+    }
+
+
+    @Override
+    public Page<SubmodelDescriptor> querySubmodels(Query query, PagingInfo paging) {
+        Stream<SubmodelDescriptor> stream = submodelDescriptors.values().stream();
+        int limit = readLimit(paging);
+        int cursor = readCursor(paging);
+        List<SubmodelDescriptor> retval = stream.filter(sm -> evaluator.matches(query.get$condition(), sm)).toList();
+        int count = retval.size();
+        retval = retval.stream()
+                .skip(cursor)
+                .limit(limit)
+                .toList();
+        return getPage(retval, cursor, count);
     }
 
 

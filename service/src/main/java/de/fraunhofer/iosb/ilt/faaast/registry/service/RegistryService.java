@@ -317,6 +317,20 @@ public class RegistryService {
     }
 
 
+    /**
+     * Queries for specific Submodels.
+     *
+     * @param query The desired query.
+     * @param paging The paging information.
+     * @return The list of matching Submodels.
+     */
+    public Page<SubmodelDescriptor> querySubmodels(Query query, PagingInfo paging) {
+        Ensure.requireNonNull(query);
+        LOGGER.debug("querySubmodels: {}", query);
+        return aasRepository.querySubmodels(query, paging);
+    }
+
+
     private void checkSubmodelIdentifiers(SubmodelDescriptor submodel) throws BadRequestException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         if ((submodel.getId() == null) || (submodel.getId().isEmpty())) {

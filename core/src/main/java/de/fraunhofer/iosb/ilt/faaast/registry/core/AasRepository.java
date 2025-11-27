@@ -180,4 +180,14 @@ public interface AasRepository {
      * @return The list of matching Asset Administration Shells.
      */
     public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging);
+
+
+    /**
+     * Execute queries for specific Submodels.
+     *
+     * @param query The desired query.
+     * @param paging The requested Paging info.
+     * @return The list of matching Submodels.
+     */
+    public Page<SubmodelDescriptor> querySubmodels(Query query, PagingInfo paging);
 }
