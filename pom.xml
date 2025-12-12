@@ -58,7 +58,7 @@
         <h2.version>2.4.240</h2.version>
         <hibernate.version>6.6.36.Final</hibernate.version>
         <jackson.annotations.version>2.20</jackson.annotations.version>
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>3.0.3</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
         <logback.version>1.5.22</logback.version>
@@ -93,8 +93,8 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
-        <spring.boot.version>3.5.7</spring.boot.version>
-        <spring.web.version>6.2.12</spring.web.version>
+        <spring.boot.version>4.0.0</spring.boot.version>
+        <spring.web.version>7.0.2</spring.web.version>
         <tomcat.embed.core.version>11.0.15</tomcat.embed.core.version>
     </properties>
     <dependencies>

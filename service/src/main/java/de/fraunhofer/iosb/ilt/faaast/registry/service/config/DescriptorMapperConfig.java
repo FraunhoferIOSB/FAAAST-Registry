@@ -15,11 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.EnumDeserializer3;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.EnumSerializer3;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.PageMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.mixins.ServiceSpecificationProfileMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
@@ -27,8 +24,6 @@ import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.ProtocolInformationMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.SecurityAttributeObjectMixin;
 import de.fraunhofer.iosb.ilt.faaast.service.registry.SpecificAssetIdMixin;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.deserialization.EnumDeserializer;
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.serialization.EnumSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.DataSpecificationIec61360Mixin;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.EndpointMixin;
@@ -76,10 +71,15 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.core.Version;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.module.SimpleAbstractTypeResolver;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.util.StdDateFormat;
 
 
 /**
@@ -95,7 +95,7 @@ public class DescriptorMapperConfig {
      */
     @Bean
     @Primary
-    public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
+    public JsonMapperBuilderCustomizer jacksonCustomizer() {
         SimpleModule module = new SimpleModule("AasModel", Version.unknownVersion());
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
@@ -121,26 +121,26 @@ public class DescriptorMapperConfig {
         resolver.addMapping(DataSpecificationContent.class, DataSpecificationIec61360.class);
         resolver.addMapping(SecurityAttributeObject.class, DefaultSecurityAttributeObject.class);
 
-        ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer()));
-        ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer(x)));
+        ReflectionHelper.ENUMS.forEach(x -> module.addSerializer(x, new EnumSerializer3()));
+        ReflectionHelper.ENUMS.forEach(x -> module.addDeserializer(x, new EnumDeserializer3(x)));
 
         module.setAbstractTypes(resolver);
-        return new Jackson2ObjectMapperBuilder()
-                .modules(module)
-                .mixIn(Page.class, PageMixin.class)
-                .mixIn(Endpoint.class, EndpointMixin.class)
-                .mixIn(DataSpecificationIec61360.class, DataSpecificationIec61360Mixin.class)
-                .mixIn(Extension.class, ExtensionMixin.class)
-                .mixIn(Key.class, KeyMixin.class)
-                .mixIn(Reference.class, ReferenceMixin.class)
-                .mixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class)
-                .mixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
-                .mixIn(Endpoint.class, EndpointMixin.class)
-                .mixIn(ProtocolInformation.class, ProtocolInformationMixin.class)
-                .mixIn(SpecificAssetId.class, SpecificAssetIdMixin.class)
-                .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .featuresToEnable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
-                .dateFormat(new StdDateFormat().withColonInTimeZone(true))
-                .serializationInclusion(JsonInclude.Include.NON_EMPTY);
+        return builder -> builder
+                .addModule(module)
+                .addMixIn(Page.class, PageMixin.class)
+                .addMixIn(Endpoint.class, EndpointMixin.class)
+                .addMixIn(DataSpecificationIec61360.class, DataSpecificationIec61360Mixin.class)
+                .addMixIn(Extension.class, ExtensionMixin.class)
+                .addMixIn(Key.class, KeyMixin.class)
+                .addMixIn(Reference.class, ReferenceMixin.class)
+                .addMixIn(ServiceSpecificationProfile.class, ServiceSpecificationProfileMixin.class)
+                .addMixIn(SecurityAttributeObject.class, SecurityAttributeObjectMixin.class)
+                .addMixIn(Endpoint.class, EndpointMixin.class)
+                .addMixIn(ProtocolInformation.class, ProtocolInformationMixin.class)
+                .addMixIn(SpecificAssetId.class, SpecificAssetIdMixin.class)
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .enable(DateTimeFeature.WRITE_DATES_WITH_ZONE_ID)
+                .defaultDateFormat(new StdDateFormat().withColonInTimeZone(true))
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY));
     }
 }
