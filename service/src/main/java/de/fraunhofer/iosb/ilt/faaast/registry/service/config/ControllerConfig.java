@@ -26,6 +26,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.filter.UrlHandlerFilter;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -38,6 +39,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Class with configuration for enum converters. They are necessary for the request parameter.
  */
 @Configuration
+@EnableTransactionManagement
 public class ControllerConfig implements WebMvcConfigurer {
 
     private static final String URL_PATH1 = "/**";
@@ -143,6 +145,7 @@ public class ControllerConfig implements WebMvcConfigurer {
                 .trailingSlashHandler(String.format(URL_PATH2, apiPrefix, Constants.SHELL_REQUEST_PATH)).wrapRequest()
                 .trailingSlashHandler(String.format(URL_PATH2, apiPrefix, Constants.SUBMODEL_REQUEST_PATH)).wrapRequest()
                 .trailingSlashHandler(String.format(URL_PATH2, apiPrefix, Constants.DESCRIPTION_REQUEST_PATH)).wrapRequest()
+                .trailingSlashHandler(String.format(URL_PATH2, apiPrefix, Constants.BULK_REQUEST_PATH)).wrapRequest()
                 .build());
         return registrationBean;
     }
