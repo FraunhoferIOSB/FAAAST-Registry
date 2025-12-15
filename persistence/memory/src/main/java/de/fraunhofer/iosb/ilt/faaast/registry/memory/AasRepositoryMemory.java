@@ -27,10 +27,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 
 
 /**
@@ -78,6 +81,14 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(id);
         Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
+    }
+
+
+    @Override
+    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
+        Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
+
+        return filterAssetAdministrationShellDescriptors(shellsDeepCopy(), specificAssetIds, pagingInfo);
     }
 
 
@@ -255,6 +266,26 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         else {
             return aas.getAssetKind() == assetKind;
         }
+    }
+
+
+    private List<AssetAdministrationShellDescriptor> shellsDeepCopy() {
+        return shellDescriptors.values().stream()
+                .map(descriptor -> new DefaultAssetAdministrationShellDescriptor.Builder()
+                        .id(descriptor.getId())
+                        .idShort(descriptor.getIdShort())
+                        .specificAssetIds(descriptor.getSpecificAssetIds())
+                        .globalAssetId(descriptor.getGlobalAssetId())
+                        .submodelDescriptors(descriptor.getSubmodelDescriptors())
+                        .extensions(descriptor.getExtensions())
+                        .endpoints(descriptor.getEndpoints())
+                        .displayName(descriptor.getDisplayName())
+                        .administration(descriptor.getAdministration())
+                        .assetType(descriptor.getAssetType())
+                        .assetKind(descriptor.getAssetKind())
+                        .description(descriptor.getDescription())
+                        .build())
+                .collect(Collectors.toUnmodifiableList());
     }
 
 }

@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.config;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.AssetKindConverter;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.SpecificAssetIdListConverter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -34,13 +35,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 /**
- * Class with configuration for enum converters.
- * They are necessary for the request parameter.
+ * Class with configuration for enum converters. They are necessary for the request parameter.
  */
 @Configuration
 public class ControllerConfig implements WebMvcConfigurer {
 
-    private static final String URL_PATH1 = "%s/**";
+    private static final String URL_PATH1 = "/**";
     private static final String URL_PATH2 = "%s%s/**";
 
     @Value("${cors.enabled:false}")
@@ -107,8 +107,31 @@ public class ControllerConfig implements WebMvcConfigurer {
         if (!corsEnabled) {
             return;
         }
-        CorsRegistration registration = registry.addMapping(String.format(URL_PATH1, apiPrefix));
-        registration.allowedOrigins(corsAllowedOrigins.toArray(String[]::new));
+        CorsRegistration registration = registry.addMapping(URL_PATH1);
+        String[] origins = (corsAllowedOrigins == null)
+                ? new String[0]
+                : corsAllowedOrigins.stream().map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+
+        boolean containsWildcard = java.util.Arrays.stream(origins).anyMatch("*"::equals);
+        if (corsAllowCredentials) {
+            // With credentials, never use allowedOrigins("*"). Use patterns or explicit origins.
+            if (containsWildcard) {
+                registration.allowedOriginPatterns("*");
+            }
+            else if (origins.length > 0) {
+                registration.allowedOriginPatterns(origins);
+            }
+            // else: no origin configured -> none allowed (safe default)
+        }
+        else {
+            // No credentials: "*" is allowed with allowedOrigins
+            if (origins.length == 0 || containsWildcard) {
+                registration.allowedOrigins("*");
+            }
+            else {
+                registration.allowedOrigins(origins);
+            }
+        }
         registration.allowedMethods(corsAllowedMethods.toArray(String[]::new));
         registration.allowedHeaders(corsAllowedHeaders.toArray(String[]::new));
         registration.exposedHeaders(corsExposedHeaders.toArray(String[]::new));
@@ -120,6 +143,7 @@ public class ControllerConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new AssetKindConverter());
+        registry.addConverter(new SpecificAssetIdListConverter());
     }
 
 

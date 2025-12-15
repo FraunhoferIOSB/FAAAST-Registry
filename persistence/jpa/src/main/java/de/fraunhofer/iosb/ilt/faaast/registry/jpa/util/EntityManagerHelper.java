@@ -17,15 +17,19 @@ package de.fraunhofer.iosb.ilt.faaast.registry.jpa.util;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaAssetAdministrationShellDescriptor;
+import de.fraunhofer.iosb.ilt.faaast.registry.jpa.model.JpaSpecificAssetId;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
@@ -144,6 +148,76 @@ public class EntityManagerHelper {
         }
         queryCriteria.orderBy(builder.asc(root.get("id")));
         return doPaging(entityManager, AssetAdministrationShellDescriptor.class, limit, cursor, queryCriteria);
+    }
+
+
+    /**
+     * Returns a list of AAS descriptors filtered by the given globalAssetId and SpecificAssetId's "name" and "value"
+     * fields.
+     *
+     * @param entityManager The entityManager to use.
+     * @param specificAssetIdNamesValues The desired specificAssetIds "name" and "value" fields.
+     * @param globalAssetId The desired globalAssetId.
+     * @return All AAS descriptors matching the given criteria.
+     */
+    public static List<AssetAdministrationShellDescriptor> getAas(EntityManager entityManager, Map<String, String> specificAssetIdNamesValues, String globalAssetId) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AssetAdministrationShellDescriptor> queryCriteria = builder.createQuery(AssetAdministrationShellDescriptor.class);
+        Root<JpaAssetAdministrationShellDescriptor> root = queryCriteria.from(JpaAssetAdministrationShellDescriptor.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (specificAssetIdNamesValues != null && !specificAssetIdNamesValues.isEmpty()) {
+            predicates.add(createSpecificAssetIdSubquery(root, specificAssetIdNamesValues, queryCriteria, builder));
+        }
+
+        if (globalAssetId != null) {
+            predicates.add(builder.equal(root.get("globalAssetId"), globalAssetId));
+        }
+        queryCriteria.select(root);
+        if (!predicates.isEmpty()) {
+            queryCriteria.where(predicates.toArray(Predicate[]::new));
+        }
+        queryCriteria.orderBy(builder.asc(root));
+        var query = entityManager.createQuery(queryCriteria);
+
+        // Return default AAS descriptor implementation objects
+        return query.getResultList();
+    }
+
+
+    private static Predicate createSpecificAssetIdSubquery(
+                                                           Root<JpaAssetAdministrationShellDescriptor> root,
+                                                           Map<String, String> specificAssetIdNamesValues,
+                                                           CriteriaQuery<AssetAdministrationShellDescriptor> queryCriteria,
+                                                           CriteriaBuilder cb) {
+
+        Subquery<Long> subquery = queryCriteria.subquery(Long.class);
+        Root<JpaAssetAdministrationShellDescriptor> subRoot = subquery.from(JpaAssetAdministrationShellDescriptor.class);
+        Join<JpaAssetAdministrationShellDescriptor, JpaSpecificAssetId> join = subRoot.join("specificAssetIds");
+
+        // correlate
+        Predicate correlate = cb.equal(subRoot, root);
+
+        // OR of all key/value combinations to count matched pairs
+        List<Predicate> anyMatch = new ArrayList<>();
+        for (Map.Entry<String, String> specificAssetIdNameValuePair: specificAssetIdNamesValues.entrySet()) {
+            anyMatch.add(cb.and(
+                    cb.equal(join.get("name"), specificAssetIdNameValuePair.getKey()),
+                    cb.equal(join.get("value"), specificAssetIdNameValuePair.getValue())));
+        }
+
+        // JOIN ->  | Descriptor.id | Descriptor.idShort | ... | SpecificAssetId.name | SpecificAssetId.value | ... |
+        // WHERE -> Filter all rows where SpecificAssetId.name and SpecificAssetId.value match one of the arguments SpecificAssetIds
+        // WHERE -> Filter all rows with the other clauses from the root query
+        // COUNT all rows, grouping by Descriptor.id -> For each Descriptor, get "how many specific asset ids matched".
+        //          The "distinct" part prohibits any duplicate SpecificAssetIds to count as multiple matches -> If a Descriptor has duplicate SpecificAssetIds, they count as one.
+        // SELECT all ids from the Descriptors which have exactly as many filtered SpecificAssetIds as the argument.
+
+        subquery.select(cb.countDistinct(join.get("id")))
+                .where(cb.and(correlate, cb.or(anyMatch.toArray(Predicate[]::new))));
+
+        // ensure at least all provided pairs are present
+        return cb.equal(subquery, (long) specificAssetIdNamesValues.size());
     }
 
 

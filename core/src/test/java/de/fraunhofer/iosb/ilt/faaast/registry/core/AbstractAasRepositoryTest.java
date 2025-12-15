@@ -17,12 +17,14 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes;
 import org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -79,9 +81,14 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
 
     protected AssetAdministrationShellDescriptor getAASWithSubmodel() {
+        return getAASWithSubmodel("TestAAS1", "TestSubmodel1");
+    }
+
+
+    protected AssetAdministrationShellDescriptor getAASWithSubmodel(String shellId, String submodelId) {
         AssetAdministrationShellDescriptor aas = new DefaultAssetAdministrationShellDescriptor.Builder()
                 .idShort("Test1")
-                .id("TestAAS1")
+                .id(shellId)
                 .description(new DefaultLangStringTextType.Builder().text("some aas").language("en-US").build())
                 .displayName(new DefaultLangStringNameType.Builder().text("Test 1 AAS").language("en-US").build())
                 .administration(new DefaultAdministrativeInformation.Builder()
@@ -118,7 +125,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         List<SubmodelDescriptor> submodels = new ArrayList<>();
         submodels.add(new DefaultSubmodelDescriptor.Builder()
                 .idShort("Submodel1")
-                .id("TestSubmodel1")
+                .id(submodelId)
                 .description(new DefaultLangStringTextType.Builder().text("some submodel").language("en-US").build())
                 .displayName(new DefaultLangStringNameType.Builder().text("Submodel 1 Name").language("en-US").build())
                 .semanticId(new DefaultReference.Builder()
@@ -191,6 +198,324 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         Assert.assertEquals(1, aass.getContent().size());
         repository.deleteAAS("TestAAS1");
         aass = repository.getAASs(PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+    }
+
+
+    @Test
+    public void getAASIdentifiers() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
+        repository.deleteAAS("TestAAS1");
+        aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+    }
+
+
+    @Test
+    public void getAASIdentifiersReturnCorrectId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        // Create AASDescriptor that will not match.
+        AssetAdministrationShellDescriptor anotherAasWithSubmodel = getAASWithSubmodel("my-aas-2", "my-sm-2");
+        anotherAasWithSubmodel.getSpecificAssetIds().clear();
+
+        repository.create(aasWithSubmodel);
+        repository.create(anotherAasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+        aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+    }
+
+
+    @Test
+    public void getAASIdentifiersMismatchingGlobalAssetId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId + "mismatch")
+                .build();
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersDuplicateSpecificAssetId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+        specificAssetIds.add(specificAssetIds.get(0));
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+        aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+    }
+
+
+    @Test
+    public void getAASIdentifiersMismatchingSpecificAssetId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>();
+        aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(sid.getSupplementalSemanticIds())
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
+                .forEach(specificAssetIds::add);
+
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.get(0).setValue(specificAssetIds.get(0).getValue() + "mismatch");
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersMismatchingSemanticId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>();
+        aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(sid.getSupplementalSemanticIds())
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
+                .forEach(specificAssetIds::add);
+
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.get(0).setSemanticId(
+                new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.ASSET_ADMINISTRATION_SHELL)
+                                .value("id")
+                                .build())
+                        .build());
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersMismatchingSupplementalSemanticIds() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>();
+        aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
+                .forEach(specificAssetIds::add);
+
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.get(0).getSupplementalSemanticIds().add(
+                new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.ASSET_ADMINISTRATION_SHELL)
+                                .value("id")
+                                .build())
+                        .build());
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersMismatchingExternalSubjectIds() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>();
+        aasWithSubmodel.getSpecificAssetIds().stream().map(sid -> new DefaultSpecificAssetId.Builder()
+                .name(sid.getName())
+                .value(sid.getValue())
+                .supplementalSemanticIds(new ArrayList<>(sid.getSupplementalSemanticIds()))
+                .semanticId(sid.getSemanticId())
+                .externalSubjectId(sid.getExternalSubjectId())
+                .build())
+                .forEach(specificAssetIds::add);
+
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.get(0).setExternalSubjectId(
+                new DefaultReference.Builder()
+                        .keys(new DefaultKey.Builder()
+                                .type(KeyTypes.ASSET_ADMINISTRATION_SHELL)
+                                .value("id")
+                                .build())
+                        .build());
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersTooManySpecificAssetIds() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+        // Add random specific asset id that is not in the repository
+        specificAssetIds.add(new DefaultSpecificAssetId.Builder().name("my-sp-a-id").value("my-value").build());
+
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+    }
+
+
+    @Test
+    public void getAASIdentifiersNoSpecificAssetId() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+        List<SpecificAssetId> specificAssetIds = new ArrayList<>(aasWithSubmodel.getSpecificAssetIds());
+        String globalAssetId = aasWithSubmodel.getGlobalAssetId();
+
+        repository.create(aasWithSubmodel);
+
+        SpecificAssetId globalAssetIdAsSpecificAssetId = new DefaultSpecificAssetId.Builder()
+                .name(FaaastConstants.KEY_GLOBAL_ASSET_ID)
+                .value(globalAssetId)
+                .build();
+
+        specificAssetIds.clear();
+        specificAssetIds.add(globalAssetIdAsSpecificAssetId);
+
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+        aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(0, aass.getContent().size());
+    }
+
+
+    @Test
+    public void getAASIdentifiersNoIdsInQuery() throws Exception {
+        AssetAdministrationShellDescriptor aasWithSubmodel = getAASWithSubmodel();
+
+        repository.create(aasWithSubmodel);
+        List<SpecificAssetId> specificAssetIds = List.of();
+        Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
+        Assert.assertNotNull(aass);
+        Assert.assertEquals(1, aass.getContent().size());
+        repository.deleteAAS(aasWithSubmodel.getId());
+        aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
         Assert.assertNotNull(aass);
         Assert.assertEquals(0, aass.getContent().size());
     }
