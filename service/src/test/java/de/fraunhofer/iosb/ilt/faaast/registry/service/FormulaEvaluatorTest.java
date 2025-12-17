@@ -28,10 +28,7 @@ import org.junit.Test;
 public class FormulaEvaluatorTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @Test
-    public void testFormula_ConditionsMet() throws JsonProcessingException {
-        String json= """
+    private static String ACL_JSON = """
                 {
                                     "$and": [
                                         {
@@ -93,11 +90,36 @@ public class FormulaEvaluatorTest {
                                     ]
                                 }
                 """;
+
+    @Test
+    public void testFormula_withMatchingClaims() throws JsonProcessingException {
         LogicalExpression formula = MAPPER.readValue(
-                json, new TypeReference<>() {});
+                ACL_JSON, new TypeReference<>() {});
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("CLAIM:organization", "Company2");
         ctx.put("CLAIM:email", "user2@company2.com");
         Assert.assertTrue(FormulaEvaluator.evaluate(formula, ctx));
+    }
+
+
+    @Test
+    public void testFormula_withNonMatchingClaims() throws JsonProcessingException {
+        LogicalExpression formula = MAPPER.readValue(
+                ACL_JSON, new TypeReference<>() {});
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("CLAIM:organization", "Company2");
+        ctx.put("CLAIM:email", "other.user@company2.com");
+        Assert.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
+    }
+
+
+    @Test
+    public void testFormula_withMissingClaims() throws JsonProcessingException {
+        LogicalExpression formula = MAPPER.readValue(
+                ACL_JSON, new TypeReference<>() {});
+        Map<String, Object> ctx = new HashMap<>();
+        ctx.put("CLAIM:organization", "Company2");
+        //ctx.put("CLAIM:email", "other.user@company2.com");
+        Assert.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
     }
 }
