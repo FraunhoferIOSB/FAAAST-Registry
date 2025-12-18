@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,19 +46,20 @@ import org.springframework.web.context.WebApplicationContext;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class AuthorizationTest {
 
-    private static final String ACL_JSON = "{\n" +
-            "  \"AllAccessPermissionRules\": {\n" +
-            "    \"rules\": [{\n" +
-            "      \"ACL\": {\n" +
-            "        \"ATTRIBUTES\": [{ \"GLOBAL\": \"ANONYMOUS\" }],\n" +
-            "        \"RIGHTS\":     [\"READ\"],\n" +
-            "        \"ACCESS\":     \"ALLOW\"\n" +
-            "      },\n" +
-            "      \"OBJECTS\": [{ \"ROUTE\": \"*\" }],\n" +
-            "      \"FORMULA\": { \"$boolean\": true }\n" +
-            "    }]\n" +
-            "  }\n" +
-            "}";
+    private static final String ACL_JSON = """
+                                           {
+                                             "AllAccessPermissionRules": {
+                                               "rules": [{
+                                                 "ACL": {
+                                                   "ATTRIBUTES": [{ "GLOBAL": "ANONYMOUS" }],
+                                                   "RIGHTS":     ["READ"],
+                                                   "ACCESS":     "ALLOW"
+                                                 },
+                                                 "OBJECTS": [{ "ROUTE": "*" }],
+                                                 "FORMULA": { "$boolean": true }
+                                               }]
+                                             }
+                                           }""";
 
     @Autowired
     private WebApplicationContext context;
@@ -84,7 +84,7 @@ public class AuthorizationTest {
                 .build();
     }
 
-    
+
     @Test
     public void testAnonymousAccessDependsOnAclFile() throws IOException, Exception {
         mvc.perform(MockMvcRequestBuilders.get("/shell-descriptors")).andExpect(status().isUnauthorized());
@@ -99,6 +99,14 @@ public class AuthorizationTest {
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .untilAsserted(() -> {
                     mvc.perform(MockMvcRequestBuilders.get("/shell-descriptors")).andExpect(status().isOk());
+                });
+
+        Files.delete(rule);
+        await().atMost(5, TimeUnit.SECONDS)
+                .with()
+                .pollInterval(100, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> {
+                    mvc.perform(MockMvcRequestBuilders.get("/shell-descriptors")).andExpect(status().isUnauthorized());
                 });
     }
 }
