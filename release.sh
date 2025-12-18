@@ -102,6 +102,7 @@ echo "Next: replacing version nubmers [enter]"
 read -s
 mvn versions:set -DgenerateBackupPoms=false -DnewVersion="${NEXTVERSION}"-SNAPSHOT
 sed -i 's/<tag>v'"${VERSION}"'<\/tag>/<tag>'"${NEXTBRANCH}"'<\/tag>/g' pom.xml
+sed -i 's/service-'"${VERSION}"'/service-'"${NEXTVERSION}"'/g' Dockerfile
 replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$README_LATEST_SNAPSHOT_VERSION_CONTENT"
 replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT"
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}-->\\n<!--end:${TAG_CHANGELOG_HEADER}-->" "$CHANGELOG_FILE"
