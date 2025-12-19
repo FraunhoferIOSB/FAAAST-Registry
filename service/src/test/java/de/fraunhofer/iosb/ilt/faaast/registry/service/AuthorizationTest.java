@@ -47,19 +47,19 @@ import org.springframework.web.context.WebApplicationContext;
 public class AuthorizationTest {
 
     private static final String ACL_JSON = """
-                                           {
-                                             "AllAccessPermissionRules": {
-                                               "rules": [{
-                                                 "ACL": {
-                                                   "ATTRIBUTES": [{ "GLOBAL": "ANONYMOUS" }],
-                                                   "RIGHTS":     ["READ"],
-                                                   "ACCESS":     "ALLOW"
-                                                 },
-                                                 "OBJECTS": [{ "ROUTE": "*" }],
-                                                 "FORMULA": { "$boolean": true }
-                                               }]
-                                             }
-                                           }""";
+            {
+              "AllAccessPermissionRules": {
+                "rules": [{
+                  "ACL": {
+                    "ATTRIBUTES": [{ "GLOBAL": "ANONYMOUS" }],
+                    "RIGHTS":     ["READ"],
+                    "ACCESS":     "ALLOW"
+                  },
+                  "OBJECTS": [{ "ROUTE": "*" }],
+                  "FORMULA": { "$boolean": true }
+                }]
+              }
+            }""";
 
     @Autowired
     private WebApplicationContext context;

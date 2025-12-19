@@ -83,30 +83,30 @@ public class QueryEvaluator {
         NONE,
         FIELD,
         STR,
-        STR_CAST}
+        STR_CAST
+    }
 
     /**
      * @param suffix e.g., ".name", "Sub.Path#value"
      */
-    private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+    private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+        private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
             this.suffix = suffix;
             this.operator = operator;
             this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
-        }}
+        }
+    }
 
     private record MatchOperation(ComparisonOperator operator, List<Value> args) {}
 
-
     private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {}
-
 
     private record IndexSelection(boolean selectAll, Integer index, String remainingSuffix) {}
 
     /**
      * @param argumentProvider provides arguments for this operator
      */
-    private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>>argumentProvider)
-    {}
+    private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>> argumentProvider) {}
 
     /**
      * Used to decide whether to filter out the Descriptor.
@@ -649,40 +649,40 @@ public class QueryEvaluator {
                 }
                 return false;
 
-//            case PREFIX_SME:
-//                if (!(identifiable instanceof Submodel sm))
-//                    return false;
-//                List<SubmodelElement> topLevel = sm.getSubmodelElements();
-//                if (topLevel == null)
-//                    return false;
-//
-//                for (SubmodelElement item: topLevel) {
-//                    if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
-//                        return true;
-//                    }
-//                }
-//                return false;
+            //            case PREFIX_SME:
+            //                if (!(identifiable instanceof Submodel sm))
+            //                    return false;
+            //                List<SubmodelElement> topLevel = sm.getSubmodelElements();
+            //                if (topLevel == null)
+            //                    return false;
+            //
+            //                for (SubmodelElement item: topLevel) {
+            //                    if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
+            //                        return true;
+            //                    }
+            //                }
+            //                return false;
 
             default:
-//                if (commonPrefix.startsWith(PREFIX_SME + ".")) {
-//                    if (!(identifiable instanceof Submodel sm2))
-//                        return false;
-//                    String path = commonPrefix.substring((PREFIX_SME + ".").length());
-//                    SubmodelElement listElem = getSubmodelElementByPath(sm2, path);
-//                    if (!(listElem instanceof SubmodelElementList))
-//                        return false;
-//
-//                    List<SubmodelElement> items = ((SubmodelElementList) listElem).getValue();
-//                    if (items == null)
-//                        return false;
-//
-//                    for (SubmodelElement item: items) {
-//                        if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
-//                            return true;
-//                        }
-//                    }
-//                    return false;
-//                }
+                //                if (commonPrefix.startsWith(PREFIX_SME + ".")) {
+                //                    if (!(identifiable instanceof Submodel sm2))
+                //                        return false;
+                //                    String path = commonPrefix.substring((PREFIX_SME + ".").length());
+                //                    SubmodelElement listElem = getSubmodelElementByPath(sm2, path);
+                //                    if (!(listElem instanceof SubmodelElementList))
+                //                        return false;
+                //
+                //                    List<SubmodelElement> items = ((SubmodelElementList) listElem).getValue();
+                //                    if (items == null)
+                //                        return false;
+                //
+                //                    for (SubmodelElement item: items) {
+                //                        if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
+                //                            return true;
+                //                        }
+                //                    }
+                //                    return false;
+                //                }
                 LOGGER.error("evaluateListMatch: Unsupported prefix for $match: {}", commonPrefix);
                 return false;
         }

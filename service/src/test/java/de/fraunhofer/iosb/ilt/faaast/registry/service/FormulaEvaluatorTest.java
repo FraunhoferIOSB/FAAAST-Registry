@@ -29,67 +29,67 @@ public class FormulaEvaluatorTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static String ACL_JSON = """
-                {
-                                    "$and": [
-                                        {
-                                            "$or": [
-                                                {
-                                                    "$eq": [
-                                                        {
-                                                            "$attribute": {
-                                                                "CLAIM": "organization"
-                                                            }
-                                                        },
-                                                        {
-                                                            "$strVal": "[MyCompany]"
+            {
+                                "$and": [
+                                    {
+                                        "$or": [
+                                            {
+                                                "$eq": [
+                                                    {
+                                                        "$attribute": {
+                                                            "CLAIM": "organization"
                                                         }
-                                                    ]
-                                                },
-                                                {
-                                                    "$eq": [
-                                                        {
-                                                            "$attribute": {
-                                                                "CLAIM": "organization"
-                                                            }
-                                                        },
-                                                        {
-                                                            "$strVal": "Company2"
+                                                    },
+                                                    {
+                                                        "$strVal": "[MyCompany]"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "$eq": [
+                                                    {
+                                                        "$attribute": {
+                                                            "CLAIM": "organization"
                                                         }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "$or": [
-                                                {
-                                                    "$eq": [
-                                                        {
-                                                            "$attribute": {
-                                                                "CLAIM": "email"
-                                                            }
-                                                        },
-                                                        {
-                                                            "$strVal": "bob@example.com"
+                                                    },
+                                                    {
+                                                        "$strVal": "Company2"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "$or": [
+                                            {
+                                                "$eq": [
+                                                    {
+                                                        "$attribute": {
+                                                            "CLAIM": "email"
                                                         }
-                                                    ]
-                                                },
-                                                {
-                                                    "$eq": [
-                                                        {
-                                                            "$attribute": {
-                                                                "CLAIM": "email"
-                                                            }
-                                                        },
-                                                        {
-                                                            "$strVal": "user2@company2.com"
+                                                    },
+                                                    {
+                                                        "$strVal": "bob@example.com"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "$eq": [
+                                                    {
+                                                        "$attribute": {
+                                                            "CLAIM": "email"
                                                         }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                """;
+                                                    },
+                                                    {
+                                                        "$strVal": "user2@company2.com"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+            """;
 
     @Test
     public void testFormula_withMatchingClaims() throws JsonProcessingException {

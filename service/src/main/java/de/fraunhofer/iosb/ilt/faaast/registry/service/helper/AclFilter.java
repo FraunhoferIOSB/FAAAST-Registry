@@ -86,35 +86,29 @@ public class AclFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(
-            ServletRequest servletRequest,
-            ServletResponse servletResponse,
-            FilterChain chain)
-            throws IOException, ServletException
-    {
+                         ServletRequest servletRequest,
+                         ServletResponse servletResponse,
+                         FilterChain chain)
+            throws IOException, ServletException {
         LOG.info("doFilter called: Request: {}", servletRequest);
-        if (servletRequest instanceof HttpServletRequest request)
-        {
+        if (servletRequest instanceof HttpServletRequest request) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             Map<String, Object> claims = new HashMap<>();
-            if ((authentication != null) && (authentication.getCredentials() instanceof Jwt jwt))
-            {
+            if ((authentication != null) && (authentication.getCredentials() instanceof Jwt jwt)) {
                 claims = jwt.getClaims();
             }
             boolean allowed;
             allowed = filterRules(aclList, claims, request);
             LOG.info("doFilter called: Request: {}; authentication: {}; allowed: {}", request, authentication, allowed);
-            if (!allowed)
-            {
+            if (!allowed) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
-            else
-            {
+            else {
                 chain.doFilter(servletRequest, servletResponse);
             }
         }
-        else
-        {
+        else {
             chain.doFilter(servletRequest, servletResponse);
         }
     }
