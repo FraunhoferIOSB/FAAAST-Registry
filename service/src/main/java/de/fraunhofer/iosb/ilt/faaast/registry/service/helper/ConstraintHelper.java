@@ -14,7 +14,9 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
-import de.fraunhofer.iosb.ilt.faaast.registry.service.RegistryService;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ConstraintViolatedException;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -54,7 +56,7 @@ public class ConstraintHelper {
      *
      * @param aas The desired AAS Descriptor.
      */
-    public static void validate(AssetAdministrationShellDescriptor aas) {
+    public static void validate(AssetAdministrationShellDescriptor aas) throws ConstraintViolatedException {
         Ensure.requireNonNull(aas, RegistryService.AAS_NOT_NULL_TXT);
         CommonConstraintHelper.checkId(aas.getId());
         CommonConstraintHelper.checkIdShort(aas.getIdShort());
@@ -71,12 +73,50 @@ public class ConstraintHelper {
 
 
     /**
+     * Validate a list of given AAS Descriptors.
+     *
+     * @param shells The desired AAS Descriptors.
+     */
+    public static void validate(List<AssetAdministrationShellDescriptor> shells) {
+        if (shells != null) {
+            for (AssetAdministrationShellDescriptor shell: shells) {
+                try {
+                    validate(shell);
+                }
+                catch (ConstraintViolatedException e) {
+                    throw new BadRequestException();
+                }
+            }
+        }
+    }
+
+
+    /**
      * Validate the given AAS Descriptor.
      *
      * @param submodel The desired Submodel Descriptor.
      */
     public static void validate(SubmodelDescriptor submodel) {
         checkSubmodel(submodel);
+    }
+
+
+    /**
+     * Validate a list of given Submodel Descriptors.
+     *
+     * @param submodels The desired Submodels Descriptors.
+     */
+    public static void validateSubmodels(List<SubmodelDescriptor> submodels) {
+        if (submodels != null) {
+            for (SubmodelDescriptor submodel: submodels) {
+                try {
+                    validate(submodel);
+                }
+                catch (ConstraintViolatedException e) {
+                    throw new BadRequestException();
+                }
+            }
+        }
     }
 
 

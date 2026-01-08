@@ -1,0 +1,105 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.registry.service.model;
+
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import org.eclipse.digitaltwin.aas4j.v3.model.ExecutionState;
+import org.springframework.stereotype.Component;
+
+
+/**
+ * Utility class for storing and retrieving the status of asynchronous bulk operations.
+ */
+@Component
+public class BulkOperationStatusStore {
+
+    private static final int MAX_QUEUE_SIZE = 100;
+    private final ConcurrentHashMap<String, ExecutionState> statusMap = new ConcurrentHashMap<>();
+    private final Queue<String> handles = new LinkedList<>();
+    private final ConcurrentHashMap<String, String> errorMessages = new ConcurrentHashMap<>();
+
+    /**
+     * Sets the status of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @param status the current status of the operation
+     */
+    public void setStatus(String handleId, ExecutionState status) {
+        synchronized (handles) {
+            if (!statusMap.containsKey(handleId)) {
+                handles.add(handleId);
+                if (handles.size() > MAX_QUEUE_SIZE) {
+                    String rem = handles.remove();
+                    statusMap.remove(rem);
+                    if (errorMessages.containsKey(rem)) {
+                        errorMessages.remove(rem);
+                    }
+                }
+            }
+            statusMap.put(handleId, status);
+        }
+    }
+
+
+    /**
+     * Gets an error message of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @return The corresponding error message, null if no message was found.
+     */
+    public String getErrorMessage(String handleId) {
+        if (errorMessages.containsKey(handleId)) {
+            return errorMessages.get(handleId);
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    /**
+     * Sets an error message of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @param message The desired error message.
+     */
+    public void setErrorMessage(String handleId, String message) {
+        errorMessages.put(handleId, message);
+    }
+
+
+    /**
+     * Retrieves the status of a bulk operation.
+     *
+     * @param handleId unique identifier for the bulk operation
+     * @return the current status, or {@code ExecutionState.INITIATED} if not found
+     */
+    public ExecutionState getStatus(String handleId) {
+        return statusMap.get(handleId);
+    }
+
+
+    /**
+     * Retrieves all handle ids.
+     *
+     * @return set containing all handle ids
+     */
+    public Set<String> getAllHandleIds() {
+        return statusMap.keySet();
+    }
+}

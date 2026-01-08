@@ -12,18 +12,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.model;
+
+import java.util.List;
+
 
 /**
- * Class with Constant definitions.
+ * Data for ID bulk operations.
  */
-public final class Constants {
+public class BulkStringData extends BulkBaseData {
 
-    public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
-    public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
-    public static final String DESCRIPTION_REQUEST_PATH = "/description";
-    public static final String BULK_REQUEST_PATH = "/bulk";
-    public static final String DISCOVERY_PATH = "/lookup/shells";
+    private final List<String> identifiers;
 
-    private Constants() {}
+    public BulkStringData(List<String> identifiers, String handleId) {
+        super(handleId);
+        this.identifiers = identifiers;
+    }
+
+
+    public List<String> getIdentifiers() {
+        return identifiers;
+    }
 }
