@@ -214,6 +214,7 @@ public class TransactionService {
             throw new ResourceNotFoundException("Unknown handleId: " + handleId);
         }
         else
+            // test
             switch (status) {
                 case RUNNING, INITIATED:
                     LOGGER.debug("getStatus: running: {}", handleId);
