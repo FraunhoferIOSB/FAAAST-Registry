@@ -60,7 +60,7 @@ public class TransactionThread extends Thread {
                     LOGGER.debug("run: wait for transaction to finish");
                     Thread.sleep(50);
                 }
-                
+
                 if (obj instanceof BulkCreateShellData createData) {
                     doCreateShells(createData.getShells(), createData.getHandleId());
                 }
@@ -79,10 +79,11 @@ public class TransactionThread extends Thread {
                 else if (obj instanceof BulkDeleteSubmodelData deleteSubmodelData) {
                     doDeleteSubmodels(deleteSubmodelData.getIdentifiers(), deleteSubmodelData.getHandleId());
                 }
-                
+
                 // Wait for half a second so it doesn't print too fast
                 Thread.sleep(500);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 LOGGER.warn("TransactionThread interrupted");
                 Thread.currentThread().interrupt();
             }
