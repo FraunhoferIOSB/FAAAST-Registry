@@ -25,17 +25,17 @@ The Registry uses a configurable API prefix for all API calls. By default, the p
   - /lookup/shells ![GET](https://img.shields.io/badge/GET-blue)
   - /lookup/shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
 
--   Async Bulk Asset Administration Shell Registry API
-    -   /bulk/shell-descriptors ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
+- Async Bulk Asset Administration Shell Registry API
+  - /bulk/shell-descriptors ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
 
--   Async Bulk Submodel Registry API
-    -   /bulk/submodel-descriptors ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
+- Async Bulk Submodel Registry API
+  - /bulk/submodel-descriptors ![POST](https://img.shields.io/badge/POST-brightgreen) ![PUT](https://img.shields.io/badge/PUT-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
 
--   Async Bulk Status API
-    -   /bulk/status/{handleId} ![GET](https://img.shields.io/badge/GET-blue)
+- Async Bulk Status API
+  - /bulk/status/{handleId} ![GET](https://img.shields.io/badge/GET-blue)
 
--   Async Bulk Result API
-    -   /bulk/result/{handleId} ![GET](https://img.shields.io/badge/GET-blue)
+- Async Bulk Result API
+  - /bulk/result/{handleId} ![GET](https://img.shields.io/badge/GET-blue)
 
 ## Example
 
