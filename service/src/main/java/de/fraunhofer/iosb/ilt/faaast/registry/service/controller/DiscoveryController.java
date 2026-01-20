@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
+import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
@@ -89,6 +90,7 @@ public class DiscoveryController {
      *
      * @param aasIdentifier The Asset Administration Shell’s unique id (UTF8-BASE64-URL-encoded).
      * @return Requested specific Asset identifiers.
+     * @throws ResourceNotFoundException When the AAS was not found.
      */
     @GetMapping("/{aasIdentifier}")
     public List<SpecificAssetId> getAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
@@ -114,6 +116,7 @@ public class DiscoveryController {
      * @param aasIdentifier The Asset Administration Shell’s unique id (UTF8-BASE64-URL-encoded).
      * @param specificAssetIds A list of specific Asset identifiers.
      * @return Specific Asset identifiers created successfully.
+     * @throws ResourceNotFoundException When the AAS was not found.
      */
     @PostMapping("/{aasIdentifier}")
     public ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier,
@@ -178,6 +181,7 @@ public class DiscoveryController {
      *
      * @param aasIdentifier The Asset Administration Shell’s unique id (UTF8-BASE64-URL-encoded).
      * @return 204 - Specific Asset identifiers deleted successfully; 404 - Not Found.
+     * @throws ResourceNotFoundException When the AAS was not found.
      */
     @DeleteMapping("/{aasIdentifier}")
     public ResponseEntity<Void> deleteAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {

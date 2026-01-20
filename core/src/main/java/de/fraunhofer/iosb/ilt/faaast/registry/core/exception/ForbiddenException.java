@@ -12,19 +12,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
+package de.fraunhofer.iosb.ilt.faaast.registry.core.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
 
 /**
- * Class with Constant definitions.
+ * Exception class for bad request.
  */
-public final class Constants {
+@ResponseStatus(value = HttpStatus.FORBIDDEN)
+public class ForbiddenException extends RuntimeException {
 
-    public static final String SHELL_REQUEST_PATH = "/shell-descriptors";
-    public static final String SUBMODEL_REQUEST_PATH = "/submodel-descriptors";
-    public static final String DESCRIPTION_REQUEST_PATH = "/description";
-    public static final String BULK_REQUEST_PATH = "/bulk";
-    public static final String DISCOVERY_PATH = "/lookup/shells";
-    public static final String QUERY_PATH = "/query";
+    public ForbiddenException() {
+        super();
+    }
 
-    private Constants() {}
+
+    public ForbiddenException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+
+    public ForbiddenException(final String message) {
+        super(message);
+    }
+
+
+    public ForbiddenException(final Throwable cause) {
+        super(cause);
+    }
 }

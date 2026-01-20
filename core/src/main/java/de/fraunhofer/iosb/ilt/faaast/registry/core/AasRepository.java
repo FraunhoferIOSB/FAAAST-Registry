@@ -187,6 +187,39 @@ public interface AasRepository {
 
 
     /**
+     * Starts a transaction.
+     */
+    public void startTransaction();
+
+
+    /**
+     * Commits a Transaction.
+     */
+    public void commitTransaction();
+
+
+    /**
+     * Rollback a Transaction.
+     */
+    public void rollbackTransaction();
+
+
+    /**
+     * Returns a value indicating whether a transaction is active.
+     *
+     * @return True when a transaction is active, false otherwise.
+     */
+    public boolean getTransactionActive();
+
+
+    /**
+     * Clears the repos and deletes all descriptors.
+     * Only used for tests!
+     */
+    public void clear();
+
+
+    /**
      * Execute queries for specific AASs.
      *
      * @param query The desired query.
