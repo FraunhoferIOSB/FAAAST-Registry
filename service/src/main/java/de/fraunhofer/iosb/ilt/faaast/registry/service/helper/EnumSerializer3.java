@@ -99,8 +99,7 @@ public class EnumSerializer3 extends ValueSerializer<Enum> {
                 capitalize = true;
             }
             else {
-                // Capitalize if (a) flagged by underscore, or (b) previous char was a digit and now it's a
-                // letter.
+                // Capitalize if (a) flagged by underscore, or (b) previous char was a digit and now it's a letter.
                 if (capitalize
                         || (i > 0
                                 && Character.isDigit(input.charAt(i - 1))

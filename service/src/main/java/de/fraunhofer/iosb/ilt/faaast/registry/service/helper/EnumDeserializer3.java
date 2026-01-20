@@ -54,18 +54,19 @@ public class EnumDeserializer3<T extends Enum<T>> extends ValueDeserializer<Enum
      * @return name in SCREAMING_SNAKE_CASE
      */
     public static String deserializeEnumName(String input) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         if (input == null || input.isEmpty()) {
-            return result;
+            return "";
         }
-        result += Character.toUpperCase(input.charAt(0));
+        result.append(Character.toUpperCase(input.charAt(0)));
         for (int i = 1; i < input.length(); i++) {
-            char currentChar = input.charAt(i), previousChar = input.charAt(i - 1);
+            char currentChar = input.charAt(i);
+            char previousChar = input.charAt(i - 1);
             if (Character.isUpperCase(currentChar) && Character.isLowerCase(previousChar)) {
-                result += "_";
+                result.append("_");
             }
-            result += Character.toUpperCase(currentChar);
+            result.append(Character.toUpperCase(currentChar));
         }
-        return result;
+        return result.toString();
     }
 }
