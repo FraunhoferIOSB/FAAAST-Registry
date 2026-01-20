@@ -183,4 +183,37 @@ public interface AasRepository {
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException;
+
+
+    /**
+     * Starts a transaction.
+     */
+    public void startTransaction();
+
+
+    /**
+     * Commits a Transaction.
+     */
+    public void commitTransaction();
+
+
+    /**
+     * Rollback a Transaction.
+     */
+    public void rollbackTransaction();
+
+
+    /**
+     * Returns a value indicating whether a transaction is active.
+     *
+     * @return True when a transaction is active, false otherwise.
+     */
+    public boolean getTransactionActive();
+
+
+    /**
+     * Clears the repos and deletes all descriptors.
+     * Only used for tests!
+     */
+    public void clear();
 }

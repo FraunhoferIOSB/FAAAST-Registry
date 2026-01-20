@@ -4,8 +4,9 @@
 
 **New Features & Major Changes**
 - HTTP
-  - Add discovery API (v3.0.1)
-  - Ignore trailing slashes in URLs
+	- Add discovery API (v3.0.1)
+	- Ignore trailing slashes in URLs
+	- Support Async Bulk APIs
 
 **Internal changes & bugfixes**
 - General

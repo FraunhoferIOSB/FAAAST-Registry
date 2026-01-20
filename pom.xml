@@ -63,7 +63,7 @@
         <janino.version>3.1.12</janino.version>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.25.3</log4j.api.version>
-        <logback.version>1.5.24</logback.version>
+        <logback.version>1.5.25</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -144,6 +144,29 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.10</version>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
+                    </configuration>
+                    <!-- Use the latest version -->
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>report</id>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                            <phase>prepare-package</phase>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
