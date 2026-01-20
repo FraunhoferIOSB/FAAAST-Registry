@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
@@ -110,5 +111,19 @@ public class RegistryControllerAdvice {
                                 .build())
                         .build(),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+    /**
+     * Handles MovedPermanentlyException by returning a 302 Found response with the given headers.
+     *
+     * @param ex the exception containing redirect headers
+     * @return response with HTTP 302 and location header
+     */
+    @ExceptionHandler(MovedPermanentlyException.class)
+    public ResponseEntity<Void> handleMovedPermanently(MovedPermanentlyException ex) {
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .headers(ex.getHeaders())
+                .build();
     }
 }

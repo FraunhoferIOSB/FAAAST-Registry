@@ -27,6 +27,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableAsync;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -36,6 +37,7 @@ import picocli.CommandLine.Option;
  * Main application of the registry.
  */
 @SpringBootApplication
+@EnableAsync
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.service.model.descriptor"
 })

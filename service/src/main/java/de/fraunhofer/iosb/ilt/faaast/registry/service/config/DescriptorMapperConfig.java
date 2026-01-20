@@ -75,7 +75,6 @@ import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomize
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import tools.jackson.core.Version;
 import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.module.SimpleAbstractTypeResolver;
 import tools.jackson.databind.module.SimpleModule;
@@ -96,7 +95,7 @@ public class DescriptorMapperConfig {
     @Bean
     @Primary
     public JsonMapperBuilderCustomizer jacksonCustomizer() {
-        SimpleModule module = new SimpleModule("AasModel", Version.unknownVersion());
+        SimpleModule module = new SimpleModule();
 
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(AssetAdministrationShellDescriptor.class, DefaultAssetAdministrationShellDescriptor.class);
