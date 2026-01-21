@@ -12,7 +12,8 @@
 - General
 	- Fix synchronization issues in In-Memory Persistence
 	- Minor corrections in Logging
- 	- Improved paging mechanism
+	- Improved paging mechanism
+	- Major updates of libraries used: Spring Boot 4, Spring Framework 7 and Hibernate 7
 
 ## 1.1.0
 

@@ -44,7 +44,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
