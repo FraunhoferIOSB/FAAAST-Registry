@@ -8,7 +8,7 @@
     
     <package>de.fraunhofer.iosb.ilt.faaast.registry.jpa.model</package>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation" access="PROPERTY">
         <attributes>
             <basic name="version"/>
             <basic name="revision"/>
@@ -25,7 +25,7 @@
     </mapped-superclass>
 
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor"  access="PROPERTY">
         <attributes>
             <id name="id"></id>
             <basic name="idShort"/>
@@ -61,7 +61,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType"  access="PROPERTY">
         <attributes>
             <basic name="language"/>
             <basic name="text">
@@ -70,7 +70,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType" access="PROPERTY">
         <attributes>
             <basic name="language"/>
             <basic name="text">
@@ -79,7 +79,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSecurityAttributeObject" access="PROPERTY">
         <attributes>
             <basic name="key">
                 <column name="secAttKey"/>
@@ -93,7 +93,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation" access="PROPERTY">
         <attributes>
             <basic name="endpointProtocol"/>
             <basic name="href"/>
@@ -109,7 +109,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference" access="PROPERTY">
         <attributes>
             <basic name="type">
                 <column name="type_col"/>
@@ -125,7 +125,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEndpoint" access="PROPERTY">
         <attributes>
             <basic name="_interface">
                 <column name="interface_value"/>
@@ -137,7 +137,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId" access="PROPERTY">
         <attributes>
             <basic name="name">
                 <column name="name_col"/>
@@ -161,7 +161,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey" access="PROPERTY">
         <attributes>
             <basic name="type">
                 <column name="type_col"/>
@@ -172,7 +172,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor" access="PROPERTY">
         <attributes>
             <id name="id"></id>
             <basic name="idShort"/>
@@ -208,7 +208,7 @@
         </attributes>
     </mapped-superclass>    
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension" access="PROPERTY">
         <attributes>
             <basic name="name">
                 <column name="name_col"/>
@@ -232,7 +232,7 @@
         </attributes>
     </mapped-superclass>    
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification" access="PROPERTY">
         <attributes>
             <many-to-one name="dataSpecification" target-entity="JpaReference" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
@@ -242,7 +242,7 @@
         </attributes>
     </mapped-superclass>    
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360" access="PROPERTY">
         <attributes>
             <basic name="dataType">
                 <column name="dataType_col"/>
@@ -282,7 +282,7 @@
         </attributes>
     </mapped-superclass>    
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360" access="PROPERTY">
         <attributes>
             <basic name="language"/>
             <basic name="text">
@@ -291,7 +291,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType" access="PROPERTY">
         <attributes>
             <basic name="min"/>
             <basic name="max"/>
@@ -300,7 +300,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360" access="PROPERTY">
         <attributes>
             <basic name="language"/>
             <basic name="text">
@@ -309,7 +309,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360" access="PROPERTY">
         <attributes>
             <basic name="language"/>
             <basic name="text">
@@ -318,7 +318,7 @@
         </attributes>
     </mapped-superclass>
 
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList" access="PROPERTY">
         <attributes>
             <many-to-many name="valueReferencePairs" target-entity="JpaValueReferencePair" fetch="EAGER">
                 <cascade><cascade-all/></cascade>
@@ -326,7 +326,7 @@
         </attributes>
     </mapped-superclass>
     
-    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair">
+    <mapped-superclass class="org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair" access="PROPERTY">
         <attributes>
             <basic name="value">
                 <column name="value_col"/>
