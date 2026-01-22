@@ -329,6 +329,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven.plugin.failsafe.version}</version>
                     <configuration>
+                        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                         <includes>
                             <include>**/*IT</include>
                         </includes>
