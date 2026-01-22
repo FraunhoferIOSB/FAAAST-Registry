@@ -59,7 +59,7 @@
         <h2.version>2.4.240</h2.version>
         <hibernate.version>7.2.1.Final</hibernate.version>
         <jackson.annotations.version>2.21</jackson.annotations.version>
-        <jackson.version>3.0.3</jackson.version>
+        <jackson.version>3.0.4</jackson.version>
         <janino.version>3.1.12</janino.version>
         <jsonschema2pojo.version>1.2.1</jsonschema2pojo.version>
         <junit.version>4.13.2</junit.version>
@@ -77,15 +77,14 @@
         <maven.plugin.jacoco.version>0.8.14</maven.plugin.jacoco.version>
         <maven.plugin.jar.version>3.5.0</maven.plugin.jar.version>
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
-        <maven.plugin.owasp.version>12.1.9</maven.plugin.owasp.version>
+        <maven.plugin.owasp.version>12.2.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
-        <maven.plugin.shade.version>3.6.1</maven.plugin.shade.version>
         <maven.plugin.sonar.version>5.5.0.6356</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>3.1.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.5.4</maven.plugin.surefire.version>
         <picocli.version>4.7.7</picocli.version>
-        <postgres.version>42.7.8</postgres.version>
+        <postgres.version>42.7.9</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>4.33.4</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
@@ -148,7 +147,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.10</version>
+                    <version>0.8.14</version>
                     <configuration>
                         <outputDirectory>${project.build.directory}/jacoco</outputDirectory>
                     </configuration>
@@ -330,6 +329,7 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <version>${maven.plugin.failsafe.version}</version>
                     <configuration>
+                        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                         <includes>
                             <include>**/*IT</include>
                         </includes>
