@@ -61,6 +61,7 @@
         <jackson.annotations.version>2.21</jackson.annotations.version>
         <jackson.version>3.0.4</jackson.version>
         <janino.version>3.1.12</janino.version>
+        <json.schema.validator>1.5.9</json.schema.validator>
         <junit.version>4.13.2</junit.version>
         <log4j.api.version>2.25.3</log4j.api.version>
         <logback.version>1.5.25</logback.version>
