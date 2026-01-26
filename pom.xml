@@ -51,7 +51,7 @@
         <url>https://github.com/FraunhoferIOSB/FAAAST-Registry/issues</url>
     </issueManagement>
     <properties>
-        <assertj.version>3.27.6</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <checkstyle.version>12.3.0</checkstyle.version>
         <eclipse.jdt.version>4.38</eclipse.jdt.version>
         <faaast.service.version>1.3.0</faaast.service.version>
