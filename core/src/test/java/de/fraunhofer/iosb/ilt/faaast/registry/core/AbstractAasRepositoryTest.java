@@ -36,9 +36,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -47,7 +47,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
     protected T repository;
 
-    @After
+    @AfterEach
     public void clearDatastore() {}
 
 
@@ -162,8 +162,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void listAllAAS() throws Exception {
         repository.create(getAASWithSubmodel());
         Page<AssetAdministrationShellDescriptor> aass = repository.getAASs(PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
     }
 
 
@@ -171,7 +171,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void findAASById() throws Exception {
         repository.create(getAASWithSubmodel());
         AssetAdministrationShellDescriptor aas = repository.getAAS("TestAAS1");
-        Assert.assertNotNull(aas);
+        Assertions.assertNotNull(aas);
     }
 
 
@@ -185,8 +185,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         aas.getSubmodelDescriptors().get(0).setIdShort("NewSubmodelIdShort");
         repository.update(aasId, aas);
         aas = repository.getAAS(aas.getId());
-        Assert.assertEquals("NewIdShort", aas.getIdShort());
-        Assert.assertEquals("NewSubmodelIdShort", aas.getSubmodelDescriptors().get(0).getIdShort());
+        Assertions.assertEquals("NewIdShort", aas.getIdShort());
+        Assertions.assertEquals("NewSubmodelIdShort", aas.getSubmodelDescriptors().get(0).getIdShort());
     }
 
 
@@ -194,12 +194,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
     public void deleteAAS() throws Exception {
         repository.create(getAASWithSubmodel());
         Page<AssetAdministrationShellDescriptor> aass = repository.getAASs(PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS("TestAAS1");
         aass = repository.getAASs(PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -219,12 +219,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS("TestAAS1");
         aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -249,12 +249,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
         aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -274,8 +274,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -297,12 +297,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(specificAssetIds.get(0));
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
         aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -332,8 +332,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -371,8 +371,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -410,8 +410,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -449,8 +449,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -473,8 +473,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
     }
 
@@ -496,12 +496,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         specificAssetIds.add(globalAssetIdAsSpecificAssetId);
 
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
         aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -512,12 +512,12 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         repository.create(aasWithSubmodel);
         List<SpecificAssetId> specificAssetIds = List.of();
         Page<String> aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(1, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(1, aass.getContent().size());
         repository.deleteAAS(aasWithSubmodel.getId());
         aass = repository.getAASIdentifiers(specificAssetIds, PagingInfo.ALL);
-        Assert.assertNotNull(aass);
-        Assert.assertEquals(0, aass.getContent().size());
+        Assertions.assertNotNull(aass);
+        Assertions.assertEquals(0, aass.getContent().size());
     }
 
 
@@ -542,8 +542,8 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         repository.create(getAASWithSubmodel());
         repository.addSubmodel(getSubmodel());
         Page<SubmodelDescriptor> submodels = repository.getSubmodels(PagingInfo.ALL);
-        Assert.assertNotNull(submodels);
-        Assert.assertEquals(1, submodels.getContent().size());
+        Assertions.assertNotNull(submodels);
+        Assertions.assertEquals(1, submodels.getContent().size());
     }
 
 
@@ -556,9 +556,9 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
         SubmodelDescriptor findSubmodel;
         // Ensure, submodel of the AAS is not registered
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodelDescriptors().get(0).getId()));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getSubmodelDescriptors().get(0).getId()));
         findSubmodel = repository.getSubmodel(submodel.getId());
-        Assert.assertNotNull(findSubmodel);
+        Assertions.assertNotNull(findSubmodel);
     }
 
 
@@ -570,7 +570,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         repository.addSubmodel(aas.getId(), submodel);
 
         SubmodelDescriptor findSubmodel = repository.getSubmodel(aas.getId(), submodel.getId());
-        Assert.assertNotNull(findSubmodel);
+        Assertions.assertNotNull(findSubmodel);
     }
 
 
@@ -581,7 +581,7 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
         compareSubmodel(submodel, repository.getSubmodel(submodel.getId()));
 
         repository.deleteSubmodel(submodel.getId());
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(submodel.getId()));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(submodel.getId()));
     }
 
 
@@ -595,11 +595,11 @@ public abstract class AbstractAasRepositoryTest<T extends AasRepository> {
 
         repository.deleteSubmodel(aas.getId(), submodel.getId());
 
-        Assert.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getId(), submodel.getId()));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> repository.getSubmodel(aas.getId(), submodel.getId()));
     }
 
 
     protected void compareSubmodel(SubmodelDescriptor expected, SubmodelDescriptor actual) {
-        Assert.assertEquals(expected, actual);
+        Assertions.assertEquals(expected, actual);
     }
 }

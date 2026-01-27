@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -28,10 +28,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @AutoConfigureTestRestTemplate
@@ -57,15 +57,15 @@ public class DescriptionControllerIT {
 
     private void assertDescriptions(String urlPostfix) {
         ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(urlPostfix), HttpMethod.GET, null, ServiceDescription.class);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
         ServiceDescription expected = ServiceDescription.builder()
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
                 .build();
-        Assert.assertEquals(expected, response.getBody());
+        Assertions.assertEquals(expected, response.getBody());
     }
 
 
