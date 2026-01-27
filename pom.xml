@@ -119,6 +119,12 @@
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
@@ -346,13 +352,13 @@
                             <include>**/*IT</include>
                         </includes>
                     </configuration>
-                    <!--<dependencies>
+                    <dependencies>
                         <dependency>
                             <groupId>org.apache.maven.surefire</groupId>
                             <artifactId>surefire-junit-platform</artifactId>
                             <version>${maven.plugin.surefire.version}</version>
                         </dependency>
-                    </dependencies>-->
+                    </dependencies>
                     <executions>
                         <execution>
                             <goals>
@@ -382,13 +388,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.plugin.surefire.version}</version>
-                    <!--<dependencies>
+                    <dependencies>
                         <dependency>
                             <groupId>org.apache.maven.surefire</groupId>
                             <artifactId>surefire-junit-platform</artifactId>
                             <version>${maven.plugin.surefire.version}</version>
                         </dependency>
-                    </dependencies>-->
+                    </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
