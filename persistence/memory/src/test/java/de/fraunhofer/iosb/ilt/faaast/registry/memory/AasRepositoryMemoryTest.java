@@ -15,12 +15,12 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 
 public class AasRepositoryMemoryTest extends AbstractAasRepositoryTest<AasRepositoryMemory> {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         repository = new AasRepositoryMemory();
     }
