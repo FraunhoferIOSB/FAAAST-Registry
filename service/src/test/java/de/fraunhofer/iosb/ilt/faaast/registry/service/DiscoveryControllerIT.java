@@ -26,9 +26,9 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -40,10 +40,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -65,9 +65,9 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.GET, null, Object.class);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
     }
 
 
@@ -82,9 +82,9 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<List<SpecificAssetId>> response = getAllAssetLinksById(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
 
         var expected = descriptor.getSpecificAssetIds();
 
@@ -95,7 +95,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
                     .build());
         }
 
-        Assert.assertEquals(expected, response.getBody());
+        Assertions.assertEquals(expected, response.getBody());
     }
 
 
@@ -105,10 +105,10 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(createURLWithPort(""));
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(expected.getContent(), response.getBody().getContent());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
     }
 
 
@@ -127,10 +127,10 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(expected.getContent(), response.getBody().getContent());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
     }
 
 
@@ -142,10 +142,10 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(expected.getContent(), response.getBody().getContent());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
     }
 
 
@@ -155,8 +155,8 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
 
@@ -166,8 +166,8 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 
@@ -176,8 +176,8 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort("?assetIds=NonSensicalArgument");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 
@@ -193,12 +193,12 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(1, response.getBody().getContent().size());
-        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -216,11 +216,11 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(0, response.getBody().getContent().size());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(0, response.getBody().getContent().size());
     }
 
 
@@ -238,11 +238,11 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(0, response.getBody().getContent().size());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(0, response.getBody().getContent().size());
     }
 
 
@@ -259,12 +259,12 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(1, response.getBody().getContent().size());
-        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -281,12 +281,12 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(1, response.getBody().getContent().size());
-        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -302,12 +302,12 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertNotNull(response.getBody().getContent());
-        Assert.assertEquals(1, response.getBody().getContent().size());
-        Assert.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -326,11 +326,11 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<List<SpecificAssetId>> response = postAllAssetLinksById(urlWithPort, updatedSpecificAssetIds);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(newGlobalAssetId, response.getBody().stream()
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(newGlobalAssetId, response.getBody().stream()
                 .filter(id -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName()))
                 .findFirst()
                 .orElseThrow()
@@ -354,9 +354,9 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(updatedSpecificAssetIds), Object.class);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
     }
 
 
@@ -376,22 +376,22 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<List<SpecificAssetId>> response = postAllAssetLinksById(urlWithPort, updatedSpecificAssetIds);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody());
 
-        Assert.assertEquals(1,
+        Assertions.assertEquals(1,
                 response.getBody().stream()
                         .map(SpecificAssetId::getName)
                         .filter(name -> newSpecificAssetId.getName().equals(name))
                         .count());
 
-        Assert.assertTrue(response.getBody().contains(newSpecificAssetId));
+        Assertions.assertTrue(response.getBody().contains(newSpecificAssetId));
 
         assertSameGlobalAssetId(shellDescriptor, response.getBody());
 
-        Assert.assertEquals(shellDescriptor.getSpecificAssetIds(), response.getBody().stream()
+        Assertions.assertEquals(shellDescriptor.getSpecificAssetIds(), response.getBody().stream()
                 .filter(id -> !FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName()))
                 .filter(id -> !newSpecificAssetId.getName().equals(id.getName()))
                 .toList());
@@ -414,20 +414,20 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         ResponseEntity<List<SpecificAssetId>> response = postAllAssetLinksById(urlWithPort, updatedSpecificAssetIds);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody());
 
-        Assert.assertEquals(1,
+        Assertions.assertEquals(1,
                 response.getBody().stream()
                         .map(SpecificAssetId::getName)
                         .filter(name -> newSpecificAssetId.getName().equals(name))
                         .count());
 
-        Assert.assertTrue(response.getBody().contains(newSpecificAssetId));
+        Assertions.assertTrue(response.getBody().contains(newSpecificAssetId));
 
-        Assert.assertEquals(newSpecificAssetId.getValue(),
+        Assertions.assertEquals(newSpecificAssetId.getValue(),
                 response.getBody().stream()
                         .filter(id -> newSpecificAssetId.getName().equals(id.getName()))
                         .findFirst()
@@ -448,19 +448,19 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         // precondition: specific asset ids are not empty
         ResponseEntity<List<SpecificAssetId>> preconditionResponse = getAllAssetLinksById(urlWithPort);
 
-        Assert.assertNotNull(preconditionResponse.getBody());
-        Assert.assertFalse(preconditionResponse.getBody().isEmpty());
+        Assertions.assertNotNull(preconditionResponse.getBody());
+        Assertions.assertFalse(preconditionResponse.getBody().isEmpty());
 
         ResponseEntity<Void> response = deleteAllAssetLinksById(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
         // postcondition: no specific asset ids
         ResponseEntity<List<SpecificAssetId>> postconditionResponse = getAllAssetLinksById(urlWithPort);
 
-        Assert.assertNotNull(postconditionResponse.getBody());
-        Assert.assertTrue(postconditionResponse.getBody().isEmpty());
+        Assertions.assertNotNull(postconditionResponse.getBody());
+        Assertions.assertTrue(postconditionResponse.getBody().isEmpty());
     }
 
 
@@ -472,13 +472,13 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode("unknown")));
         ResponseEntity<Void> response = deleteAllAssetLinksById(urlWithPort);
 
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
 
     private void assertSameGlobalAssetId(AssetAdministrationShellDescriptor expected, List<SpecificAssetId> actual) {
-        Assert.assertEquals(expected.getGlobalAssetId(), actual.stream()
+        Assertions.assertEquals(expected.getGlobalAssetId(), actual.stream()
                 .filter(id -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName()))
                 .findFirst()
                 .orElseThrow()
@@ -487,7 +487,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private void assertSameSpecificAssetIds(AssetAdministrationShellDescriptor expected, List<SpecificAssetId> actual) {
-        Assert.assertEquals(expected.getSpecificAssetIds(), actual.stream().filter(id -> !FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName())).toList());
+        Assertions.assertEquals(expected.getSpecificAssetIds(), actual.stream().filter(id -> !FaaastConstants.KEY_GLOBAL_ASSET_ID.equals(id.getName())).toList());
     }
 
 
