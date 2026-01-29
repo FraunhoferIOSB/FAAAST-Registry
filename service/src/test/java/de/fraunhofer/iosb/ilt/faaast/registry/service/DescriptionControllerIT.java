@@ -35,7 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @AutoConfigureTestRestTemplate
-public class DescriptionControllerIT {
+class DescriptionControllerIT {
 
     @LocalServerPort
     private int port;
@@ -44,13 +44,13 @@ public class DescriptionControllerIT {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void testDescription() {
+    void testDescription() {
         assertDescriptions("");
     }
 
 
     @Test
-    public void testDescriptionWithSlash() {
+    void testDescriptionWithSlash() {
         assertDescriptions("/");
     }
 

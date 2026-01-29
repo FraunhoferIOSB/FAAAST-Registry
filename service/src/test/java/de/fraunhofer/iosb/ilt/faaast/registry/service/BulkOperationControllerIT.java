@@ -68,7 +68,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestRestTemplate
-public class BulkOperationControllerIT {
+class BulkOperationControllerIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationControllerIT.class);
 
     @LocalServerPort
@@ -81,13 +81,13 @@ public class BulkOperationControllerIT {
     private AasRepository aasRepository;
 
     @BeforeEach
-    public void init() {
+    void init() {
         aasRepository.clear();
     }
 
 
     @Test
-    public void testAsyncAasCommit() {
+    void testAsyncAasCommit() {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
@@ -162,7 +162,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncCreateRollback() {
+    void testAsyncCreateRollback() {
         List<AssetAdministrationShellDescriptor> rollbackAASList = List.of(
                 generateAas("004"),
                 generateAas("005"),
@@ -191,7 +191,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testAsyncSubmodelCommit() {
+    void testAsyncSubmodelCommit() {
         List<SubmodelDescriptor> commitSubmodelList = List.of(
                 generateSubmodel("001"),
                 generateSubmodel("002"),
@@ -266,7 +266,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testStatusUnknownHandle() {
+    void testStatusUnknownHandle() {
         ResponseEntity<String> response = restTemplate.getForEntity(
                 createURLWithPort("/status/unknown-id"),
                 String.class);
@@ -276,7 +276,7 @@ public class BulkOperationControllerIT {
 
 
     @Test
-    public void testResultUnknownHandle() {
+    void testResultUnknownHandle() {
         ResponseEntity<String> response = restTemplate.getForEntity(
                 createURLWithPort("/result/unknown-id"),
                 String.class);

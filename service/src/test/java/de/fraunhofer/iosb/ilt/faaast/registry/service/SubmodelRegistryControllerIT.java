@@ -51,7 +51,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @AutoConfigureTestRestTemplate
-public class SubmodelRegistryControllerIT {
+class SubmodelRegistryControllerIT {
 
     @LocalServerPort
     private int port;
@@ -60,19 +60,19 @@ public class SubmodelRegistryControllerIT {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void testGetSubmodels() {
+    void testGetSubmodels() {
         assertGetSubmodels("");
     }
 
 
     @Test
-    public void testGetSubmodelsWithSlash() {
+    void testGetSubmodelsWithSlash() {
         assertGetSubmodels("/");
     }
 
 
     @Test
-    public void testCreateSubmodel() {
+    void testCreateSubmodel() {
         SubmodelDescriptor expected = getSubmodel();
         createSubmodel(expected);
         checkGetSubmodel(expected);
@@ -96,14 +96,14 @@ public class SubmodelRegistryControllerIT {
 
 
     @Test
-    public void testCreateInvalidSubmodel() {
+    void testCreateInvalidSubmodel() {
         SubmodelDescriptor expected = getSubmodelInvalid();
         checkCreateSubmodelError(expected, HttpStatus.BAD_REQUEST);
     }
 
 
     @Test
-    public void testUpdateDeleteSubmodel() {
+    void testUpdateDeleteSubmodel() {
         // create Submodel
         SubmodelDescriptor original = getSubmodelUpdate();
         createSubmodel(original);
@@ -130,7 +130,7 @@ public class SubmodelRegistryControllerIT {
 
 
     @Test
-    public void testInvalidLimit() {
+    void testInvalidLimit() {
         ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

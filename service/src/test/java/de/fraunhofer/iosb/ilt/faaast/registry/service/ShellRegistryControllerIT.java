@@ -52,16 +52,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureTestRestTemplate
-public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
+class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
-    public void testGetAASs() {
+    void testGetAASs() {
         assertGetAASs("");
     }
 
 
     @Test
-    public void testGetAASsWithSlash() {
+    void testGetAASsWithSlash() {
         assertGetAASs("/");
     }
 
@@ -72,7 +72,7 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testCreateAas() {
+    void testCreateAas() {
         AssetAdministrationShellDescriptor expected = getAas();
         createAas(expected);
         checkGetAas(expected);
@@ -97,14 +97,14 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testCreateInvalidAas() {
+    void testCreateInvalidAas() {
         AssetAdministrationShellDescriptor expected = getAasInvalid();
         checkCreateAasError(expected, HttpStatus.BAD_REQUEST);
     }
 
 
     @Test
-    public void testUpdateDeleteAas() {
+    void testUpdateDeleteAas() {
         // create AAS
         AssetAdministrationShellDescriptor original = getAasUpdate();
         createAas(original);
@@ -131,7 +131,7 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testInvalidLimit() {
+    void testInvalidLimit() {
         ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -139,7 +139,7 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testPageCursorWithAssetType() {
+    void testPageCursorWithAssetType() {
         Map<String, AssetAdministrationShellDescriptor> expectedMap = new HashMap<>();
         String assetType = "PageCursorTest";
         AssetAdministrationShellDescriptor aas1 = getAas();
@@ -192,7 +192,7 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testAddUpdateDeleteSubmodel() {
+    void testAddUpdateDeleteSubmodel() {
         // create AAS
         AssetAdministrationShellDescriptor aas = getAas101();
         createAas(aas);
@@ -232,7 +232,7 @@ public class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT
 
 
     @Test
-    public void testAddInvalidSubmodel() {
+    void testAddInvalidSubmodel() {
         AssetAdministrationShellDescriptor aas = getAas();
         aas.setId("http://iosb.fraunhofer.de/IntegrationTest/Invalid/AAS1");
         createAas(aas);

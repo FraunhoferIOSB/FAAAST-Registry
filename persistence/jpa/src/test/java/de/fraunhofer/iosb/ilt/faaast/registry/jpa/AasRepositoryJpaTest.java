@@ -37,13 +37,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.registry.jpa.model"
 })
-public class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
+class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
 
     @Autowired
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         repository = new AasRepositoryJpa(entityManager);
     }
 

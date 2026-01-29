@@ -29,8 +29,6 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
@@ -48,10 +46,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureTestRestTemplate
-public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
+class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    //@Autowired
+    //private TestRestTemplate restTemplate;
 
     public DiscoveryControllerIT() {
         super(DISCOVERY_PATH);
@@ -59,7 +57,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetLinksByIdWithUnknownAasIdentifier() {
+    void getAllAssetLinksByIdWithUnknownAasIdentifier() {
         String identifierB64 = EncodingHelper.base64UrlEncode("my-aas-identifier");
         String urlWithPort = createURLWithPort(String.format("/%s", identifierB64));
 
@@ -72,7 +70,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetLinksByIdWithKnownAasIdentifier() {
+    void getAllAssetLinksByIdWithKnownAasIdentifier() {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -100,7 +98,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoInput() {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoInput() {
         Page<String> expected = Page.of(List.of());
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(createURLWithPort(""));
@@ -113,7 +111,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithUnknownGlobalAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithUnknownGlobalAssetId() throws SerializationException {
         Page<String> expected = Page.of();
 
         var mySpecificAssetIds = List.of(new DefaultSpecificAssetId.Builder()
@@ -135,7 +133,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoArguments() {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoArguments() {
         Page<String> expected = Page.of();
 
         String urlWithPort = createURLWithPort("");
@@ -150,7 +148,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedLimit() {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedLimit() {
         String urlWithPort = createURLWithPort("?limit=-42");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
@@ -161,7 +159,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedCursor() {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedCursor() {
         String urlWithPort = createURLWithPort("?cursor=NonSensicalCursorArgument");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
@@ -172,7 +170,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedSpecificAssetIds() {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedSpecificAssetIds() {
         String urlWithPort = createURLWithPort("?assetIds=NonSensicalArgument");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
@@ -182,7 +180,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -203,7 +201,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownOneUnknownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownOneUnknownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -225,7 +223,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneUnknownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneUnknownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -247,7 +245,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneKnownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneKnownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -269,7 +267,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndTwoKnownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndTwoKnownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -291,7 +289,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithTwoKnownSpecificAssetId() throws SerializationException {
+    void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithTwoKnownSpecificAssetId() throws SerializationException {
         AssetAdministrationShellDescriptor descriptor = getAas();
         createAas(descriptor);
 
@@ -312,7 +310,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void postAllAssetLinksByIdWithNewGlobalAssetId() {
+    void postAllAssetLinksByIdWithNewGlobalAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
@@ -340,7 +338,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void postAllAssetLinksByIdWithUnknownAssetId() {
+    void postAllAssetLinksByIdWithUnknownAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
@@ -361,7 +359,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void postAllAssetLinksByIdWithNewSpecificAssetId() {
+    void postAllAssetLinksByIdWithNewSpecificAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
@@ -399,7 +397,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void postAllAssetLinksByIdWithUpdatedSpecificAssetId() {
+    void postAllAssetLinksByIdWithUpdatedSpecificAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
@@ -439,7 +437,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void deleteAllAssetLinksByIdWithKnownAssetId() {
+    void deleteAllAssetLinksByIdWithKnownAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
@@ -465,7 +463,7 @@ public class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     @Test
-    public void deleteAllAssetLinksByIdWithUnknownAssetId() {
+    void deleteAllAssetLinksByIdWithUnknownAssetId() {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 

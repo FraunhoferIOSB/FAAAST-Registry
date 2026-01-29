@@ -18,10 +18,10 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import org.junit.jupiter.api.BeforeEach;
 
 
-public class AasRepositoryMemoryTest extends AbstractAasRepositoryTest<AasRepositoryMemory> {
+class AasRepositoryMemoryTest extends AbstractAasRepositoryTest<AasRepositoryMemory> {
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
         repository = new AasRepositoryMemory();
     }
 
