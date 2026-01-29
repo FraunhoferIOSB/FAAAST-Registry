@@ -29,9 +29,9 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -44,14 +44,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @AutoConfigureTestRestTemplate
-public class SubmodelRegistryControllerIT {
+class SubmodelRegistryControllerIT {
 
     @LocalServerPort
     private int port;
@@ -60,35 +60,35 @@ public class SubmodelRegistryControllerIT {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void testGetSubmodels() {
+    void testGetSubmodels() {
         assertGetSubmodels("");
     }
 
 
     @Test
-    public void testGetSubmodelsWithSlash() {
+    void testGetSubmodelsWithSlash() {
         assertGetSubmodels("/");
     }
 
 
     @Test
-    public void testCreateSubmodel() {
+    void testCreateSubmodel() {
         SubmodelDescriptor expected = getSubmodel();
         createSubmodel(expected);
         checkGetSubmodel(expected);
 
         ResponseEntity<Page<SubmodelDescriptor>> response = restTemplate.exchange(createURLWithPort(""), HttpMethod.GET, null,
                 new ParameterizedTypeReference<Page<SubmodelDescriptor>>() {});
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
         var list = response.getBody().getContent();
-        Assert.assertNotNull(list);
-        Assert.assertTrue(list.size() >= 0);
+        Assertions.assertNotNull(list);
+        Assertions.assertTrue(list.size() >= 0);
 
         Optional<SubmodelDescriptor> actual = list.stream().filter(x -> expected.getId().equals(x.getId())).findFirst();
-        Assert.assertTrue(actual.isPresent());
-        Assert.assertEquals(expected, actual.get());
+        Assertions.assertTrue(actual.isPresent());
+        Assertions.assertEquals(expected, actual.get());
 
         // check that an error is reposrted, when a Submodel shall be created, that already exists
         checkCreateSubmodelError(expected, HttpStatus.CONFLICT);
@@ -96,14 +96,16 @@ public class SubmodelRegistryControllerIT {
 
 
     @Test
-    public void testCreateInvalidSubmodel() {
+    void testCreateInvalidSubmodel() {
         SubmodelDescriptor expected = getSubmodelInvalid();
+        // Workaround for an erroneous Codacy warning
+        Assertions.assertNotNull(expected);
         checkCreateSubmodelError(expected, HttpStatus.BAD_REQUEST);
     }
 
 
     @Test
-    public void testUpdateDeleteSubmodel() {
+    void testUpdateDeleteSubmodel() {
         // create Submodel
         SubmodelDescriptor original = getSubmodelUpdate();
         createSubmodel(original);
@@ -115,60 +117,60 @@ public class SubmodelRegistryControllerIT {
 
         HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(expected);
         ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
-        Assert.assertNotNull(responsePut);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        Assertions.assertNotNull(responsePut);
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
 
         checkGetSubmodel(expected);
 
         // delete Submodel
         ResponseEntity responseDelete = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertNotNull(responseDelete);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        Assertions.assertNotNull(responseDelete);
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
 
         checkGetAasNotExist(expected.getId());
     }
 
 
     @Test
-    public void testInvalidLimit() {
+    void testInvalidLimit() {
         ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
 
     private void checkGetSubmodel(SubmodelDescriptor expected) {
         ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.GET, null,
                 SubmodelDescriptor.class);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
-        Assert.assertEquals(expected, response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected, response.getBody());
     }
 
 
     private void checkGetAasNotExist(String id) {
         ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
                 createURLWithPort("/" + EncodingHelper.base64UrlEncode(id)), HttpMethod.GET, null, SubmodelDescriptor.class);
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
 
     private void createSubmodel(SubmodelDescriptor submodel) {
         HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(submodel);
         ResponseEntity<SubmodelDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity, SubmodelDescriptor.class);
-        Assert.assertNotNull(responsePost);
-        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assert.assertEquals(submodel, responsePost.getBody());
+        Assertions.assertNotNull(responsePost);
+        Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        Assertions.assertEquals(submodel, responsePost.getBody());
     }
 
 
     private void checkCreateSubmodelError(SubmodelDescriptor submodel, HttpStatusCode statusCode) {
         HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(submodel);
         ResponseEntity<SubmodelDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity, SubmodelDescriptor.class);
-        Assert.assertNotNull(responsePost);
-        Assert.assertEquals(statusCode, responsePost.getStatusCode());
+        Assertions.assertNotNull(responsePost);
+        Assertions.assertEquals(statusCode, responsePost.getStatusCode());
     }
 
 
@@ -243,10 +245,10 @@ public class SubmodelRegistryControllerIT {
     private void assertGetSubmodels(String urlPostfix) {
         ResponseEntity<Page<SubmodelDescriptor>> response = restTemplate.exchange(
                 createURLWithPort(urlPostfix), HttpMethod.GET, null, new ParameterizedTypeReference<Page<SubmodelDescriptor>>() {});
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
         var list = response.getBody().getContent();
-        Assert.assertNotNull(list);
+        Assertions.assertNotNull(list);
     }
 }

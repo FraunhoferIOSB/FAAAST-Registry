@@ -20,30 +20,30 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepositoryTest;
 import jakarta.persistence.EntityManager;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @EnableAutoConfiguration
 @ContextConfiguration(classes = AasRepositoryJpaTest.class)
 @DataJpaTest
 @EntityScan(basePackages = {
         "de.fraunhofer.iosb.ilt.faaast.registry.jpa.model"
 })
-public class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
+class AasRepositoryJpaTest extends AbstractAasRepositoryTest<AasRepositoryJpa> {
 
     @Autowired
     private EntityManager entityManager;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         repository = new AasRepositoryJpa(entityManager);
     }
 

@@ -42,7 +42,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -71,9 +71,9 @@ public abstract class AbstractShellRegistryControllerIT {
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
         ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + "/api/v3" + ".0/shell-descriptors", HttpMethod.POST,
                 entity, AssetAdministrationShellDescriptor.class);
-        Assert.assertNotNull(responsePost);
-        Assert.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assert.assertEquals(aas, responsePost.getBody());
+        Assertions.assertNotNull(responsePost);
+        Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        Assertions.assertEquals(aas, responsePost.getBody());
     }
 
 
