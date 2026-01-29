@@ -48,9 +48,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @AutoConfigureTestRestTemplate
 class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
-    //@Autowired
-    //private TestRestTemplate restTemplate;
-
     public DiscoveryControllerIT() {
         super(DISCOVERY_PATH);
     }

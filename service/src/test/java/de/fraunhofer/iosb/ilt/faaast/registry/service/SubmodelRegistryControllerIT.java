@@ -98,6 +98,8 @@ class SubmodelRegistryControllerIT {
     @Test
     void testCreateInvalidSubmodel() {
         SubmodelDescriptor expected = getSubmodelInvalid();
+        // Workaround for an erroneous Codacy warning
+        Assertions.assertNotNull(expected);
         checkCreateSubmodelError(expected, HttpStatus.BAD_REQUEST);
     }
 

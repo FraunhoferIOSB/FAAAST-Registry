@@ -99,6 +99,8 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
     @Test
     void testCreateInvalidAas() {
         AssetAdministrationShellDescriptor expected = getAasInvalid();
+        // Workaround for an erroneous Codacy warning
+        Assertions.assertNotNull(expected);
         checkCreateAasError(expected, HttpStatus.BAD_REQUEST);
     }
 
