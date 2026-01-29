@@ -24,27 +24,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = App.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class AuthorizationTest {
+class AuthorizationTest {
 
     private static final String ACL_JSON = """
             {
@@ -69,14 +68,20 @@ public class AuthorizationTest {
 
     private MockMvc mvc;
 
-    @Rule
-    public TemporaryFolder tmp = new TemporaryFolder();
+    //@Rule
+    //public TemporaryFolder tmp = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
+
     private Path aclDir;
     //private AclFilter filter;
 
-    @Before
-    public void setup() throws IOException {
-        aclDir = tmp.newFolder("acl").toPath();
+    @BeforeEach
+    void setup() throws IOException {
+        //Assertions.assertTrue(tempDir.isDirectory(), "Should be a directory ");
+        aclDir = Files.createDirectory(tempDir.resolve("acl"));
+        //tempDir.
+        //aclDir = tmp.newFolder("acl").toPath();
         AclFilter filter = new AclFilter(aclDir.toString());
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -86,7 +91,7 @@ public class AuthorizationTest {
 
 
     @Test
-    public void testAnonymousAccessDependsOnAclFile() throws IOException, Exception {
+    void testAnonymousAccessDependsOnAclFile() throws IOException, Exception {
         mvc.perform(MockMvcRequestBuilders.get("/shell-descriptors")).andExpect(status().isUnauthorized());
 
         Path rule = aclDir.resolve("allow.json");

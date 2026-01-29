@@ -21,14 +21,14 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.FormulaEvaluator;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class FormulaEvaluatorTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static String ACL_JSON = """
+    private static final String ACL_JSON = """
             {
                                 "$and": [
                                     {
@@ -92,24 +92,24 @@ public class FormulaEvaluatorTest {
             """;
 
     @Test
-    public void testFormula_withMatchingClaims() throws JsonProcessingException {
+    void testFormula_withMatchingClaims() throws JsonProcessingException {
         LogicalExpression formula = MAPPER.readValue(
                 ACL_JSON, new TypeReference<>() {});
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("CLAIM:organization", "Company2");
         ctx.put("CLAIM:email", "user2@company2.com");
-        Assert.assertTrue(FormulaEvaluator.evaluate(formula, ctx));
+        Assertions.assertTrue(FormulaEvaluator.evaluate(formula, ctx));
     }
 
 
     @Test
-    public void testFormula_withNonMatchingClaims() throws JsonProcessingException {
+    void testFormula_withNonMatchingClaims() throws JsonProcessingException {
         LogicalExpression formula = MAPPER.readValue(
                 ACL_JSON, new TypeReference<>() {});
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("CLAIM:organization", "Company2");
         ctx.put("CLAIM:email", "other.user@company2.com");
-        Assert.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
+        Assertions.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
     }
 
 
@@ -120,6 +120,6 @@ public class FormulaEvaluatorTest {
         Map<String, Object> ctx = new HashMap<>();
         ctx.put("CLAIM:organization", "Company2");
         //ctx.put("CLAIM:email", "other.user@company2.com");
-        Assert.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
+        Assertions.assertFalse(FormulaEvaluator.evaluate(formula, ctx));
     }
 }

@@ -33,17 +33,17 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 
 public class QueryEvaluatorTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private QueryEvaluator evaluator = new QueryEvaluator();
+    private final QueryEvaluator evaluator = new QueryEvaluator();
 
     @Test
-    public void testAasWithMatchingIdShort() throws JsonProcessingException {
+    void testAasWithMatchingIdShort() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -66,12 +66,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         AssetAdministrationShellDescriptor aas = getAas();
-        Assert.assertTrue(evaluator.matches(query.get$condition(), aas));
+        Assertions.assertTrue(evaluator.matches(query.get$condition(), aas));
     }
 
 
     @Test
-    public void testAasEqWithNotMatchingIdShort() throws JsonProcessingException {
+    void testAasEqWithNotMatchingIdShort() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -94,12 +94,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         AssetAdministrationShellDescriptor aas = getAas();
-        Assert.assertFalse(evaluator.matches(query.get$condition(), aas));
+        Assertions.assertFalse(evaluator.matches(query.get$condition(), aas));
     }
 
 
     @Test
-    public void testAasWithMatchingId() throws JsonProcessingException {
+    void testAasWithMatchingId() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -139,7 +139,7 @@ public class QueryEvaluatorTest {
 
 
     @Test
-    public void testSubmodelWithMatchingIdShort() throws JsonProcessingException {
+    void testSubmodelWithMatchingIdShort() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -157,12 +157,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         SubmodelDescriptor sm = getSubmodel();
-        Assert.assertTrue(evaluator.matches(query.get$condition(), sm));
+        Assertions.assertTrue(evaluator.matches(query.get$condition(), sm));
     }
 
 
     @Test
-    public void testSubmodelWithNotMatchingIdShort() throws JsonProcessingException {
+    void testSubmodelWithNotMatchingIdShort() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -180,12 +180,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         SubmodelDescriptor sm = getSubmodel();
-        Assert.assertFalse(evaluator.matches(query.get$condition(), sm));
+        Assertions.assertFalse(evaluator.matches(query.get$condition(), sm));
     }
 
 
     @Test
-    public void testSubmodelWithMatchingId() throws JsonProcessingException {
+    void testSubmodelWithMatchingId() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -203,12 +203,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         SubmodelDescriptor sm = getSubmodel();
-        Assert.assertTrue(evaluator.matches(query.get$condition(), sm));
+        Assertions.assertTrue(evaluator.matches(query.get$condition(), sm));
     }
 
 
     @Test
-    public void testSubmodelWithNotMatchingId() throws JsonProcessingException {
+    void testSubmodelWithNotMatchingId() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
@@ -226,12 +226,12 @@ public class QueryEvaluatorTest {
         Query query = MAPPER.readValue(
                 json, new TypeReference<>() {});
         SubmodelDescriptor sm = getSubmodel();
-        Assert.assertFalse(evaluator.matches(query.get$condition(), sm));
+        Assertions.assertFalse(evaluator.matches(query.get$condition(), sm));
     }
 
 
     @Test
-    public void testOrMatchWithSpecificAssetIds() throws JsonProcessingException {
+    void testOrMatchWithSpecificAssetIds() throws JsonProcessingException {
         String json = """
                 {
                   "$condition": {
