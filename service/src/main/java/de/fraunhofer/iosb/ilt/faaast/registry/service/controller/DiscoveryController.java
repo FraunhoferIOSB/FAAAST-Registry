@@ -193,4 +193,23 @@ public class DiscoveryController {
 
         return ResponseEntity.noContent().build();
     }
+
+
+    /**
+     * Returns a list of Asset Administration Shell IDs linked to specific asset identifiers or the global asset ID.
+     *
+     * @param limit The maximum number of elements in the response array. minimum: 1.
+     * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the
+     *            result listing should continue.
+     * @param specificAssetIds A list of specific Asset identifiers.
+     * @return The requested Asset Administration Shell ids.
+     */
+    @PostMapping(value = "/lookup/shellsByAssetLink")
+    public Page<String> searchAllAssetAdministrationShellIdsByAssetLink(@RequestParam(name = "limit", required = false) Long limit,
+                                                                        @RequestParam(name = "cursor", required = false) String cursor,
+                                                                        @RequestBody List<SpecificAssetId> specificAssetIds) {
+
+        PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
+        return service.getAASIdsBySpecificAssetId(specificAssetIds, pagingInfo);
+    }
 }
