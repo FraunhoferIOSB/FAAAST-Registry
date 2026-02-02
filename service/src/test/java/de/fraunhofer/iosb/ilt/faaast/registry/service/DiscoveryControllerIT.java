@@ -49,7 +49,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
     public DiscoveryControllerIT() {
-        super(DISCOVERY_PATH);
+        super(DISCOVERY_PATH + "/shells");
     }
 
 

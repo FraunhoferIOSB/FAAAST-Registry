@@ -73,7 +73,7 @@ public class DiscoveryController {
      *            result listing should continue.
      * @return Requested Asset Administration Shell ids.
      */
-    @GetMapping
+    @GetMapping(value = "/shells")
     public Page<String> getAllAssetAdministrationShellIdsBySpecificAssetIds(@RequestParam(name = "assetIds", required = false, defaultValue = "W10") List<SpecificAssetId> assetIds,
                                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                                             @RequestParam(name = "cursor", required = false) String cursor) {
@@ -92,7 +92,7 @@ public class DiscoveryController {
      * @return Requested specific Asset identifiers.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @GetMapping("/{aasIdentifier}")
+    @GetMapping("/shells/{aasIdentifier}")
     public List<SpecificAssetId> getAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
         AssetAdministrationShellDescriptor selectedDescriptor = service.getAAS(aasIdentifier);
 
@@ -118,7 +118,7 @@ public class DiscoveryController {
      * @return Specific Asset identifiers created successfully.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @PostMapping("/{aasIdentifier}")
+    @PostMapping("/shells/{aasIdentifier}")
     public ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier,
                                                                        @RequestBody List<SpecificAssetId> specificAssetIds)
             throws ResourceNotFoundException {
@@ -183,7 +183,7 @@ public class DiscoveryController {
      * @return 204 - Specific Asset identifiers deleted successfully; 404 - Not Found.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @DeleteMapping("/{aasIdentifier}")
+    @DeleteMapping("/shells/{aasIdentifier}")
     public ResponseEntity<Void> deleteAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
         AssetAdministrationShellDescriptor selectedDescriptor = service.getAAS(aasIdentifier);
         selectedDescriptor.getSpecificAssetIds().clear();
@@ -204,7 +204,7 @@ public class DiscoveryController {
      * @param specificAssetIds A list of specific Asset identifiers.
      * @return The requested Asset Administration Shell ids.
      */
-    @PostMapping(value = "/lookup/shellsByAssetLink")
+    @PostMapping(value = "/shellsByAssetLink")
     public Page<String> searchAllAssetAdministrationShellIdsByAssetLink(@RequestParam(name = "limit", required = false) Long limit,
                                                                         @RequestParam(name = "cursor", required = false) String cursor,
                                                                         @RequestBody List<SpecificAssetId> specificAssetIds) {
