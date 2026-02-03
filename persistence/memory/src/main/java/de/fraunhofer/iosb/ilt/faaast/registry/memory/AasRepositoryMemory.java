@@ -99,6 +99,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
+    public Page<String> getAASIdentifiersByAssetLink(List<SpecificAssetId> assetLinks, PagingInfo pagingInfo) {
+        return filterAssetAdministrationShellDescriptorsByAssetLink(shellsDeepCopy(), assetLinks, pagingInfo);
+    }
+
+
+    @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());

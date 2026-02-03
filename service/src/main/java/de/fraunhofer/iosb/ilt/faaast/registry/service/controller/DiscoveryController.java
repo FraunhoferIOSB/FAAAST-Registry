@@ -210,6 +210,6 @@ public class DiscoveryController {
                                                                         @RequestBody List<SpecificAssetId> specificAssetIds) {
 
         PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
-        return service.getAASIdsBySpecificAssetId(specificAssetIds, pagingInfo);
+        return service.getAASIdsByAssetLink(specificAssetIds, pagingInfo);
     }
 }

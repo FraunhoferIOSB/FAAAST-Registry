@@ -106,6 +106,20 @@ public class RegistryService {
 
 
     /**
+     * Retrieves the Asset Administration Shell IDs with the given AssetLink.
+     *
+     * @param assetLinks The AssetLinks of the desired Asset Administration Shells.
+     * @param paging The paging information.
+     * @return The desired Asset Administration Shell IDs.
+     */
+    public Page<String> getAASIdsByAssetLink(List<SpecificAssetId> assetLinks, PagingInfo paging) {
+        Ensure.requireNonNull(assetLinks, SPECIFIC_ASSET_IDS_NOT_NULL_TXT);
+
+        return aasRepository.getAASIdentifiersByAssetLink(assetLinks, paging);
+    }
+
+
+    /**
      * Create the given Asset Administration Shell.
      *
      * @param aas The desired Asset Administration Shell.

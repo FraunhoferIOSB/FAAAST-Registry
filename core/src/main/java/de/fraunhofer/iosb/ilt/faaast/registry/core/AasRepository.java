@@ -68,9 +68,23 @@ public interface AasRepository {
      * @param specificAssetIds The SpecificAssetIDs of the desired Asset Administration Shells. If a specificAssetId is a
      *            globalAssetId according to AASd-116, it is treated
      *            as the globalAssetId of the desired Asset Administration Shells.
+     * @param pagingInfo The Paging information.
      * @return The desired Asset Administration Shells identifiers.
      */
     public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo);
+
+
+    /**
+     * Retrieves the Asset Administration Shells Identifiers with the given AssetLinks. *All* of the AssetLinks
+     * must match.
+     *
+     * @param assetLinks The AssetLinks of the desired Asset Administration Shells. If an assetLink is a
+     *            globalAssetId according to AASd-116, it is treated
+     *            as the globalAssetId of the desired Asset Administration Shells.
+     * @param pagingInfo The Paging information.
+     * @return The desired Asset Administration Shells identifiers.
+     */
+    public Page<String> getAASIdentifiersByAssetLink(List<SpecificAssetId> assetLinks, PagingInfo pagingInfo);
 
 
     /**
