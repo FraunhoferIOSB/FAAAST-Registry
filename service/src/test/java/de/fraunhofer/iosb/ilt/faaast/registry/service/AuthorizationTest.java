@@ -78,10 +78,7 @@ class AuthorizationTest {
 
     @BeforeEach
     void setup() throws IOException {
-        //Assertions.assertTrue(tempDir.isDirectory(), "Should be a directory ");
         aclDir = Files.createDirectory(tempDir.resolve("acl"));
-        //tempDir.
-        //aclDir = tmp.newFolder("acl").toPath();
         AclFilter filter = new AclFilter(aclDir.toString());
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
