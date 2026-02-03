@@ -196,7 +196,7 @@ public class DiscoveryController {
 
 
     /**
-     * Returns a list of Asset Administration Shell IDs linked to specific asset identifiers or the global asset ID.
+     * Returns a list of Asset Administration Shell IDs linked to asset links or the global asset ID.
      *
      * @param limit The maximum number of elements in the response array. minimum: 1.
      * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the

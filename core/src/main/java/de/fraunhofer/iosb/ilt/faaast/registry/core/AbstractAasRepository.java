@@ -283,7 +283,7 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
-    /* Returns true if all elements of subset are contained in superset */
+    /* Returns true if all elements of AssetLink subset are contained in AssetLink superset */
     private boolean containsAssetLink(List<SpecificAssetId> subset, List<SpecificAssetId> superset) {
         // Remove all that are contained in the superset (i.e. keep all that are not in superset)
         for (SpecificAssetId subId: subset) {
