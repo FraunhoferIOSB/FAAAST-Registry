@@ -652,8 +652,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
             toFilterFor.add(AssetLinkHelper.of(sai));
         }
 
-        //String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
-
         String urlWithPort = createURLWithPort(String.format("/shellsByAssetLink"));
 
         ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
