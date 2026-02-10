@@ -96,28 +96,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
         Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
 
-        //List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
-        //        .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
-        //        .toList();
-
-        //String globalAssetIdString = null;
-
-        //if (globalAssetIds.size() > 1) {
-        //    // An AAS descriptor can only have one globalAssetId.
-        //    return Page.of();
-        //}
-        //else if (!globalAssetIds.isEmpty()) {
-        //    SpecificAssetId globalAssetId = globalAssetIds.get(0);
-        //    // Disentangle specificAssetId from globalAssetId
-        //    specificAssetIds.remove(globalAssetId);
-        //    globalAssetIdString = globalAssetIds.get(0).getValue();
-        //}
-
-        //Map<String, String> specificAssetIdNameValueMap = new HashMap<>();
-        //specificAssetIds.forEach(id -> specificAssetIdNameValueMap.put(id.getName(), id.getValue()));
-
         // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
-        //List<AssetAdministrationShellDescriptor> prefilteredDescriptors = EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
         List<AssetAdministrationShellDescriptor> prefilteredDescriptors = filterDescriptorsByGlobalAssetId(specificAssetIds);
 
         // We already filtered for global asset id -> No need to add it to specific asset ids again

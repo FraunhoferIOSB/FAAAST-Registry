@@ -180,21 +180,7 @@ public abstract class AbstractAasRepository implements AasRepository {
 
         List<AssetAdministrationShellDescriptor> filteredDescriptors = new ArrayList<>(descriptors);
 
-        //List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
-        //        .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
-        //        .toList();
-
-        //if (globalAssetIds.size() > 1) {
-        //    // An AAS descriptor can only have one globalAssetId.
-        //    return Page.of();
-        //}
-        //else if (!globalAssetIds.isEmpty()) {
-        //    String globalAssetId = globalAssetIds.get(0).getValue();
-        //    filteredDescriptors.removeIf(descriptor -> !Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
-        //}
-
         List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(specificAssetIds);
-        //realSpecificAssetIds.removeAll(globalAssetIds);
 
         filterByGlobalAssetId(filteredDescriptors, specificAssetIds, realSpecificAssetIds);
 
@@ -226,21 +212,7 @@ public abstract class AbstractAasRepository implements AasRepository {
 
         List<AssetAdministrationShellDescriptor> filteredDescriptors = new ArrayList<>(descriptors);
 
-        //List<SpecificAssetId> globalAssetIds = assetLinks.stream()
-        //        .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
-        //        .toList();
-
-        //if (globalAssetIds.size() > 1) {
-        //    // An AAS descriptor can only have one globalAssetId.
-        //    return Page.of();
-        //}
-        //else if (!globalAssetIds.isEmpty()) {
-        //    String globalAssetId = globalAssetIds.get(0).getValue();
-        //    filteredDescriptors.removeIf(descriptor -> !Objects.equals(globalAssetId, descriptor.getGlobalAssetId()));
-        //}
-
         List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(assetLinks);
-        //realSpecificAssetIds.removeAll(globalAssetIds);
 
         filterByGlobalAssetId(filteredDescriptors, assetLinks, realSpecificAssetIds);
 
@@ -371,7 +343,6 @@ public abstract class AbstractAasRepository implements AasRepository {
         if (globalAssetIds.size() > 1) {
             // An AAS descriptor can only have one globalAssetId.
             descriptors.clear();
-            //return new ArrayList<>();
         }
         else if (!globalAssetIds.isEmpty()) {
             String globalAssetId = globalAssetIds.get(0).getValue();
