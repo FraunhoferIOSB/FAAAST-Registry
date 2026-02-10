@@ -192,6 +192,10 @@ public abstract class AbstractAasRepository implements AasRepository {
             }
         }
 
+        filteredDescriptorIds = filteredDescriptorIds.stream()
+                .skip(cursor)
+                .limit(limit)
+                .toList();
         return getPage(filteredDescriptorIds, cursor, filteredDescriptorIds.size());
     }
 
@@ -224,6 +228,10 @@ public abstract class AbstractAasRepository implements AasRepository {
             }
         }
 
+        filteredDescriptorIds = filteredDescriptorIds.stream()
+                .skip(cursor)
+                .limit(limit)
+                .toList();
         return getPage(filteredDescriptorIds, cursor, filteredDescriptorIds.size());
     }
 
