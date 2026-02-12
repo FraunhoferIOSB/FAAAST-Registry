@@ -17,12 +17,12 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
-import de.fraunhofer.iosb.ilt.faaast.service.util.ReferenceHelper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -165,42 +165,6 @@ public abstract class AbstractAasRepository implements AasRepository {
 
 
     /**
-     * Helper method to filter a shell descriptor list with the desired specificAssetIds and globalAssetId.
-     *
-     * @param descriptors The list of shell descriptors to filter.
-     * @param specificAssetIds The specificAssetIds of the desired shells.
-     * @param pagingInfo The pagingInfo
-     * @return Page of AAS Descriptors, not null.
-     */
-    protected Page<String> filterAssetAdministrationShellDescriptors(Collection<AssetAdministrationShellDescriptor> descriptors,
-                                                                     Collection<SpecificAssetId> specificAssetIds,
-                                                                     PagingInfo pagingInfo) {
-        int limit = readLimit(pagingInfo);
-        int cursor = readCursor(pagingInfo);
-
-        List<AssetAdministrationShellDescriptor> filteredDescriptors = new ArrayList<>(descriptors);
-
-        List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(specificAssetIds);
-
-        filterByGlobalAssetId(filteredDescriptors, specificAssetIds, realSpecificAssetIds);
-
-        List<String> filteredDescriptorIds = new ArrayList<>();
-
-        for (AssetAdministrationShellDescriptor descriptor: filteredDescriptors) {
-            if (contains(realSpecificAssetIds, descriptor.getSpecificAssetIds())) {
-                filteredDescriptorIds.add(descriptor.getId());
-            }
-        }
-
-        filteredDescriptorIds = filteredDescriptorIds.stream()
-                .skip(cursor)
-                .limit(limit)
-                .toList();
-        return getPage(filteredDescriptorIds, cursor, filteredDescriptorIds.size());
-    }
-
-
-    /**
      * Helper method to filter a shell descriptor list with the desired AssetLinks.
      *
      * @param descriptors The list of shell descriptors to filter.
@@ -209,14 +173,14 @@ public abstract class AbstractAasRepository implements AasRepository {
      * @return Page of AAS Descriptors, not null.
      */
     protected Page<String> filterAssetAdministrationShellDescriptorsByAssetLink(Collection<AssetAdministrationShellDescriptor> descriptors,
-                                                                                Collection<SpecificAssetId> assetLinks,
+                                                                                Collection<AssetLink> assetLinks,
                                                                                 PagingInfo pagingInfo) {
         int limit = readLimit(pagingInfo);
         int cursor = readCursor(pagingInfo);
 
         List<AssetAdministrationShellDescriptor> filteredDescriptors = new ArrayList<>(descriptors);
 
-        List<SpecificAssetId> realSpecificAssetIds = new ArrayList<>(assetLinks);
+        List<AssetLink> realSpecificAssetIds = new ArrayList<>(assetLinks);
 
         filterByGlobalAssetId(filteredDescriptors, assetLinks, realSpecificAssetIds);
 
@@ -236,37 +200,10 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
-    /* Returns true if all elements of subset are contained in superset */
-    private boolean contains(List<SpecificAssetId> subset, List<SpecificAssetId> superset) {
-        // Remove all that are contained in the superset (i.e. keep all that are not in superset)
-        for (SpecificAssetId subId: subset) {
-            if (superset.stream().noneMatch(superId -> specificAssetIdEquality(superId, subId))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    private boolean specificAssetIdEquality(SpecificAssetId a, SpecificAssetId b) {
-        return Objects.equals(a.getName(), b.getName()) &&
-                Objects.equals(a.getValue(), b.getValue()) &&
-                ReferenceHelper.equals(a.getSemanticId(), b.getSemanticId()) &&
-                ReferenceHelper.equals(a.getExternalSubjectId(), b.getExternalSubjectId()) &&
-                a.getSupplementalSemanticIds().stream()
-                        .allMatch(aSuppId -> b.getSupplementalSemanticIds().stream()
-                                .anyMatch(bSuppId -> ReferenceHelper.equals(aSuppId, bSuppId)))
-                &&
-                b.getSupplementalSemanticIds().stream()
-                        .allMatch(aSuppId -> a.getSupplementalSemanticIds().stream()
-                                .anyMatch(bSuppId -> ReferenceHelper.equals(aSuppId, bSuppId)));
-    }
-
-
     /* Returns true if all elements of AssetLink subset are contained in AssetLink superset */
-    private boolean containsAssetLink(List<SpecificAssetId> subset, List<SpecificAssetId> superset) {
+    private boolean containsAssetLink(List<AssetLink> subset, List<SpecificAssetId> superset) {
         // Remove all that are contained in the superset (i.e. keep all that are not in superset)
-        for (SpecificAssetId subId: subset) {
+        for (AssetLink subId: subset) {
             if (superset.stream().noneMatch(superId -> assetLinkEquality(superId, subId))) {
                 return false;
             }
@@ -275,9 +212,9 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
-    private boolean assetLinkEquality(SpecificAssetId a, SpecificAssetId b) {
-        return Objects.equals(a.getName(), b.getName()) &&
-                Objects.equals(a.getValue(), b.getValue());
+    private boolean assetLinkEquality(SpecificAssetId specificAssetId, AssetLink assetLink) {
+        return Objects.equals(specificAssetId.getName(), assetLink.getName()) &&
+                Objects.equals(specificAssetId.getValue(), assetLink.getValue());
     }
 
 
@@ -342,9 +279,9 @@ public abstract class AbstractAasRepository implements AasRepository {
     }
 
 
-    private void filterByGlobalAssetId(List<AssetAdministrationShellDescriptor> descriptors, Collection<SpecificAssetId> specificAssetIds,
-                                       List<SpecificAssetId> realSpecificAssetIds) {
-        List<SpecificAssetId> globalAssetIds = specificAssetIds.stream()
+    private void filterByGlobalAssetId(List<AssetAdministrationShellDescriptor> descriptors, Collection<AssetLink> assetLinks,
+                                       List<AssetLink> realSpecificAssetIds) {
+        List<AssetLink> globalAssetIds = assetLinks.stream()
                 .filter(specificAssetId -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(specificAssetId.getName()))
                 .toList();
 

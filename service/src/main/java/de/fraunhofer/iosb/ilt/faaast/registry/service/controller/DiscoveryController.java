@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.util.AssetLinkHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -79,7 +81,8 @@ public class DiscoveryController {
                                                                             @RequestParam(name = "cursor", required = false) String cursor) {
         PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
 
-        return service.getAASIdsBySpecificAssetId(assetIds, pagingInfo);
+        List<AssetLink> assetLinks = AssetLinkHelper.from(assetIds);
+        return service.getAASIdsByAssetLink(assetLinks, pagingInfo);
     }
 
 
@@ -201,15 +204,15 @@ public class DiscoveryController {
      * @param limit The maximum number of elements in the response array. minimum: 1.
      * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the
      *            result listing should continue.
-     * @param specificAssetIds A list of specific Asset identifiers.
+     * @param assetLinks A list of asset links.
      * @return The requested Asset Administration Shell ids.
      */
     @PostMapping(value = "/shellsByAssetLink")
     public Page<String> searchAllAssetAdministrationShellIdsByAssetLink(@RequestParam(name = "limit", required = false) Long limit,
                                                                         @RequestParam(name = "cursor", required = false) String cursor,
-                                                                        @RequestBody List<SpecificAssetId> specificAssetIds) {
+                                                                        @RequestBody List<AssetLink> assetLinks) {
 
         PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
-        return service.getAASIdsByAssetLink(specificAssetIds, pagingInfo);
+        return service.getAASIdsByAssetLink(assetLinks, pagingInfo);
     }
 }
