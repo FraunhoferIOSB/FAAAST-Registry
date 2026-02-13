@@ -12,11 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.fraunhofer.iosb.ilt.faaast.registry.service;
+package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Schema;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -57,13 +58,17 @@ public class QueryController {
      *
      * @param limit The limit value.
      * @param cursor The cursor value.
-     * @param query The desired query.
+     * @param schema The desired query.
      * @return The list of matching Asset Administration Shells.
      */
     @PostMapping(value = "/shell-descriptors")
     @ResponseStatus(HttpStatus.OK)
     public Page<AssetAdministrationShellDescriptor> queryAASs(@RequestParam(name = "limit", required = false) Long limit,
-                                                              @RequestParam(name = "cursor", required = false) String cursor, @RequestBody Query query) {
+                                                              @RequestParam(name = "cursor", required = false) String cursor,
+                                                              @RequestBody Schema schema) {
+        if (schema.getQuery() == null) {
+            throw new BadRequestException("Query must be non-null");
+        }
         PagingInfo.Builder pageBuilder = PagingInfo.builder().cursor(cursor);
         if (limit != null) {
             if (limit == 0) {
@@ -75,7 +80,7 @@ public class QueryController {
             LOGGER.trace("queryAASs: no limit set - use default limit {}", AasRepository.DEFAULT_LIMIT);
             pageBuilder.limit(AasRepository.DEFAULT_LIMIT);
         }
-        return service.queryAASs(query, pageBuilder.build());
+        return service.queryAASs(schema.getQuery(), pageBuilder.build());
     }
 
 
