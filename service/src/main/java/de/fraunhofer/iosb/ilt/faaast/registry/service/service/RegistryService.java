@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.service;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.*;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.ConstraintHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -26,7 +27,6 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.OperationResult;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,17 +92,16 @@ public class RegistryService {
 
 
     /**
-     * Retrieves the Asset Administration Shell IDs with the given SpecificAssetIds.
+     * Retrieves the Asset Administration Shell IDs with the given AssetLink.
      *
-     * @param specificAssetIds The SpecificAssetIds of the desired Asset Administration Shells in serialized and
-     *            base64-encoded format.
+     * @param assetLinks The AssetLinks of the desired Asset Administration Shells.
      * @param paging The paging information.
      * @return The desired Asset Administration Shell IDs.
      */
-    public Page<String> getAASIdsBySpecificAssetId(List<SpecificAssetId> specificAssetIds, PagingInfo paging) {
-        Ensure.requireNonNull(specificAssetIds, SPECIFIC_ASSET_IDS_NOT_NULL_TXT);
+    public Page<String> getAASIdsByAssetLink(List<AssetLink> assetLinks, PagingInfo paging) {
+        Ensure.requireNonNull(assetLinks, SPECIFIC_ASSET_IDS_NOT_NULL_TXT);
 
-        return aasRepository.getAASIdentifiers(specificAssetIds, paging);
+        return aasRepository.getAASIdentifiersByAssetLink(assetLinks, paging);
     }
 
 

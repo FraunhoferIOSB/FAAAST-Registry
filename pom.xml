@@ -62,9 +62,9 @@
         <jackson.version>3.0.4</jackson.version>
         <janino.version>3.1.12</janino.version>
         <jsonschema2pojo.version>1.2.1</jsonschema2pojo.version>
-        <junit.jupiter.version>6.0.2</junit.jupiter.version>
+        <junit.jupiter.version>6.0.3</junit.jupiter.version>
         <log4j.api.version>2.25.3</log4j.api.version>
-        <logback.version>1.5.29</logback.version>
+        <logback.version>1.5.32</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <maven.plugin.assembly.version>3.8.0</maven.plugin.assembly.version>
@@ -97,7 +97,7 @@
         <sonar.language>java</sonar.language>
         <sonar.organization>fraunhofer-iosb</sonar.organization>
         <spring.boot.version>4.0.2</spring.boot.version>
-        <spring.web.version>7.0.4</spring.web.version>
+        <spring.web.version>7.0.5</spring.web.version>
         <tomcat.embed.core.version>11.0.18</tomcat.embed.core.version>
     </properties>
     <dependencies>

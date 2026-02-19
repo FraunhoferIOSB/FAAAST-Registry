@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.memory;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.AbstractAasRepository;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.util.DeepCopyHelper;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 import org.slf4j.Logger;
@@ -96,10 +96,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo) {
-        Ensure.requireNonNull(specificAssetIds, "specificAssetIds must be non-null");
-
-        return filterAssetAdministrationShellDescriptors(shellsDeepCopy(), specificAssetIds, pagingInfo);
+    public Page<String> getAASIdentifiersByAssetLink(List<AssetLink> assetLinks, PagingInfo pagingInfo) {
+        return filterAssetAdministrationShellDescriptorsByAssetLink(shellsDeepCopy(), assetLinks, pagingInfo);
     }
 
 
