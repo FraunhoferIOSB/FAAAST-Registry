@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
  */
 public final class FormulaEvaluator {
 
+    private FormulaEvaluator() {}
+
+
     /**
      * Evaluates the given formula.
      *
@@ -230,10 +233,8 @@ public final class FormulaEvaluator {
             else {
                 key = "UTCNOW";
             }
-            if (key != null) {
-                Object val = ctx.get(key);
-                return val != null ? val.toString() : null;
-            }
+            Object val = ctx.get(key);
+            return val != null ? val.toString() : null;
         }
         throw new IllegalArgumentException("Unresolvable operand " + operand);
     }
