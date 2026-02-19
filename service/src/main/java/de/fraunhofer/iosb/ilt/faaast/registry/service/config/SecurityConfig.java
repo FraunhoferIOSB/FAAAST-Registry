@@ -122,15 +122,7 @@ public class SecurityConfig {
             @Override
             public Jwt decode(String token) throws JwtException {
                 try {
-                    //Jwt jwt = decodeToken(token);
                     Jwt jwt;
-
-                    //LOGGER.debug("jwt ID: {}", jwt.getId());
-                    //LOGGER.debug("jwt Subject: {}", jwt.getSubject());
-                    //LOGGER.debug("jwt token expires: {}", LocalDateTime.ofInstant(jwt.getExpiresAt(), ZoneId.systemDefault()));
-                    //for (var c: jwt.getClaims().entrySet()) {
-                    //    LOGGER.info("Claim: Key: {}; Value: {}", c.getKey(), c.getValue());
-                    //}
 
                     // handle Token Exxchange if configured
                     if ((tokenExchangeUrl != null) && (!tokenExchangeUrl.isEmpty())) {

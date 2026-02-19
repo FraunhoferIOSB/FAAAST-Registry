@@ -41,7 +41,6 @@ public class BulkOperationController {
     private static final String STATUS_URI = "../status/";
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationController.class);
 
-    //@Autowired
     private final RegistryService service;
 
     @Autowired
