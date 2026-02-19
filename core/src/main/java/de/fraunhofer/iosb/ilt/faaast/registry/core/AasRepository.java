@@ -16,12 +16,12 @@ package de.fraunhofer.iosb.ilt.faaast.registry.core;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 
 
@@ -62,15 +62,16 @@ public interface AasRepository {
 
 
     /**
-     * Retrieves the Asset Administration Shells Identifiers with the given SpecificAssetIDs. *All* of the SpecificAssetIds
+     * Retrieves the Asset Administration Shells Identifiers with the given AssetLinks. *All* of the AssetLinks
      * must match.
      *
-     * @param specificAssetIds The SpecificAssetIDs of the desired Asset Administration Shells. If a specificAssetId is a
+     * @param assetLinks The AssetLinks of the desired Asset Administration Shells. If an assetLink is a
      *            globalAssetId according to AASd-116, it is treated
      *            as the globalAssetId of the desired Asset Administration Shells.
+     * @param pagingInfo The Paging information.
      * @return The desired Asset Administration Shells identifiers.
      */
-    public Page<String> getAASIdentifiers(List<SpecificAssetId> specificAssetIds, PagingInfo pagingInfo);
+    public Page<String> getAASIdentifiersByAssetLink(List<AssetLink> assetLinks, PagingInfo pagingInfo);
 
 
     /**

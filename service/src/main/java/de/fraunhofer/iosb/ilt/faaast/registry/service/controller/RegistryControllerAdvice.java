@@ -24,6 +24,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentConversionNotSupportedException;
@@ -74,14 +75,15 @@ public class RegistryControllerAdvice {
 
 
     /**
-     * Handles BadRequestException and MethodArgumentConversionNotSupportedException.
+     * Handles BadRequestException, MethodArgumentConversionNotSupportedException and HttpMessageNotReadableException.
      *
      * @param e The desired exception.
      * @return The corresponding response.
      */
     @ExceptionHandler({
             BadRequestException.class,
-            MethodArgumentConversionNotSupportedException.class
+            MethodArgumentConversionNotSupportedException.class,
+            HttpMessageNotReadableException.class
     })
     public ResponseEntity<Result> handleBadRequestException(Exception e) {
         return new ResponseEntity<>(

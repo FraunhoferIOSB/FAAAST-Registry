@@ -19,6 +19,7 @@ import static de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants.DI
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
@@ -56,7 +57,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
     @Test
     void getAllAssetLinksByIdWithUnknownAasIdentifier() {
         String identifierB64 = EncodingHelper.base64UrlEncode("my-aas-identifier");
-        String urlWithPort = createURLWithPort(String.format("/%s", identifierB64));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", identifierB64));
 
         ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.GET, null, Object.class);
 
@@ -73,7 +74,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String identifierB64 = EncodingHelper.base64UrlEncode(descriptor.getId());
 
-        String urlWithPort = createURLWithPort(String.format("/%s", identifierB64));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", identifierB64));
 
         ResponseEntity<List<SpecificAssetId>> response = getAllAssetLinksById(urlWithPort);
 
@@ -98,7 +99,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
     void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoInput() {
         Page<String> expected = Page.of(List.of());
 
-        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(createURLWithPort(""));
+        ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(createURLWithPort("/shells"));
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -118,7 +119,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         String serializedSpecificAssetIds = new JsonSerializer().write(mySpecificAssetIds);
         String encodedSpecificAssetIds = EncodingHelper.base64UrlEncode(serializedSpecificAssetIds);
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", encodedSpecificAssetIds));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", encodedSpecificAssetIds));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
@@ -133,7 +134,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
     void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoArguments() {
         Page<String> expected = Page.of();
 
-        String urlWithPort = createURLWithPort("");
+        String urlWithPort = createURLWithPort("/shells");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
@@ -146,7 +147,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
     void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedLimit() {
-        String urlWithPort = createURLWithPort("?limit=-42");
+        String urlWithPort = createURLWithPort("/shells?limit=-42");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
@@ -157,7 +158,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
     void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedCursor() {
-        String urlWithPort = createURLWithPort("?cursor=NonSensicalCursorArgument");
+        String urlWithPort = createURLWithPort("/shells?cursor=NonSensicalCursorArgument");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
 
@@ -168,7 +169,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
     void getAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedSpecificAssetIds() {
-        String urlWithPort = createURLWithPort("?assetIds=NonSensicalArgument");
+        String urlWithPort = createURLWithPort("/shells?assetIds=NonSensicalArgument");
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -185,7 +186,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -208,7 +209,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -230,7 +231,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -251,7 +252,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -273,7 +274,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -294,7 +295,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String toFilterForEncoded = EncodingHelper.base64UrlEncode(new JsonSerializer().write(toFilterFor));
 
-        String urlWithPort = createURLWithPort(String.format("?assetIds=%s", toFilterForEncoded));
+        String urlWithPort = createURLWithPort(String.format("/shells?assetIds=%s", toFilterForEncoded));
 
         ResponseEntity<Page<String>> response = getAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort);
         Assertions.assertNotNull(response);
@@ -311,7 +312,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
 
         String newGlobalAssetId = UUID.randomUUID().toString();
         List<SpecificAssetId> updatedSpecificAssetIds = List.of(new DefaultSpecificAssetId.Builder()
@@ -339,7 +340,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode("unknown")));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode("unknown")));
 
         String newGlobalAssetId = UUID.randomUUID().toString();
         List<SpecificAssetId> updatedSpecificAssetIds = List.of(new DefaultSpecificAssetId.Builder()
@@ -360,7 +361,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
 
         SpecificAssetId newSpecificAssetId = new DefaultSpecificAssetId.Builder()
                 .name(UUID.randomUUID().toString())
@@ -398,7 +399,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
 
         SpecificAssetId newSpecificAssetId = new DefaultSpecificAssetId.Builder()
                 .name(shellDescriptor.getSpecificAssetIds().stream().findAny().orElseThrow().getName())
@@ -438,7 +439,7 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode(shellDescriptor.getId())));
 
         // precondition: specific asset ids are not empty
         ResponseEntity<List<SpecificAssetId>> preconditionResponse = getAllAssetLinksById(urlWithPort);
@@ -464,11 +465,202 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         AssetAdministrationShellDescriptor shellDescriptor = getAas();
         createAas(shellDescriptor);
 
-        String urlWithPort = createURLWithPort(String.format("/%s", EncodingHelper.base64UrlEncode("unknown")));
+        String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode("unknown")));
         ResponseEntity<Void> response = deleteAllAssetLinksById(urlWithPort);
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithNoInput() {
+        Page<String> expected = Page.of(List.of());
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(createURLWithPort("/shellsByAssetLink"), new ArrayList<>());
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithUnknownGlobalAssetId() {
+        Page<String> expected = Page.of();
+
+        var mySpecificAssetIds = List.of(new AssetLinkHelper(FaaastConstants.KEY_GLOBAL_ASSET_ID, UUID.randomUUID().toString()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, mySpecificAssetIds);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithoutBody() {
+        Page<String> expected = Page.of();
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, null);
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(expected.getContent(), response.getBody().getContent());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedLimit() {
+        String urlWithPort = createURLWithPort("/shellsByAssetLink?limit=-42");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, new ArrayList<>());
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithMalformedCursor() {
+        String urlWithPort = createURLWithPort("/shellsByAssetLink?cursor=NonSensicalCursorArgument");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, new ArrayList<>());
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = List.of(AssetLinkHelper.of(descriptor.getSpecificAssetIds().stream().findAny().orElseThrow()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithOneKnownOneUnknownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = List.of(
+                AssetLinkHelper.of(descriptor.getSpecificAssetIds().stream().findAny().orElseThrow()),
+                new AssetLinkHelper("Unmatchable Specific Asset Id", UUID.randomUUID().toString()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(0, response.getBody().getContent().size());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneUnknownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = List.of(
+                new AssetLinkHelper(FaaastConstants.KEY_GLOBAL_ASSET_ID, descriptor.getGlobalAssetId()),
+                new AssetLinkHelper("Unmatchable Specific Asset Id", UUID.randomUUID().toString()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(0, response.getBody().getContent().size());
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndOneKnownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = List.of(AssetLinkHelper.of(descriptor.getSpecificAssetIds().stream().findAny().orElseThrow()),
+                new AssetLinkHelper(FaaastConstants.KEY_GLOBAL_ASSET_ID, descriptor.getGlobalAssetId()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithMatchingGlobalAssetIdAndTwoKnownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = new ArrayList<>();
+        for (var sai: descriptor.getSpecificAssetIds()) {
+            toFilterFor.add(AssetLinkHelper.of(sai));
+        }
+        toFilterFor.add(new AssetLinkHelper(FaaastConstants.KEY_GLOBAL_ASSET_ID, descriptor.getGlobalAssetId()));
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
+    }
+
+
+    @Test
+    void searchAllAssetAdministrationShellIdsBySpecificAssetIdsWithTwoKnownSpecificAssetId() {
+        AssetAdministrationShellDescriptor descriptor = getAas();
+        createAas(descriptor);
+
+        List<AssetLinkHelper> toFilterFor = new ArrayList<>();
+        for (var sai: descriptor.getSpecificAssetIds()) {
+            toFilterFor.add(AssetLinkHelper.of(sai));
+        }
+
+        String urlWithPort = createURLWithPort("/shellsByAssetLink");
+
+        ResponseEntity<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, toFilterFor);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertNotNull(response.getBody().getContent());
+        Assertions.assertEquals(1, response.getBody().getContent().size());
+        Assertions.assertEquals(descriptor.getId(), response.getBody().getContent().get(0));
     }
 
 
@@ -504,4 +696,10 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
     private ResponseEntity<Void> deleteAllAssetLinksById(String urlWithPort) {
         return restTemplate.exchange(urlWithPort, HttpMethod.DELETE, null, Void.class);
     }
+
+
+    private ResponseEntity<Page<String>> searchAllAssetAdministrationShellIdsBySpecificAssetIds(String urlWithPort, List<AssetLinkHelper> assetLinks) {
+        return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(assetLinks), new ParameterizedTypeReference<>() {});
+    }
+
 }

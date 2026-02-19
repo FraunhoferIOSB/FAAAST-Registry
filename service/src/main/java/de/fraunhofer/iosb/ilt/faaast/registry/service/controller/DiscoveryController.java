@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.controller;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.util.AssetLinkHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.helper.Constants;
 import de.fraunhofer.iosb.ilt.faaast.registry.service.service.RegistryService;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -73,13 +75,14 @@ public class DiscoveryController {
      *            result listing should continue.
      * @return Requested Asset Administration Shell ids.
      */
-    @GetMapping
+    @GetMapping(value = "/shells")
     public Page<String> getAllAssetAdministrationShellIdsBySpecificAssetIds(@RequestParam(name = "assetIds", required = false, defaultValue = "W10") List<SpecificAssetId> assetIds,
                                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                                             @RequestParam(name = "cursor", required = false) String cursor) {
         PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
 
-        return service.getAASIdsBySpecificAssetId(assetIds, pagingInfo);
+        List<AssetLink> assetLinks = AssetLinkHelper.from(assetIds);
+        return service.getAASIdsByAssetLink(assetLinks, pagingInfo);
     }
 
 
@@ -92,7 +95,7 @@ public class DiscoveryController {
      * @return Requested specific Asset identifiers.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @GetMapping("/{aasIdentifier}")
+    @GetMapping("/shells/{aasIdentifier}")
     public List<SpecificAssetId> getAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
         AssetAdministrationShellDescriptor selectedDescriptor = service.getAAS(aasIdentifier);
 
@@ -118,7 +121,7 @@ public class DiscoveryController {
      * @return Specific Asset identifiers created successfully.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @PostMapping("/{aasIdentifier}")
+    @PostMapping("/shells/{aasIdentifier}")
     public ResponseEntity<List<SpecificAssetId>> postAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier,
                                                                        @RequestBody List<SpecificAssetId> specificAssetIds)
             throws ResourceNotFoundException {
@@ -183,7 +186,7 @@ public class DiscoveryController {
      * @return 204 - Specific Asset identifiers deleted successfully; 404 - Not Found.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
-    @DeleteMapping("/{aasIdentifier}")
+    @DeleteMapping("/shells/{aasIdentifier}")
     public ResponseEntity<Void> deleteAllAssetLinksById(@PathVariable(name = "aasIdentifier") String aasIdentifier) throws ResourceNotFoundException {
         AssetAdministrationShellDescriptor selectedDescriptor = service.getAAS(aasIdentifier);
         selectedDescriptor.getSpecificAssetIds().clear();
@@ -192,5 +195,24 @@ public class DiscoveryController {
         service.updateAAS(aasIdentifier, selectedDescriptor);
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    /**
+     * Returns a list of Asset Administration Shell IDs linked to asset links or the global asset ID.
+     *
+     * @param limit The maximum number of elements in the response array. minimum: 1.
+     * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the
+     *            result listing should continue.
+     * @param assetLinks A list of asset links.
+     * @return The requested Asset Administration Shell ids.
+     */
+    @PostMapping(value = "/shellsByAssetLink")
+    public Page<String> searchAllAssetAdministrationShellIdsByAssetLink(@RequestParam(name = "limit", required = false) Long limit,
+                                                                        @RequestParam(name = "cursor", required = false) String cursor,
+                                                                        @RequestBody List<AssetLink> assetLinks) {
+
+        PagingInfo pagingInfo = PagingInfo.builder().cursor(cursor).limit(limit == null ? PagingInfo.DEFAULT_LIMIT : limit).build();
+        return service.getAASIdsByAssetLink(assetLinks, pagingInfo);
     }
 }
