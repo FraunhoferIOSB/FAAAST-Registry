@@ -42,7 +42,7 @@ public class JpaAssetAdministrationShellDescriptor extends DefaultAssetAdministr
                 globalAssetId(other.getGlobalAssetId());
                 specificAssetIds(ModelTransformationHelper.convertSpecificAssetIds(other.getSpecificAssetIds()));
                 extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
-                submodelDescriptors(ModelTransformationHelper.convertSubmodels(other.getSubmodelDescriptors()));
+                submodelDescriptors(ModelTransformationHelper.convertSubmodels(other.getSubmodelDescriptors(), other.getId()));
             }
             return getSelf();
         }

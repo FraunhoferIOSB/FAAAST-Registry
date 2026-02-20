@@ -372,15 +372,8 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
         JpaAssetAdministrationShellDescriptor result = ModelTransformationHelper.convertAAS(descriptor);
-        //var iterator = result.getSubmodelDescriptors().listIterator();
-        //while (iterator.hasNext()) {
-        //    JpaSubmodelDescriptor sm = entityManager.find(JpaSubmodelDescriptor.class, iterator.next().getId());
-        //    if (sm != null) {
-        //        iterator.set(sm);
-        //    }
-        //}
-        //entityManager.persist(result);
-        entityManager.merge(result);
+        entityManager.persist(result);
+        //entityManager.merge(result);
         return result;
     }
 
@@ -405,7 +398,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         if (getSubmodelInternal(aas.getSubmodelDescriptors(), descriptor.getId()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getId());
         }
-        JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor);
+        JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
         entityManager.merge(aas);
         return submodel;
