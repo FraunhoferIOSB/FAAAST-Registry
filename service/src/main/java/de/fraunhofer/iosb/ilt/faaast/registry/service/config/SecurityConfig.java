@@ -66,7 +66,6 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig {
 
     private static final String JWT_TYP = "typ";
-    //private static final String JWT_AT_JWT = "at+jwt";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${service.security.aclFolder}")
@@ -114,9 +113,6 @@ public class SecurityConfig {
         NimbusJwtDecoder jwtDecoderDefault = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
         jwtDecoderDefault.setJwtValidator(JwtValidators.createDefaultWithValidators(
                 new JwtIssuerValidator(issuerUri), new JwtTypeValidator("JWT", "at+jwt")));
-        //NimbusJwtDecoder jwtDecoderAt = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuerUri);
-        //jwtDecoderAt.setJwtValidator(JwtValidators.createDefaultWithValidators(
-        //        new JwtIssuerValidator(issuerUri), new JwtTypeValidator("JWT", "at+jwt")));
 
         return new JwtDecoder() {
             @Override
@@ -126,41 +122,8 @@ public class SecurityConfig {
 
                     // handle Token Exxchange if configured
                     if ((tokenExchangeUrl != null) && (!tokenExchangeUrl.isEmpty())) {
-                        try {
-                            HttpClient client = SslHelper.newClientAcceptingAllCertificates();
-
-                            String form = "grant_type=" + URLEncoder.encode("urn:ietf:params:oauth:grant-type:token-exchange", StandardCharsets.UTF_8) +
-                                    "&subject_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
-                                    "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
-                            //        "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8) +
-                                    "&subject_token=" + token;
-                            //"&audience=" + URLEncoder.encode("fa3st", StandardCharsets.UTF_8);
-
-                            HttpRequest request = HttpRequest.newBuilder()
-                                    .header("Content-Type", "application/x-www-form-urlencoded")
-                                    .POST(HttpRequest.BodyPublishers.ofString(form))
-                                    .uri(URI.create(tokenExchangeUrl))
-                                    //.uri(URI.create(tokenExchangeUrl + "/token"))
-                                    .build();
-
-                            // Send request and get response body as String
-                            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                            if ((response.statusCode() >= 200) && (response.statusCode() < 300)) {
-                                String exchangedToken = extractToken(response);
-                                jwt = decodeToken(exchangedToken);
-                                LOGGER.debug("exchanged jwt ID: {}", jwt.getId());
-                                LOGGER.debug("exchanged jwt Subject: {}", jwt.getSubject());
-                                LOGGER.debug("exchanged jwt token expires: {}", LocalDateTime.ofInstant(jwt.getExpiresAt(), ZoneId.systemDefault()));
-                            }
-                            else {
-                                LOGGER.error("Token exchange failed, try previous token.");
-                                jwt = decodeToken(token);
-                            }
-                        }
-                        catch (InterruptedException | KeyManagementException | NoSuchAlgorithmException | IOException e) {
-                            Thread.currentThread().interrupt();
-                            throw new IllegalStateException("Could not exchange token with provider sts.", e);
-                        }
+                        LOGGER.debug("Execute Token Exchange (URL: {})", tokenExchangeUrl);
+                        jwt = doTokenExchange(token);
                     }
                     else {
                         jwt = decodeToken(token);
@@ -172,13 +135,52 @@ public class SecurityConfig {
                     return jwt;
                 }
                 catch (JwtException ex) {
-                    LOGGER.error("exception: ", ex);
                     throw ex;
                 }
                 catch (JsonProcessingException ex) {
-                    LOGGER.error("exception: ", ex);
                     throw new JwtException(ex.getMessage());
                 }
+            }
+
+
+            private Jwt doTokenExchange(String token) throws JwtException, IllegalStateException {
+                Jwt jwt;
+                try {
+                    HttpClient client = SslHelper.newClientAcceptingAllCertificates();
+
+                    String form = "grant_type=" + URLEncoder.encode("urn:ietf:params:oauth:grant-type:token-exchange", StandardCharsets.UTF_8) +
+                            "&subject_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
+                            "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
+                    //        "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8) +
+                            "&subject_token=" + token;
+                    //        "&audience=" + URLEncoder.encode("fa3st", StandardCharsets.UTF_8);
+
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .header("Content-Type", "application/x-www-form-urlencoded")
+                            .POST(HttpRequest.BodyPublishers.ofString(form))
+                            .uri(URI.create(tokenExchangeUrl))
+                            //.uri(URI.create(tokenExchangeUrl + "/token"))
+                            .build();
+
+                    // Send request and get response body as String
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    if ((response.statusCode() >= 200) && (response.statusCode() < 300)) {
+                        String exchangedToken = extractToken(response);
+                        jwt = decodeToken(exchangedToken);
+                        LOGGER.debug("exchanged jwt ID: {}", jwt.getId());
+                        LOGGER.debug("exchanged jwt Subject: {}", jwt.getSubject());
+                        LOGGER.debug("exchanged jwt token expires: {}", LocalDateTime.ofInstant(jwt.getExpiresAt(), ZoneId.systemDefault()));
+                    }
+                    else {
+                        LOGGER.error("Token exchange failed, try previous token.");
+                        jwt = decodeToken(token);
+                    }
+                }
+                catch (InterruptedException | KeyManagementException | NoSuchAlgorithmException | IOException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Could not exchange token with provider sts.", e);
+                }
+                return jwt;
             }
 
 
@@ -189,28 +191,20 @@ public class SecurityConfig {
                     return null;
                 }
                 JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-                String retval = obj.get("access_token").getAsString();
-                return retval;
+                return obj.get("access_token").getAsString();
             }
 
 
             private Jwt decodeToken(String token) throws JwtException, JsonProcessingException {
-                LOGGER.info("token: {}", token);
+                LOGGER.debug("token: {}", token);
                 String[] chunks = token.split("\\.");
                 String header = EncodingHelper.base64UrlDecode(chunks[0]);
-                LOGGER.info("Header: {}", header);
+                LOGGER.debug("Header: {}", header);
                 Map<String, Object> headerMapping = new ObjectMapper().readValue(header, HashMap.class);
                 Jwt jwt;
                 if (headerMapping.containsKey(JWT_TYP)) {
-                    String typ = headerMapping.get(JWT_TYP).toString();
-                    //if (JWT_AT_JWT.equals(typ)) {
-                    //    LOGGER.debug("jwtDecoder: use at+jwt Decoder (Typ: {})", typ);
-                    //    jwt = jwtDecoderAt.decode(token);
-                    //}
-                    //else {
-                    LOGGER.debug("jwtDecoder: use default Decoder (Typ: {})", typ);
+                    LOGGER.debug("jwtDecoder: use default Decoder (Typ: {})", headerMapping.get(JWT_TYP).toString());
                     jwt = jwtDecoderDefault.decode(token);
-                    //}
                 }
                 else {
                     LOGGER.debug("jwtDecoder: use default Decoder (unknown Typ");
@@ -221,14 +215,4 @@ public class SecurityConfig {
         };
     }
 
-    /**
-     * Class required for token exchange.
-     *
-     * @return The token exchange provider.
-     */
-    //@Bean
-    //@Profile("!test")
-    //public OAuth2AuthorizedClientProvider tokenExchange() {
-    //    return new TokenExchangeOAuth2AuthorizedClientProvider();
-    //}
 }
