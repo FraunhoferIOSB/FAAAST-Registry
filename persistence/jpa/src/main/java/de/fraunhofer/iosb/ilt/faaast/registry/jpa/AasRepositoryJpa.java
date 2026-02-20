@@ -306,7 +306,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public void commitTransaction() {
         LOGGER.debug("commitTransaction");
         if (txManager != null) {
-            txManager.commit(transactionStatus);
+            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
+                LOGGER.info("Transaction already completed");
+            }
+            else {
+                txManager.commit(transactionStatus);
+            }
             transactionStatus = null;
         }
     }
@@ -316,7 +321,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public void rollbackTransaction() {
         LOGGER.debug("rollbackTransaction");
         if (txManager != null) {
-            txManager.rollback(transactionStatus);
+            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
+                LOGGER.info("Transaction already completed");
+            }
+            else {
+                txManager.rollback(transactionStatus);
+            }
             transactionStatus = null;
         }
     }
@@ -362,7 +372,15 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         AssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
         JpaAssetAdministrationShellDescriptor result = ModelTransformationHelper.convertAAS(descriptor);
-        entityManager.persist(result);
+        //var iterator = result.getSubmodelDescriptors().listIterator();
+        //while (iterator.hasNext()) {
+        //    JpaSubmodelDescriptor sm = entityManager.find(JpaSubmodelDescriptor.class, iterator.next().getId());
+        //    if (sm != null) {
+        //        iterator.set(sm);
+        //    }
+        //}
+        //entityManager.persist(result);
+        entityManager.merge(result);
         return result;
     }
 
