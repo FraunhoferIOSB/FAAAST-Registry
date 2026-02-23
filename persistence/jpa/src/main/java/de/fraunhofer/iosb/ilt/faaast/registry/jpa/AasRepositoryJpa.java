@@ -373,7 +373,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         Ensure.require(Objects.isNull(aas), buildAASAlreadyExistsException(descriptor.getId()));
         JpaAssetAdministrationShellDescriptor result = ModelTransformationHelper.convertAAS(descriptor);
         entityManager.persist(result);
-        //entityManager.merge(result);
         return result;
     }
 
