@@ -159,7 +159,6 @@ public class SecurityConfig {
                             .header("Content-Type", "application/x-www-form-urlencoded")
                             .POST(HttpRequest.BodyPublishers.ofString(form))
                             .uri(URI.create(tokenExchangeUrl))
-                            //.uri(URI.create(tokenExchangeUrl + "/token"))
                             .build();
 
                     // Send request and get response body as String
