@@ -135,6 +135,7 @@ public class SecurityConfig {
                     return jwt;
                 }
                 catch (JwtException ex) {
+                    LOGGER.info("decode: error decoding token", ex);
                     throw ex;
                 }
                 catch (JsonProcessingException ex) {
