@@ -226,13 +226,14 @@ public class ModelTransformationHelper {
      * Converts SubmodelDescriptor to JPASubmodelDescriptor.
      *
      * @param submodel The SubmodelDescriptor.
+     * @param aasId The ID of the corresponding AAS.
      * @return The converted JPASubmodelDescriptor.
      */
-    public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel) {
+    public static JpaSubmodelDescriptor convertSubmodel(SubmodelDescriptor submodel, String aasId) {
         if (submodel == null) {
             return null;
         }
-        return new JpaSubmodelDescriptor.Builder().from(submodel).build();
+        return new JpaSubmodelDescriptor.Builder().fromAas(submodel, aasId).build();
     }
 
 
@@ -254,14 +255,15 @@ public class ModelTransformationHelper {
      * Converts a list of SubmodelDescriptor to a list of JPASubmodelDescriptor.
      *
      * @param submodels The list of SubmodelDescriptor.
+     * @param aasId The ID of the correspondingAAS.
      * @return The converted list of JPASubmodelDescriptor.
      */
-    public static List<SubmodelDescriptor> convertSubmodels(List<SubmodelDescriptor> submodels) {
+    public static List<SubmodelDescriptor> convertSubmodels(List<SubmodelDescriptor> submodels, String aasId) {
         if (Objects.isNull(submodels)) {
             return null;
         }
         return submodels.stream()
-                .map(x -> new JpaSubmodelDescriptor.Builder().from(x).build())
+                .map(x -> new JpaSubmodelDescriptor.Builder().fromAas(x, aasId).build())
                 .collect(Collectors.toList());
     }
 

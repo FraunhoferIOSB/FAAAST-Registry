@@ -306,7 +306,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public void commitTransaction() {
         LOGGER.debug("commitTransaction");
         if (txManager != null) {
-            txManager.commit(transactionStatus);
+            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
+                LOGGER.info("Transaction already completed");
+            }
+            else {
+                txManager.commit(transactionStatus);
+            }
             transactionStatus = null;
         }
     }
@@ -316,7 +321,12 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     public void rollbackTransaction() {
         LOGGER.debug("rollbackTransaction");
         if (txManager != null) {
-            txManager.rollback(transactionStatus);
+            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
+                LOGGER.info("Transaction already completed");
+            }
+            else {
+                txManager.rollback(transactionStatus);
+            }
             transactionStatus = null;
         }
     }
@@ -387,7 +397,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         if (getSubmodelInternal(aas.getSubmodelDescriptors(), descriptor.getId()).isPresent()) {
             throw buildSubmodelAlreadyExistsException(descriptor.getId());
         }
-        JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor);
+        JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
         entityManager.merge(aas);
         return submodel;

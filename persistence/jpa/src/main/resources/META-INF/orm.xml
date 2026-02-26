@@ -452,8 +452,12 @@
         </attributes>
     </entity>
     
-    <entity class="JpaSubmodelDescriptor">
+    <entity class="JpaSubmodelDescriptor"  access="PROPERTY">
         <table name="submodel"/>
+        
+        <attributes>>
+            <id name="aasId"/>
+        </attributes>
     </entity>
     
     <entity class="JpaSubmodelDescriptorStandalone">
