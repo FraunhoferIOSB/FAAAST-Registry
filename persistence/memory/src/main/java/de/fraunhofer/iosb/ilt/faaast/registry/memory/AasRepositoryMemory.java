@@ -218,7 +218,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public void startTransaction() {
+    public int startTransaction() {
+        // TODO: allow multiple transactions
         if ((!shellDescriptorsBackup.isEmpty()) || (!submodelDescriptorsBackup.isEmpty())) {
             throw new IllegalArgumentException("transaction already running");
         }
@@ -226,11 +227,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         LOGGER.debug("startTransaction");
         shellDescriptorsBackup = DeepCopyHelper.createBackupMap(shellDescriptors);
         submodelDescriptorsBackup = DeepCopyHelper.createBackupMap(submodelDescriptors);
+        return 0;
     }
 
 
     @Override
-    public void commitTransaction() {
+    public void commitTransaction(int nr) {
         LOGGER.debug("commitTransaction");
         shellDescriptorsBackup.clear();
         submodelDescriptorsBackup.clear();
@@ -239,7 +241,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public void rollbackTransaction() {
+    public void rollbackTransaction(int nr) {
         LOGGER.debug("rollbackTransaction");
         shellDescriptors.clear();
         shellDescriptors = DeepCopyHelper.restoreBackupMap(shellDescriptorsBackup, AssetAdministrationShellDescriptor.class);

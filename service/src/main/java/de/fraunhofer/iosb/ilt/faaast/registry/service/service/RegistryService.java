@@ -113,18 +113,18 @@ public class RegistryService {
      */
     public AssetAdministrationShellDescriptor createAAS(AssetAdministrationShellDescriptor aas) throws ResourceAlreadyExistsException {
         ConstraintHelper.validate(aas);
-        LOGGER.debug("createAAS: {}", aas.getId());
+        LOGGER.debug("createAAS: {}; Thread: {}", aas.getId(), Thread.currentThread().getId());
         if (aas.getSubmodelDescriptors() != null) {
             aas.getSubmodelDescriptors().stream().forEach(this::checkSubmodelIdentifiers);
         }
-        aasRepository.startTransaction();
+        int nr = aasRepository.startTransaction();
         try {
             AssetAdministrationShellDescriptor retval = aasRepository.create(aas);
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(nr);
             return retval;
         }
         catch (Exception ex) {
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(nr);
             throw ex;
         }
     }

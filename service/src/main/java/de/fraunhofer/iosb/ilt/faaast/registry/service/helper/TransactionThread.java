@@ -169,9 +169,7 @@ public class TransactionThread extends Thread {
 
     private void doCreateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
         try {
-            // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("createShells start");
-            aasRepository.startTransaction();
             doCreateShellsIntern(handleId, shells);
         }
         catch (Exception ex) {
@@ -182,6 +180,8 @@ public class TransactionThread extends Thread {
 
 
     private void doCreateShellsIntern(String handleId, List<AssetAdministrationShellDescriptor> shells) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.info("createShells execute");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -189,19 +189,19 @@ public class TransactionThread extends Thread {
                 aasRepository.create(shell);
             }
             Thread.sleep(5000);
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("createShells finished");
         }
         catch (InterruptedException ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("createShells interrupted");
             Thread.currentThread().interrupt();
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("createShells error");
         }
     }
@@ -210,8 +210,6 @@ public class TransactionThread extends Thread {
     private void doUpdateShells(List<AssetAdministrationShellDescriptor> shells, String handleId) {
 
         try {
-            // don't call rollbackTransaction when startTransaction fails
-            aasRepository.startTransaction();
             doUpdateShellsIntern(handleId, shells);
         }
         catch (Exception ex) {
@@ -222,6 +220,8 @@ public class TransactionThread extends Thread {
 
 
     private void doUpdateShellsIntern(String handleId, List<AssetAdministrationShellDescriptor> shells) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.debug("updateShells start");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -229,12 +229,12 @@ public class TransactionThread extends Thread {
                 Ensure.requireNonNull(shell);
                 aasRepository.update(shell.getId(), shell);
             }
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.debug("updateShells finished");
         }
         catch (Exception ex) {
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
             LOGGER.info("updateShells error", ex);
         }
@@ -244,8 +244,6 @@ public class TransactionThread extends Thread {
     private void doDeleteShells(List<String> shellIdentifiers, String handleId) {
 
         try {
-            // don't call rollbackTransaction when startTransaction fails
-            aasRepository.startTransaction();
             doDeleteShellsIntern(handleId, shellIdentifiers);
         }
         catch (Exception ex) {
@@ -256,6 +254,8 @@ public class TransactionThread extends Thread {
 
 
     private void doDeleteShellsIntern(String handleId, List<String> shellIdentifiers) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.debug("deleteShells start");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -263,12 +263,12 @@ public class TransactionThread extends Thread {
                 Ensure.requireNonNull(shell);
                 aasRepository.deleteAAS(shell);
             }
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.debug("deleteShells finished");
         }
         catch (Exception ex) {
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
             LOGGER.info("deleteShells error", ex);
         }
@@ -277,9 +277,7 @@ public class TransactionThread extends Thread {
 
     private void doCreateSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
         try {
-            // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doCreateSubmodels start");
-            aasRepository.startTransaction();
             doCreateSubmodelsIntern(handleId, submodels);
         }
         catch (Exception ex) {
@@ -290,6 +288,8 @@ public class TransactionThread extends Thread {
 
 
     private void doCreateSubmodelsIntern(String handleId, List<SubmodelDescriptor> submodels) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.info("doCreateSubmodels execute");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -297,19 +297,19 @@ public class TransactionThread extends Thread {
                 aasRepository.addSubmodel(submodel);
             }
             Thread.sleep(5000);
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doCreateSubmodels finished");
         }
         catch (InterruptedException ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doCreateSubmodels interrupted");
             Thread.currentThread().interrupt();
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doCreateSubmodels error");
         }
     }
@@ -317,9 +317,7 @@ public class TransactionThread extends Thread {
 
     private void doUpdateSubmodels(List<SubmodelDescriptor> submodels, String handleId) {
         try {
-            // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doUpdateSubmodels start");
-            aasRepository.startTransaction();
             doUpdateSubmodelsIntern(handleId, submodels);
         }
         catch (Exception ex) {
@@ -330,6 +328,8 @@ public class TransactionThread extends Thread {
 
 
     private void doUpdateSubmodelsIntern(String handleId, List<SubmodelDescriptor> submodels) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.info("doUpdateSubmodels execute");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -338,19 +338,19 @@ public class TransactionThread extends Thread {
                 aasRepository.addSubmodel(submodel);
             }
             Thread.sleep(5000);
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doUpdateSubmodels finished");
         }
         catch (InterruptedException ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doUpdateSubmodels interrupted");
             Thread.currentThread().interrupt();
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doUpdateSubmodels error");
         }
     }
@@ -358,9 +358,7 @@ public class TransactionThread extends Thread {
 
     private void doDeleteSubmodels(List<String> submodelIdentifiers, String handleId) {
         try {
-            // don't call rollbackTransaction when startTransaction fails
             LOGGER.info("doDeleteSubmodels start");
-            aasRepository.startTransaction();
             doDeleteSubmodelsIntern(handleId, submodelIdentifiers);
         }
         catch (Exception ex) {
@@ -371,6 +369,8 @@ public class TransactionThread extends Thread {
 
 
     private void doDeleteSubmodelsIntern(String handleId, List<String> submodelIdentifiers) {
+        // don't call rollbackTransaction when startTransaction fails
+        int transactionNr = aasRepository.startTransaction();
         try {
             LOGGER.info("doDeleteSubmodels execute");
             transactionService.updateState(handleId, ExecutionState.RUNNING);
@@ -378,19 +378,19 @@ public class TransactionThread extends Thread {
                 aasRepository.deleteSubmodel(submodel);
             }
             Thread.sleep(5000);
-            aasRepository.commitTransaction();
+            aasRepository.commitTransaction(transactionNr);
             transactionService.updateState(handleId, ExecutionState.COMPLETED);
             LOGGER.info("doDeleteSubmodels finished");
         }
         catch (InterruptedException ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doDeleteSubmodels interrupted");
             Thread.currentThread().interrupt();
         }
         catch (Exception ex) {
             transactionService.updateState(handleId, ExecutionState.FAILED, ex.getMessage());
-            aasRepository.rollbackTransaction();
+            aasRepository.rollbackTransaction(transactionNr);
             LOGGER.info("doDeleteSubmodels error");
         }
     }
