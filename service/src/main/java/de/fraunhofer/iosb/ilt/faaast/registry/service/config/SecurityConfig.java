@@ -153,8 +153,8 @@ public class SecurityConfig {
                             "&subject_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
                             "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
                     //        "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8) +
-                            "&subject_token=" + token;
-                    //        "&audience=" + URLEncoder.encode("fa3st", StandardCharsets.UTF_8);
+                            "&subject_token=" + token +
+                            "&audience=" + URLEncoder.encode("fa3st", StandardCharsets.UTF_8);
 
                     HttpRequest request = HttpRequest.newBuilder()
                             .header("Content-Type", "application/x-www-form-urlencoded")
