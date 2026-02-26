@@ -14,6 +14,8 @@
 	- Minor corrections in Logging
 	- Improved paging mechanism
 	- Major updates of libraries used: Spring Boot 4, Spring Framework 7 and Hibernate 7
+- JPA Persistence
+	- Fix error in AAS Registry when a Submodel was used in multiple AASs
 
 ## 1.1.0
 

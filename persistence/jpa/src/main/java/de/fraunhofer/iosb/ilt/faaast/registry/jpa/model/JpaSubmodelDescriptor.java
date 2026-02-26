@@ -14,13 +14,76 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.jpa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Objects;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
+
+
 /**
  * Registry Descriptor JPA implementation for Submodel of an AAS.
  */
 public class JpaSubmodelDescriptor extends JpaSubmodelDescriptorBase {
 
+    @JsonIgnore
+    private String aasId;
+
+    public JpaSubmodelDescriptor() {
+        aasId = null;
+    }
+
+
+    public String getAasId() {
+        return aasId;
+    }
+
+
+    public void setAasId(String value) {
+        aasId = value;
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), aasId);
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        else if (obj == null) {
+            return false;
+        }
+        else if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        else {
+            JpaSubmodelDescriptor other = (JpaSubmodelDescriptor) obj;
+            return super.equals(obj)
+                    && Objects.equals(this.aasId, other.aasId);
+        }
+    }
+
     public abstract static class AbstractBuilder<T extends JpaSubmodelDescriptor, B extends AbstractBuilder<T, B>>
-            extends JpaSubmodelDescriptorBase.AbstractBuilder<T, B> {}
+            extends JpaSubmodelDescriptorBase.AbstractBuilder<T, B> {
+
+        public B aasId(String value) {
+            getBuildingInstance().setAasId(value);
+            return getSelf();
+        }
+
+
+        public B fromAas(SubmodelDescriptor other, String aasId) {
+            if (Objects.nonNull(other)) {
+                from(other);
+                aasId(aasId);
+            }
+
+            return getSelf();
+        }
+    }
 
     public static class Builder extends AbstractBuilder<JpaSubmodelDescriptor, Builder> {
 
