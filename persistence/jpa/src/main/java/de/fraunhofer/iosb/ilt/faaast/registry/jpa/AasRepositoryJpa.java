@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
@@ -58,7 +59,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final Map<Integer, TransactionStatus> transactions = new HashMap<>();
+    private final Map<Integer, TransactionStatus> transactions = new ConcurrentHashMap<>();
     private final AtomicInteger transactionCounter = new AtomicInteger(0);
     private PlatformTransactionManager txManager;
     //private TransactionStatus transactionStatus;
