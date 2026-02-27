@@ -62,8 +62,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     private final Map<Integer, TransactionStatus> transactions = new ConcurrentHashMap<>();
     private final AtomicInteger transactionCounter = new AtomicInteger(0);
     private PlatformTransactionManager txManager;
-    //private TransactionStatus transactionStatus;
-    //private int transactionNr = new AtomicInteger(0);
 
     @Autowired
     public AasRepositoryJpa(PlatformTransactionManager txManager) {
@@ -305,7 +303,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             retval = transactionCounter.incrementAndGet();
             LOGGER.debug("startTransaction {}", retval);
             transactions.put(retval, txManager.getTransaction(null));
-            //transactionStatus = txManager.getTransaction(null);
         }
         return retval;
     }
