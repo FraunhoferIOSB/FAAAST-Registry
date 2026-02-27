@@ -16,6 +16,7 @@
 	- Major updates of libraries used: Spring Boot 4, Spring Framework 7 and Hibernate 7
 - JPA Persistence
 	- Fix error in AAS Registry when a Submodel was used in multiple AASs
+	- Fix error when multiple requests arrived at the same time
 
 ## 1.1.0
 
