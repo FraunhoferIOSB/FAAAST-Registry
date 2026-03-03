@@ -150,7 +150,7 @@ class MultipleTestIT {
     }
 
 
-    private CompletableFuture<HttpResponse<String>> doCreate(String url, String body) throws SerializationException {
+    private CompletableFuture<HttpResponse<String>> doCreate(String url, String body) {
 
         HttpRequest request1 = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -172,7 +172,7 @@ class MultipleTestIT {
     }
 
 
-    private CompletableFuture<HttpResponse<String>> doUpdate(String url, String id, String body) throws SerializationException {
+    private CompletableFuture<HttpResponse<String>> doUpdate(String url, String id, String body) {
 
         URI uri = URI.create(String.format("%s/%s", url, EncodingHelper.base64UrlEncode(id)));
         HttpRequest request1 = HttpRequest.newBuilder()
@@ -185,7 +185,7 @@ class MultipleTestIT {
     }
 
 
-    private CompletableFuture<HttpResponse<Void>> doDelete(String baseUrl, String id) throws SerializationException {
+    private CompletableFuture<HttpResponse<Void>> doDelete(String baseUrl, String id) {
 
         URI uri = URI.create(String.format("%s/%s", baseUrl, EncodingHelper.base64UrlEncode(id)));
         HttpRequest request1 = HttpRequest.newBuilder()
