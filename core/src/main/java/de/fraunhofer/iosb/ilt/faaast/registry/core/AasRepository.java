@@ -188,20 +188,26 @@ public interface AasRepository {
 
     /**
      * Starts a transaction.
+     *
+     * @return The transaction number.
      */
-    public void startTransaction();
+    public int startTransaction();
 
 
     /**
      * Commits a Transaction.
+     *
+     * @param nr The transaction number.
      */
-    public void commitTransaction();
+    public void commitTransaction(int nr);
 
 
     /**
      * Rollback a Transaction.
+     *
+     * @param nr The transaction number.
      */
-    public void rollbackTransaction();
+    public void rollbackTransaction(int nr);
 
 
     /**
