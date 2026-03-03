@@ -139,7 +139,15 @@ public class RegistryService {
     public void deleteAAS(String id) throws ResourceNotFoundException {
         String idDecoded = EncodingHelper.base64UrlDecode(id);
         LOGGER.debug("deleteAAS: AAS {}", idDecoded);
-        aasRepository.deleteAAS(idDecoded);
+        int nr = aasRepository.startTransaction();
+        try {
+            aasRepository.deleteAAS(idDecoded);
+            aasRepository.commitTransaction(nr);
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
+        }
     }
 
 
@@ -157,7 +165,16 @@ public class RegistryService {
         LOGGER.debug("updateAAS: {}", idDecoded);
         checkShellIdentifiers(aas);
         aas.getSubmodelDescriptors().stream().forEach(this::checkSubmodelIdentifiers);
-        return aasRepository.update(idDecoded, aas);
+        int nr = aasRepository.startTransaction();
+        try {
+            AssetAdministrationShellDescriptor retval = aasRepository.update(idDecoded, aas);
+            aasRepository.commitTransaction(nr);
+            return retval;
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
+        }
     }
 
 
@@ -250,14 +267,24 @@ public class RegistryService {
      */
     public SubmodelDescriptor createSubmodel(String aasId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         ConstraintHelper.validate(submodel);
-        if (aasId == null) {
-            LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
-            return aasRepository.addSubmodel(submodel);
+        int nr = aasRepository.startTransaction();
+        try {
+            SubmodelDescriptor retval;
+            if (aasId == null) {
+                LOGGER.debug("createSubmodel: Submodel {}", submodel.getId());
+                retval = aasRepository.addSubmodel(submodel);
+            }
+            else {
+                String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
+                LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getId());
+                retval = aasRepository.addSubmodel(aasIdDecoded, submodel);
+            }
+            aasRepository.commitTransaction(nr);
+            return retval;
         }
-        else {
-            String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
-            LOGGER.debug("createSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodel.getId());
-            return aasRepository.addSubmodel(aasIdDecoded, submodel);
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
         }
     }
 
@@ -282,14 +309,22 @@ public class RegistryService {
      */
     public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
-        if (aasId == null) {
-            LOGGER.debug("deleteSubmodel: Submodel {}", submodelIdDecoded);
-            aasRepository.deleteSubmodel(submodelIdDecoded);
+        int nr = aasRepository.startTransaction();
+        try {
+            if (aasId == null) {
+                LOGGER.debug("deleteSubmodel: Submodel {}", submodelIdDecoded);
+                aasRepository.deleteSubmodel(submodelIdDecoded);
+            }
+            else {
+                String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
+                LOGGER.debug("deleteSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
+                aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
+            }
+            aasRepository.commitTransaction(nr);
         }
-        else {
-            String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
-            LOGGER.debug("deleteSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
-            aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
         }
     }
 
@@ -308,8 +343,17 @@ public class RegistryService {
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: Submodel {}", submodelIdDecoded);
-        aasRepository.deleteSubmodel(submodelIdDecoded);
-        return aasRepository.addSubmodel(submodel);
+        int nr = aasRepository.startTransaction();
+        try {
+            aasRepository.deleteSubmodel(submodelIdDecoded);
+            SubmodelDescriptor retval = aasRepository.addSubmodel(submodel);
+            aasRepository.commitTransaction(nr);
+            return retval;
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
+        }
     }
 
 
