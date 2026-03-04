@@ -74,8 +74,11 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
     private String issuerUri;
 
-    @Value("${service.security.tokenExchangeUrl}")
+    @Value("${service.security.tokenExchange.url}")
     private String tokenExchangeUrl;
+
+    @Value("${service.security.tokenExchange.audience}")
+    private String audience;
 
     /**
      * Configure access.
@@ -149,16 +152,23 @@ public class SecurityConfig {
                 try {
                     HttpClient client = SslHelper.newClientAcceptingAllCertificates();
 
-                    String form = "grant_type=" + URLEncoder.encode("urn:ietf:params:oauth:grant-type:token-exchange", StandardCharsets.UTF_8) +
-                            "&subject_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
-                            "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8) +
-                    //        "&requested_token_type=" + URLEncoder.encode("urn:ietf:params:oauth:token-type:access_token", StandardCharsets.UTF_8) +
-                            "&subject_token=" + token +
-                            "&audience=" + URLEncoder.encode("fa3st", StandardCharsets.UTF_8);
+                    StringBuilder formBuilder = new StringBuilder();
+                    formBuilder.append("grant_type=");
+                    formBuilder.append(URLEncoder.encode("urn:ietf:params:oauth:grant-type:token-exchange", StandardCharsets.UTF_8));
+                    formBuilder.append("&subject_token_type=");
+                    formBuilder.append(URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8));
+                    formBuilder.append("&requested_token_type=");
+                    formBuilder.append(URLEncoder.encode("urn:ietf:params:oauth:token-type:jwt", StandardCharsets.UTF_8));
+                    formBuilder.append("&subject_token=");
+                    formBuilder.append(token);
+                    if ((audience != null) && (!audience.isEmpty())) {
+                        formBuilder.append("&audience=");
+                        formBuilder.append(URLEncoder.encode(audience, StandardCharsets.UTF_8));
+                    }
 
                     HttpRequest request = HttpRequest.newBuilder()
                             .header("Content-Type", "application/x-www-form-urlencoded")
-                            .POST(HttpRequest.BodyPublishers.ofString(form))
+                            .POST(HttpRequest.BodyPublishers.ofString(formBuilder.toString()))
                             .uri(URI.create(tokenExchangeUrl))
                             .build();
 
