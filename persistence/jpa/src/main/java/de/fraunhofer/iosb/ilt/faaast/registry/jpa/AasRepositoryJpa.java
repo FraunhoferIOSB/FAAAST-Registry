@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
@@ -58,8 +60,9 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
+    private final Map<Integer, TransactionStatus> transactions = new ConcurrentHashMap<>();
+    private final AtomicInteger transactionCounter = new AtomicInteger(0);
     private PlatformTransactionManager txManager;
-    private TransactionStatus transactionStatus;
 
     @Autowired
     public AasRepositoryJpa(PlatformTransactionManager txManager) {
@@ -106,18 +109,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
         AssetAdministrationShellDescriptor retval;
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             retval = doCreate(descriptor);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 retval = doCreate(descriptor);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -127,18 +130,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public void deleteAAS(String aasId) throws ResourceNotFoundException {
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             doDeleteAAS(aasId);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 doDeleteAAS(aasId);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -148,18 +151,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
         AssetAdministrationShellDescriptor retval;
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             retval = doUpdate(aasId, descriptor);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 retval = doUpdate(aasId, descriptor);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -212,18 +215,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
         SubmodelDescriptor retval = null;
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             retval = doAddSubmodel(aasId, descriptor);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 retval = doAddSubmodel(aasId, descriptor);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -234,18 +237,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
         SubmodelDescriptor retval = null;
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             retval = doAddSubmodel(descriptor);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 retval = doAddSubmodel(descriptor);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -255,18 +258,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             doDeleteSubmodel(aasId, submodelId);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 doDeleteSubmodel(aasId, submodelId);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
         }
@@ -275,18 +278,18 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
-        if (transactionStatus != null) {
+        if (!transactions.isEmpty()) {
             doDeleteSubmodel(submodelId);
         }
         else {
             // use internal transaction
-            startTransaction();
+            int nr = startTransaction();
             try {
                 doDeleteSubmodel(submodelId);
-                commitTransaction();
+                commitTransaction(nr);
             }
             catch (Exception ex) {
-                rollbackTransaction();
+                rollbackTransaction(nr);
                 throw ex;
             }
 
@@ -295,40 +298,45 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public void startTransaction() {
-        LOGGER.debug("startTransaction");
+    public int startTransaction() {
+        int retval = 0;
         if (txManager != null) {
-            transactionStatus = txManager.getTransaction(null);
+            retval = transactionCounter.incrementAndGet();
+            LOGGER.debug("startTransaction {}", retval);
+            transactions.put(retval, txManager.getTransaction(null));
+        }
+        return retval;
+    }
+
+
+    @Override
+    public void commitTransaction(int nr) {
+        LOGGER.debug("commitTransaction {}", nr);
+        if (txManager != null) {
+            TransactionStatus transaction = transactions.get(nr);
+            if ((transaction == null) || (transaction.isCompleted())) {
+                LOGGER.info("transaction already completed");
+            }
+            else {
+                txManager.commit(transaction);
+            }
+            transactions.remove(nr);
         }
     }
 
 
     @Override
-    public void commitTransaction() {
-        LOGGER.debug("commitTransaction");
+    public void rollbackTransaction(int nr) {
+        LOGGER.debug("rollbackTransaction {}", nr);
         if (txManager != null) {
-            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
-                LOGGER.info("Transaction already completed");
+            TransactionStatus transaction = transactions.get(nr);
+            if ((transaction == null) || (transaction.isCompleted())) {
+                LOGGER.info("transaction already completed");
             }
             else {
-                txManager.commit(transactionStatus);
+                txManager.rollback(transaction);
             }
-            transactionStatus = null;
-        }
-    }
-
-
-    @Override
-    public void rollbackTransaction() {
-        LOGGER.debug("rollbackTransaction");
-        if (txManager != null) {
-            if ((transactionStatus == null) || (transactionStatus.isCompleted())) {
-                LOGGER.info("Transaction already completed");
-            }
-            else {
-                txManager.rollback(transactionStatus);
-            }
-            transactionStatus = null;
+            transactions.remove(nr);
         }
     }
 
@@ -341,7 +349,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
     @Override
     public boolean getTransactionActive() {
-        return transactionStatus != null;
+        return !transactions.isEmpty();
     }
 
 
