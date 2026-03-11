@@ -498,9 +498,9 @@ public class QueryEvaluator {
         }
 
         switch (path) {
-            case "interface":
+            case ".interface":
                 return endpoint.get_interface();
-            case "protocolinformation.href":
+            case ".protocolinformation.href":
                 ProtocolInformation pi = endpoint.getProtocolInformation();
                 if (pi == null) {
                     LOGGER.warn("getEndpointAttribute: ProtocolInformation is null");
