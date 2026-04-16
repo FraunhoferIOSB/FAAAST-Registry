@@ -17,6 +17,7 @@
 - JPA Persistence
 	- Fix error in AAS Registry when a Submodel was used in multiple AASs
 	- Fix error when multiple requests arrived at the same time
+	- Set maximum length of id, globalAssetId, href, subprotocolBody to 2048 from 255
 
 ## 1.1.0
 
