@@ -22,6 +22,11 @@
         <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.jpa.AasRepositoryJpa"/>
         <!--##########################-->
     </beans>
+    <beans profile="postgres">
+        <!--##### JPA Repository #####-->
+        <bean id="aasRepository" class="de.fraunhofer.iosb.ilt.faaast.registry.postgres.AasRepositoryPostgres"/>
+        <!--##########################-->
+    </beans>
 
     
 </beans>

@@ -20,14 +20,19 @@
             <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>persistence-jpa</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>persistence-memory</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>persistence-memory</artifactId>
+            <artifactId>persistence-postgres</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

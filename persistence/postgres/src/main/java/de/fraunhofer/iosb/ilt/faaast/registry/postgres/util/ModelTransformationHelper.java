@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2021 Fraunhofer IOSB, eine rechtlich nicht selbstaendige
+ * Einrichtung der Fraunhofer-Gesellschaft zur Foerderung der angewandten
+ * Forschung e.V.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
+
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.DeserializerWrapper;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
+import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
+import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
+
+
+/**
+ * Helper class to transform AAS model classes to Postgres model classes.
+ */
+public class ModelTransformationHelper {
+
+    private static final JsonSerializer jsonSerializer = new JsonSerializer();
+    private static final DeserializerWrapper jsonDeserializer = new DeserializerWrapper();
+
+    private ModelTransformationHelper() {}
+
+
+    /**
+     * Generates AssetAdministrationShellDescriptorEntity from AssetAdministrationShellDescriptor.
+     *
+     * @param aas The AssetAdministrationShellDescriptor.
+     * @return The converted AssetAdministrationShellDescriptorEntity entity.
+     * @throws SerializationException If a serialization error occurs.
+     */
+    public static AssetAdministrationShellDescriptorEntity convertAAS(AssetAdministrationShellDescriptor aas) throws SerializationException {
+        if (aas == null) {
+            return null;
+        }
+
+        return new AssetAdministrationShellDescriptorEntity.Builder()
+                .id(aas.getId())
+                .idShort(aas.getIdShort())
+                .administration(jsonSerializer.write(aas.getAdministration()))
+                .assetKind(aas.getAssetKind())
+                .assetType(aas.getAssetType())
+                .build();
+    }
+
+
+    /**
+     * Generates AssetAdministrationShellDescriptor from AssetAdministrationShellDescriptorEntity.
+     *
+     * @param aas The AssetAdministrationShellDescriptorEntity.
+     * @return The converted AssetAdministrationShellDescriptor.
+     * @throws DeserializationException If a serialization error occurs.
+     */
+    public static AssetAdministrationShellDescriptor convertAAS(AssetAdministrationShellDescriptorEntity aas) throws DeserializationException {
+        if (aas == null) {
+            return null;
+        }
+
+        return new DefaultAssetAdministrationShellDescriptor.Builder()
+                .id(aas.getId())
+                .idShort(aas.getIdShort())
+                .administration(jsonDeserializer.read(aas.getAdministration(), AdministrativeInformation.class))
+                .assetKind(aas.getAssetKind())
+                .assetType(aas.getAssetType())
+                .build();
+    }
+}
