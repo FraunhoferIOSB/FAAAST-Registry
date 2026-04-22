@@ -562,6 +562,7 @@
         </attributes>
     </entity>
     -->
+    
     <entity class="AssetAdministrationShellDescriptorEntity" access="PROPERTY">
         <table name="aas_descriptors"/>
         <attributes>
