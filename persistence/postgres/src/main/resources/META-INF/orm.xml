@@ -573,6 +573,12 @@
             </basic>
             <basic name="assetKind"/>
             <basic name="assetType"/>
+            <basic name="globalAssetId">
+                <column length="2048"/>
+            </basic>
+            <basic name="endpoints">
+                <column column-definition="jsonb"></column>
+            </basic>
         </attributes>
         
     </entity>

@@ -30,12 +30,22 @@ public class AssetAdministrationShellDescriptorEntity {
     private String idShort;
     private AssetKind assetKind;
     private String assetType;
+    private String globalAssetId;
 
     //@JdbcTypeCode(SqlTypes.JSON)
     //@Column(name = "administration", columnDefinition = "jsonb")
     //private AdministrativeInformation administration;
     @JdbcTypeCode(SqlTypes.JSON)
     private String administration;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String endpoints;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String specificAssetIds;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String descriptions;
 
     public String getId() {
         return id;
@@ -88,6 +98,52 @@ public class AssetAdministrationShellDescriptorEntity {
         this.assetType = assetType;
     }
 
+
+    public String getGlobalAssetId() {
+        return globalAssetId;
+    }
+
+
+    public void setGlobalAssetId(String globalAssetId) {
+        this.globalAssetId = globalAssetId;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getEndpoints() {
+        return endpoints;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setEndpoints(String endpoints) {
+        this.endpoints = endpoints;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getSpecificAssetIds() {
+        return specificAssetIds;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setSpecificAssetIds(String specificAssetIds) {
+        this.specificAssetIds = specificAssetIds;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getDescriptions() {
+        return descriptions;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setDescriptions(String descriptions) {
+        this.descriptions = descriptions;
+    }
+
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellDescriptorEntity, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
@@ -116,6 +172,30 @@ public class AssetAdministrationShellDescriptorEntity {
 
         public B assetType(String value) {
             getBuildingInstance().setAssetType(value);
+            return getSelf();
+        }
+
+
+        public B globalAssetId(String value) {
+            getBuildingInstance().setGlobalAssetId(value);
+            return getSelf();
+        }
+
+
+        public B endpoints(String value) {
+            getBuildingInstance().setEndpoints(value);
+            return getSelf();
+        }
+
+
+        public B specificAssetIds(String value) {
+            getBuildingInstance().setSpecificAssetIds(value);
+            return getSelf();
+        }
+
+
+        public B descriptions(String value) {
+            getBuildingInstance().setDescriptions(value);
             return getSelf();
         }
 

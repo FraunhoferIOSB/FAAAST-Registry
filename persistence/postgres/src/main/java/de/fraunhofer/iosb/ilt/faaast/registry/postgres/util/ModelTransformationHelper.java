@@ -21,6 +21,9 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.SerializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
+import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
+import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 
 
@@ -53,6 +56,10 @@ public class ModelTransformationHelper {
                 .administration(jsonSerializer.write(aas.getAdministration()))
                 .assetKind(aas.getAssetKind())
                 .assetType(aas.getAssetType())
+                .globalAssetId(aas.getGlobalAssetId())
+                .endpoints(jsonSerializer.write(aas.getEndpoints()))
+                .specificAssetIds(jsonSerializer.write(aas.getSpecificAssetIds()))
+                .descriptions(jsonSerializer.write(aas.getDescription()))
                 .build();
     }
 
@@ -69,12 +76,26 @@ public class ModelTransformationHelper {
             return null;
         }
 
-        return new DefaultAssetAdministrationShellDescriptor.Builder()
+        DefaultAssetAdministrationShellDescriptor.Builder builder = new DefaultAssetAdministrationShellDescriptor.Builder()
                 .id(aas.getId())
                 .idShort(aas.getIdShort())
-                .administration(jsonDeserializer.read(aas.getAdministration(), AdministrativeInformation.class))
                 .assetKind(aas.getAssetKind())
                 .assetType(aas.getAssetType())
-                .build();
+                .globalAssetId(aas.getGlobalAssetId());
+
+        if ((aas.getAdministration() != null) && (!aas.getAdministration().isEmpty())) {
+            builder.administration(jsonDeserializer.read(aas.getAdministration(), AdministrativeInformation.class));
+        }
+        if ((aas.getEndpoints() != null) && (!aas.getEndpoints().isEmpty())) {
+            builder.endpoints(jsonDeserializer.readList(aas.getEndpoints(), Endpoint.class));
+        }
+        if ((aas.getSpecificAssetIds() != null) && (!aas.getSpecificAssetIds().isEmpty())) {
+            builder.specificAssetIds(jsonDeserializer.readList(aas.getSpecificAssetIds(), SpecificAssetId.class));
+        }
+        if ((aas.getDescriptions() != null) && (!aas.getDescriptions().isEmpty())) {
+            builder.description(jsonDeserializer.readList(aas.getDescriptions(), LangStringTextType.class));
+        }
+
+        return builder.build();
     }
 }

@@ -20,6 +20,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
@@ -60,9 +61,8 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     private final Map<Integer, TransactionStatus> transactions = new ConcurrentHashMap<>();
     private final AtomicInteger transactionCounter = new AtomicInteger(0);
-    private PlatformTransactionManager txManager;
+    private final PlatformTransactionManager txManager;
 
-    //public AasRepositoryPostgres(AssetAdministrationShellDescriptorRepository aasRepository) {
     @Autowired
     public AasRepositoryPostgres(PlatformTransactionManager txManager) {
         this.txManager = txManager;
@@ -72,8 +72,13 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public Page<AssetAdministrationShellDescriptor> getAASs(String assetType, AssetKind assetKind, PagingInfo paging) {
-        LOGGER.debug("getAASs");
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            LOGGER.debug("getAASs");
+            return EntityManagerHelper.getPagedAas(entityManager, assetType, assetKind, readLimit(paging), readCursor(paging));
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
@@ -99,26 +104,23 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public AssetAdministrationShellDescriptor create(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
-        try {
-            ensureDescriptorId(descriptor);
-            LOGGER.atDebug().log("create AAS {}", descriptor.getId());
-            AssetAdministrationShellDescriptorEntity entity = fetchAASEntity(descriptor.getId());
-            Ensure.require(Objects.isNull(entity), buildAASAlreadyExistsException(descriptor.getId()));
-            entity = ModelTransformationHelper.convertAAS(descriptor);
-            //AssetAdministrationShellDescriptorEntity entity = new AssetAdministrationShellDescriptorEntity.Builder()
-            //        .from(descriptor)
-            //        .build();
-            //if (aasRepository != null) {
-            //    aasRepository.save(entity);
-            //}
-            //else if (entityManager != null) {
-            entityManager.persist(entity);
-            //}
-            return descriptor;
+        AssetAdministrationShellDescriptor retval;
+        if (!transactions.isEmpty()) {
+            retval = doCreate(descriptor);
         }
-        catch (SerializationException ex) {
-            throw new IllegalArgumentException(ex);
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doCreate(descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
         }
+        return retval;
     }
 
 
@@ -264,4 +266,21 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
             return null;
         }
     }
+
+
+    private AssetAdministrationShellDescriptor doCreate(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
+        try {
+            ensureDescriptorId(descriptor);
+            LOGGER.atDebug().log("create AAS {}", descriptor.getId());
+            AssetAdministrationShellDescriptorEntity entity = fetchAASEntity(descriptor.getId());
+            Ensure.require(Objects.isNull(entity), buildAASAlreadyExistsException(descriptor.getId()));
+            entity = ModelTransformationHelper.convertAAS(descriptor);
+            entityManager.persist(entity);
+            return ModelTransformationHelper.convertAAS(entity);
+        }
+        catch (SerializationException | DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
 }
