@@ -25,8 +25,11 @@ import de.fraunhofer.iosb.ilt.faaast.registry.postgres.util.ModelTransformationH
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingInfo;
 import de.fraunhofer.iosb.ilt.faaast.service.util.Ensure;
+import de.fraunhofer.iosb.ilt.faaast.service.util.FaaastConstants;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -98,7 +101,16 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public Page<String> getAASIdentifiersByAssetLink(List<AssetLink> assetLinks, PagingInfo pagingInfo) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            Ensure.requireNonNull(assetLinks, "specificAssetIds must be non-null");
+            List<AssetAdministrationShellDescriptor> prefilteredDescriptors = filterDescriptorsByGlobalAssetId(assetLinks);
+
+            // We already filtered for global asset id -> No need to add it to specific asset ids again
+            return filterAssetAdministrationShellDescriptorsByAssetLink(prefilteredDescriptors, assetLinks, pagingInfo);
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
@@ -283,4 +295,30 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
         }
     }
 
+
+    private List<AssetAdministrationShellDescriptor> filterDescriptorsByGlobalAssetId(List<AssetLink> assetLinks) throws DeserializationException {
+        List<AssetLink> globalAssetIds = assetLinks.stream()
+                .filter(x -> FaaastConstants.KEY_GLOBAL_ASSET_ID.equalsIgnoreCase(x.getName()))
+                .toList();
+
+        String globalAssetIdString = null;
+
+        if (globalAssetIds.size() > 1) {
+            // An AAS descriptor can only have one globalAssetId.
+            return new ArrayList<>();
+        }
+        else if (!globalAssetIds.isEmpty()) {
+            AssetLink globalAssetId = globalAssetIds.get(0);
+            // Disentangle specificAssetId from globalAssetId
+            assetLinks.remove(globalAssetId);
+            globalAssetIdString = globalAssetIds.get(0).getValue();
+        }
+
+        Map<String, String> specificAssetIdNameValueMap = new HashMap<>();
+        assetLinks.forEach(id -> specificAssetIdNameValueMap.put(id.getName(), id.getValue()));
+
+        // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
+        return EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
+        //return new ArrayList<>();
+    }
 }

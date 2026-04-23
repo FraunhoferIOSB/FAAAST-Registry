@@ -45,7 +45,13 @@ public class AssetAdministrationShellDescriptorEntity {
     private String specificAssetIds;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    private String descriptions;
+    private String description;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String displayName;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String extensions;
 
     public String getId() {
         return id;
@@ -134,14 +140,38 @@ public class AssetAdministrationShellDescriptorEntity {
 
 
     @JdbcTypeCode(SqlTypes.JSON)
-    public String getDescriptions() {
-        return descriptions;
+    public String getDescription() {
+        return description;
     }
 
 
     @JdbcTypeCode(SqlTypes.JSON)
-    public void setDescriptions(String descriptions) {
-        this.descriptions = descriptions;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getDisplayName() {
+        return displayName;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getExtensions() {
+        return extensions;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setExtensions(String extensions) {
+        this.extensions = extensions;
     }
 
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellDescriptorEntity, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
@@ -194,8 +224,20 @@ public class AssetAdministrationShellDescriptorEntity {
         }
 
 
-        public B descriptions(String value) {
-            getBuildingInstance().setDescriptions(value);
+        public B description(String value) {
+            getBuildingInstance().setDescription(value);
+            return getSelf();
+        }
+
+
+        public B displayName(String value) {
+            getBuildingInstance().setDisplayName(value);
+            return getSelf();
+        }
+
+
+        public B extensions(String value) {
+            getBuildingInstance().setExtensions(value);
             return getSelf();
         }
 
@@ -222,4 +264,5 @@ public class AssetAdministrationShellDescriptorEntity {
             return new AssetAdministrationShellDescriptorEntity();
         }
     }
+
 }

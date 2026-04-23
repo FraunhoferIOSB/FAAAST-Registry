@@ -22,6 +22,8 @@ import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonSerializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.Endpoint;
+import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
+import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
@@ -59,7 +61,9 @@ public class ModelTransformationHelper {
                 .globalAssetId(aas.getGlobalAssetId())
                 .endpoints(jsonSerializer.write(aas.getEndpoints()))
                 .specificAssetIds(jsonSerializer.write(aas.getSpecificAssetIds()))
-                .descriptions(jsonSerializer.write(aas.getDescription()))
+                .description(jsonSerializer.write(aas.getDescription()))
+                .displayName(jsonSerializer.write(aas.getDisplayName()))
+                .extensions(jsonSerializer.write(aas.getExtensions()))
                 .build();
     }
 
@@ -92,8 +96,14 @@ public class ModelTransformationHelper {
         if ((aas.getSpecificAssetIds() != null) && (!aas.getSpecificAssetIds().isEmpty())) {
             builder.specificAssetIds(jsonDeserializer.readList(aas.getSpecificAssetIds(), SpecificAssetId.class));
         }
-        if ((aas.getDescriptions() != null) && (!aas.getDescriptions().isEmpty())) {
-            builder.description(jsonDeserializer.readList(aas.getDescriptions(), LangStringTextType.class));
+        if ((aas.getDescription() != null) && (!aas.getDescription().isEmpty())) {
+            builder.description(jsonDeserializer.readList(aas.getDescription(), LangStringTextType.class));
+        }
+        if ((aas.getDisplayName() != null) && (!aas.getDisplayName().isEmpty())) {
+            builder.displayName(jsonDeserializer.readList(aas.getDisplayName(), LangStringNameType.class));
+        }
+        if ((aas.getExtensions() != null) && (!aas.getExtensions().isEmpty())) {
+            builder.extensions(jsonDeserializer.readList(aas.getExtensions(), Extension.class));
         }
 
         return builder.build();
