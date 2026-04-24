@@ -563,6 +563,12 @@
     </entity>
     -->
     
+    <mapped-superclass class="SubmodelDescriptorEntityBase" access="PROPERTY">
+        <attributes>
+            <basic name="idShort"/>
+        </attributes>
+    </mapped-superclass>
+    
     <entity class="AssetAdministrationShellDescriptorEntity" access="PROPERTY">
         <table name="aas_descriptors"/>
         <attributes>
@@ -591,10 +597,36 @@
             <basic name="extensions">
                 <column column-definition="jsonb"></column>
             </basic>
-            <basic name="submodelDescriptors">
+            <!--<basic name="submodelDescriptors">
                 <column column-definition="jsonb"></column>
-            </basic>
+            </basic> -->
+
+            <one-to-many name="submodelDescriptors" target-entity="SubmodelDescriptorEntity" orphan-removal="TRUE" fetch="EAGER">
+                <join-column name="aas_id"/>
+                <cascade>
+                    <cascade-all/>
+                </cascade>
+            </one-to-many>
+                        
         </attributes>
         
+    </entity>
+    
+    <entity class="SubmodelDescriptorEntity" access="PROPERTY">
+        <table name="submodel_descriptors"/>
+        <attributes>
+            <id name="databaseId">
+                <generated-value/>
+            </id>
+            
+            <basic name="id"/>
+        </attributes>
+    </entity>
+    
+    <entity class="SubmodelDescriptorEntityStandalone" access="PROPERTY">
+        <table name="submodel_descriptors_standalone"/>
+        <attributes>
+            <id name="id"/>
+        </attributes>
     </entity>
 </entity-mappings>

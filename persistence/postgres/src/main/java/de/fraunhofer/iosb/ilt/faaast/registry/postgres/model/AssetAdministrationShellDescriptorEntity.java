@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.postgres.model;
 
+import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
 import org.eclipse.digitaltwin.aas4j.v3.model.builder.ExtendableBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -53,8 +54,10 @@ public class AssetAdministrationShellDescriptorEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private String extensions;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    private String submodelDescriptors;
+    //@JdbcTypeCode(SqlTypes.JSON)
+    //private String submodelDescriptors;
+
+    private List<SubmodelDescriptorEntity> submodelDescriptors;
 
     public String getId() {
         return id;
@@ -177,15 +180,23 @@ public class AssetAdministrationShellDescriptorEntity {
         this.extensions = extensions;
     }
 
+    //@JdbcTypeCode(SqlTypes.JSON)
+    //public String getSubmodelDescriptors() {
+    //    return submodelDescriptors;
+    //}
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    public String getSubmodelDescriptors() {
+    //@JdbcTypeCode(SqlTypes.JSON)
+    //public void setSubmodelDescriptors(String submodelDescriptors) {
+    //    this.submodelDescriptors = submodelDescriptors;
+    //}
+
+
+    public List<SubmodelDescriptorEntity> getSubmodelDescriptors() {
         return submodelDescriptors;
     }
 
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    public void setSubmodelDescriptors(String submodelDescriptors) {
+    public void setSubmodelDescriptors(List<SubmodelDescriptorEntity> submodelDescriptors) {
         this.submodelDescriptors = submodelDescriptors;
     }
 
@@ -257,7 +268,7 @@ public class AssetAdministrationShellDescriptorEntity {
         }
 
 
-        public B submodelDescriptors(String value) {
+        public B submodelDescriptors(List<SubmodelDescriptorEntity> value) {
             getBuildingInstance().setSubmodelDescriptors(value);
             return getSelf();
         }
