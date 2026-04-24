@@ -14,6 +14,7 @@
  */
 package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
+import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
@@ -25,10 +26,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -37,6 +39,7 @@ import tools.jackson.databind.ObjectMapper;
  */
 public class EntityManagerHelper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerHelper.class);
     private static final ObjectMapper mapper = new ObjectMapper();
 
     private EntityManagerHelper() {}
@@ -79,12 +82,12 @@ public class EntityManagerHelper {
      * fields.
      *
      * @param entityManager The entityManager to use.
-     * @param specificAssetIdNamesValues The desired specificAssetIds "name" and "value" fields.
+     * @param specificAssetIds The desired specificAssetIds "name" and "value" fields.
      * @param globalAssetId The desired globalAssetId.
      * @return All AAS descriptors matching the given criteria.
      * @throws DeserializationException If a deserialization error occurs.
      */
-    public static List<AssetAdministrationShellDescriptor> getAas(EntityManager entityManager, Map<String, String> specificAssetIdNamesValues, String globalAssetId)
+    public static List<AssetAdministrationShellDescriptor> getAas(EntityManager entityManager, List<AssetLink> specificAssetIds, String globalAssetId)
             throws DeserializationException {
 
         //CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -93,25 +96,38 @@ public class EntityManagerHelper {
         //List<Predicate> predicates = new ArrayList<>();
 
         StringBuilder queryTxt = new StringBuilder();
-        queryTxt.append("select aas from AssetAdministrationShellDescriptorEntity aas where ");
-        if (specificAssetIdNamesValues != null && !specificAssetIdNamesValues.isEmpty()) {
-            queryTxt.append("specificAssetIds @> '[");
-            //String tst = mapper.writeValueAsString(specificAssetIdNamesValues);
+        //queryTxt.append("select aas from AssetAdministrationShellDescriptorEntity aas where ");
+        queryTxt.append("select * from aas_descriptors where ");
+        if (specificAssetIds != null && !specificAssetIds.isEmpty()) {
+            //queryTxt.append("specificAssetIds @> '[");
+
+            //queryTxt.append("specific_asset_ids @> '");
+            queryTxt.append("specific_asset_ids @> ");
+            ////queryTxt.append("'");
+            //String tst = mapper.writeValueAsString(specificAssetIds);
             //queryTxt.append(tst);
-            boolean first = true;
-            for (var s: specificAssetIdNamesValues.entrySet()) {
-                if (!first) {
-                    queryTxt.append(", ");
-                    first = false;
-                }
-                queryTxt.append("{");
-                queryTxt.append("\"name\": \"");
-                queryTxt.append(s.getKey());
-                queryTxt.append("\", \"value\": \"");
-                queryTxt.append(s.getValue());
-                queryTxt.append("\"}");
-            }
-            queryTxt.append("]' ");
+            //// queryTxt.append("' <@ specific_asset_ids ");
+
+            //boolean first = true;
+            //for (var s: specificAssetIdNamesValues.entrySet()) {
+            //for (var s: specificAssetIds) {
+            //    //    if (!first) {
+            //    //        queryTxt.append(", ");
+            //    //        first = false;
+            //    //    }
+            //    queryTxt.append("{");
+            //    queryTxt.append("\"name\": \"");
+            //    queryTxt.append(s.getName());
+            //    //    queryTxt.append(s.getKey());
+            //    queryTxt.append("\", \"value\": \"");
+            //    queryTxt.append(s.getValue());
+            //    //    queryTxt.append(s.getValue());
+            //    queryTxt.append("\"}");
+            //}
+
+            queryTxt.append("CAST (? AS JSONB) ");
+            //queryTxt.append("' ");
+            //// queryTxt.append("]' ");
             if (globalAssetId != null) {
                 queryTxt.append("AND ");
             }
@@ -119,10 +135,14 @@ public class EntityManagerHelper {
         }
 
         if (globalAssetId != null) {
-            //queryTxt.append(" global_asset_id='");
-            queryTxt.append("globalAssetId = ?globalAssetId");
+            //queryTxt.append("globalAssetId = ?globalAssetId");
+
+            //queryTxt.append("global_asset_id='");
+            //queryTxt.append("global_asset_id = ");
+            queryTxt.append("global_asset_id = ?");
             //queryTxt.append(globalAssetId);
             //queryTxt.append("'");
+
             //predicates.add(builder.equal(root.get("globalAssetId"), globalAssetId));
         }
         //queryCriteria.select(root);
@@ -132,15 +152,32 @@ public class EntityManagerHelper {
         //queryCriteria.orderBy(builder.asc(root));
         //var query = entityManager.createQuery(queryCriteria);
 
-        //queryTxt.append(";");
-        var query = entityManager.createQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
+        String queryTxt2 = queryTxt.toString();
+        //queryTxt2 = queryTxt2.replace("AssetAdministrationShellDescriptorEntity", "aas_descriptors").replace("specificAssetIds", "specific_asset_ids").replace("globalAssetId",
+        //        "global_asset_id");
 
+        var query = entityManager.createNativeQuery(queryTxt2, AssetAdministrationShellDescriptorEntity.class);
+        int index = 1;
+        if (specificAssetIds != null && !specificAssetIds.isEmpty()) {
+            query.setParameter(index++, mapper.writeValueAsString(specificAssetIds));
+        }
         if (globalAssetId != null) {
-            query.setParameter("globalAssetId", globalAssetId);
+            query.setParameter(index++, globalAssetId);
         }
 
+        List<AssetAdministrationShellDescriptorEntity> resultList = query.getResultList();
+        LOGGER.debug("getAas: found {} entities", resultList.size());
+
+        //queryTxt.append(";");
+        //var query2 = entityManager.createQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
+
+        //if (globalAssetId != null) {
+        //    query.setParameter("globalAssetId", globalAssetId);
+        //}
+
+        //LOGGER.debug("getAas: results: {}", query2.getResultList().size());
         // Return default AAS descriptor implementation objects
-        return query.getResultList().stream()
+        return resultList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
                 .toList();
     }

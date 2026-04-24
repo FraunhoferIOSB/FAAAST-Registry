@@ -138,13 +138,43 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public void deleteAAS(String aasId) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (!transactions.isEmpty()) {
+            doDeleteAAS(aasId);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                doDeleteAAS(aasId);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
     }
 
 
     @Override
     public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        AssetAdministrationShellDescriptor retval;
+        if (!transactions.isEmpty()) {
+            retval = doUpdate(aasId, descriptor);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doUpdate(aasId, descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
+        return retval;
     }
 
 
@@ -318,7 +348,37 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
         assetLinks.forEach(id -> specificAssetIdNameValueMap.put(id.getName(), id.getValue()));
 
         // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
-        return EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
+        return EntityManagerHelper.getAas(entityManager, assetLinks, globalAssetIdString);
         //return new ArrayList<>();
+    }
+
+
+    private void doDeleteAAS(String aasId) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        AssetAdministrationShellDescriptorEntity aas = fetchAASEntity(aasId);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        entityManager.remove(aas);
+    }
+
+
+    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+        try {
+            ensureAasId(aasId);
+            ensureDescriptorId(descriptor);
+            AssetAdministrationShellDescriptorEntity aas = fetchAASEntity(descriptor.getId());
+            Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+            AssetAdministrationShellDescriptorEntity newAas = ModelTransformationHelper.convertAAS(descriptor);
+            if (aasId.equals(descriptor.getId())) {
+                newAas = entityManager.merge(newAas);
+            }
+            else {
+                entityManager.remove(aas);
+                entityManager.persist(newAas);
+            }
+            return ModelTransformationHelper.convertAAS(newAas);
+        }
+        catch (SerializationException | DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 }
