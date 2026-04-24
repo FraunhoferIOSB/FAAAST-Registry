@@ -53,6 +53,9 @@ public class AssetAdministrationShellDescriptorEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private String extensions;
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    private String submodelDescriptors;
+
     public String getId() {
         return id;
     }
@@ -174,6 +177,18 @@ public class AssetAdministrationShellDescriptorEntity {
         this.extensions = extensions;
     }
 
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public String getSubmodelDescriptors() {
+        return submodelDescriptors;
+    }
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    public void setSubmodelDescriptors(String submodelDescriptors) {
+        this.submodelDescriptors = submodelDescriptors;
+    }
+
     public abstract static class AbstractBuilder<T extends AssetAdministrationShellDescriptorEntity, B extends AbstractBuilder<T, B>> extends ExtendableBuilder<T, B> {
 
         public B id(String value) {
@@ -238,6 +253,12 @@ public class AssetAdministrationShellDescriptorEntity {
 
         public B extensions(String value) {
             getBuildingInstance().setExtensions(value);
+            return getSelf();
+        }
+
+
+        public B submodelDescriptors(String value) {
+            getBuildingInstance().setSubmodelDescriptors(value);
             return getSelf();
         }
 

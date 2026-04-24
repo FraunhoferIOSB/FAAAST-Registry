@@ -26,6 +26,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.Extension;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType;
 import org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShellDescriptor;
 
 
@@ -64,6 +65,7 @@ public class ModelTransformationHelper {
                 .description(jsonSerializer.write(aas.getDescription()))
                 .displayName(jsonSerializer.write(aas.getDisplayName()))
                 .extensions(jsonSerializer.write(aas.getExtensions()))
+                .submodelDescriptors(jsonSerializer.write(aas.getSubmodelDescriptors()))
                 .build();
     }
 
@@ -104,6 +106,9 @@ public class ModelTransformationHelper {
         }
         if ((aas.getExtensions() != null) && (!aas.getExtensions().isEmpty())) {
             builder.extensions(jsonDeserializer.readList(aas.getExtensions(), Extension.class));
+        }
+        if ((aas.getSubmodelDescriptors() != null) && (!aas.getSubmodelDescriptors().isEmpty())) {
+            builder.submodelDescriptors(jsonDeserializer.readList(aas.getSubmodelDescriptors(), SubmodelDescriptor.class));
         }
 
         return builder.build();

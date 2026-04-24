@@ -591,6 +591,9 @@
             <basic name="extensions">
                 <column column-definition="jsonb"></column>
             </basic>
+            <basic name="submodelDescriptors">
+                <column column-definition="jsonb"></column>
+            </basic>
         </attributes>
         
     </entity>
