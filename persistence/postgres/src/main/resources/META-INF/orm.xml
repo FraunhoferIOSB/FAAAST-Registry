@@ -580,13 +580,13 @@
             <basic name="assetKind"/>
             <basic name="assetType"/>
             <basic name="globalAssetId">
-                <column length="2048"/>
+                <column length="2048" name="global_asset_id"/>
             </basic>
             <basic name="endpoints">
                 <column column-definition="jsonb"></column>
             </basic>
             <basic name="specificAssetIds">
-                <column column-definition="jsonb"></column>
+                <column column-definition="jsonb" name="specific_asset_ids"></column>
             </basic>
             <basic name="description">
                 <column column-definition="jsonb"></column>
