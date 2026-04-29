@@ -7,9 +7,9 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    - name: http
+      port: {{ .Values.server.port }}
+      targetPort: {{ .Values.server.port }}
       protocol: TCP
-      name: http
   selector:
     {{- include "faaast-registry.selectorLabels" . | nindent 4 }}

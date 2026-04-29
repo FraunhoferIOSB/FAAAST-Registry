@@ -72,61 +72,68 @@ resources: {}
 # FA³ST Registry is a Spring-based application
 # The following is to configure FA³ST Registry
 
-# Spring Boot server settings
+# https://faaast-registry.readthedocs.io/en/latest/gettingstarted/gettingstarted.html#command-line-interface-cli
+# Possible values: q (quiet, only ERROR), v (verbose, INFO/WARN), vv (DEBUG/INFO), vvv (TRACE/DEBUG)
+# Important: Don't prefix a dash ("-")
+logLevel: v
+
+# Spring Boot server settings (application.properties: server.*)
 server:
-  port: 8090                      # server.port
-  sslEnabled: true                # server.ssl.enabled
-  contextPath: "/api/v3.0"        # server.servlet.context-path
+  port: 8090                            # server.port
+  servlet:
+    contextPath: "/api/v3.0"            # server.servlet.context-path
+  error:
+    includeMessage: "always"            # server.error.include-message
 
-# CORS configuration
+  ssl:
+    enabled: true                       # server.ssl.enabled
+    bundle:
+      name: "service"                   # server.ssl.bundle
+      jks:
+        service:
+          key:
+            alias: "server"             # spring.ssl.bundle.jks.service.key.alias
+          keystore:
+            location: "classpath:keystore.p12"  # spring.ssl.bundle.jks.service.keystore.location
+            password: "password"                # spring.ssl.bundle.jks.service.keystore.password
+            type: "PKCS12"                      # spring.ssl.bundle.jks.service.keystore.type
+
+# CORS configuration (application.properties: cors.*)
 cors:
-  enabled: false                  # cors.enabled
-  allowedOrigins: "*"             # cors.allowedOrigins
-  allowedMethods: "GET, POST"     # cors.allowedMethods
-  allowedHeaders: "*"             # cors.allowedHeaders
-  exposedHeaders: ""              # cors.exposedHeaders (empty = not set)
-  maxAge: 1800                    # cors.maxAge (seconds)
+  enabled: false                        # cors.enabled
+  allowedOrigins: "*"                   # cors.allowedOrigins
+  allowedMethods: "GET, POST"           # cors.allowedMethods
+  allowedHeaders: "*"                   # cors.allowedHeaders
+  # Optional: only set if you want a value
+  exposedHeaders: ""                    # cors.exposedHeaders
+  maxAge: 1800                          # cors.maxAge (seconds)
 
-# SSL bundle (optional Spring SSL bundle support)
-sslBundle:
-  enabled: false                  # if true, set server.ssl.bundle + bundle props
-  bundleName: "service"           # server.ssl.bundle
-  keyAlias: "server"              # spring.ssl.bundle.jks.service.key.alias
-  keystore:
-    location: "classpath:keystore.p12"  # spring.ssl.bundle.jks.service.keystore.location
-    password: "password"                # spring.ssl.bundle.jks.service.keystore.password
-    type: "PKCS12"                      # spring.ssl.bundle.jks.service.keystore.type
-
-# Persistence configuration
+# Persistence configuration (application.properties: spring.*)
 persistence:
-  # mode: "in-memory" → spring.profiles.active not set/empty
-  # mode: "jpa"       → spring.profiles.active=jpa and JPA properties applied
-  mode: "in-memory"
+  sql:
+    # false → in‑memory (spring.profiles.active not set)
+    # true  → JPA profile active (spring.profiles.active=jpa)
+    enabled: false
 
-  jpa:
-    # Common JPA settings (largely matching the repo defaults)
-    orm: "orm.xml"                        # spring.jpa.orm
-    formatSql: true                       # spring.jpa.properties.hibernate.format_sql
-    ddlAuto: "update"                     # spring.jpa.hibernate.ddl-auto
-    openInView: true                      # spring.jpa.open-in-view
-    showSql: false                        # spring.jpa.show-sql
+    # Common JPA settings
+    orm: "orm.xml"                      # spring.jpa.orm
+    showSql: false                      # spring.jpa.show-sql
+    openInView: true                    # spring.jpa.open-in-view
+    hibernate:
+      ddlAuto: "update"                 # spring.jpa.hibernate.ddl-auto
+    properties:
+      hibernate:
+        formatSql: true                 # spring.jpa.properties.hibernate.format_sql
+        # Default dialect for “external” SQL DB (e.g. Postgres)
+        dialect: "org.hibernate.dialect.PostgreSQLDialect" # spring.jpa.properties.hibernate.dialect
 
-    # Choose one of the profile-specific blocks below per environment
+    datasource:
+      # external.enabled=false → H2 in-memory DB via JPA
+      # external.enabled=true  → external SQL DB (Postgres, etc.)
+      external:
+        enabled: false
 
-    # PostgreSQL settings
-    postgres:
-      enabled: false
-      dialect: "org.hibernate.dialect.PostgreSQLDialect"   # spring.jpa.properties.hibernate.dialect
-      driverClassName: "org.postgresql.Driver"             # spring.datasource.driver
-      url: "jdbc:postgresql://postgres:5432/fa3st-registry" # spring.datasource.url
-      username: "fa3st-registry"                           # spring.datasource.username
-      password: "ChangeMe"                                 # spring.datasource.password
-
-    # H2 in‑memory DB (for local/dev)
-    h2:
-      enabled: false
-      dialect: "org.hibernate.dialect.H2Dialect"           # spring.jpa.properties.hibernate.dialect
-      driverClassName: "org.h2.Driver"                     # spring.datasource.driver
-      url: "jdbc:h2:mem:testdb"                            # spring.datasource.url
-      username: "sa"                                       # spring.datasource.username
-      password: ""                                         # spring.datasource.password
+        driver: "org.postgresql.Driver" # spring.datasource.driver
+        url: "jdbc:postgresql://postgres:5432/fa3st-registry" # spring.datasource.url
+        username: "fa3st-registry"       # spring.datasource.username
+        password: "ChangeMe"             # spring.datasource.password

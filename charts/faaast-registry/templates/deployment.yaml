@@ -32,6 +32,38 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if and (hasKey .Values.persistence "sql") (and .Values.persistence.sql.enabled .Values.persistence.sql.datasource.external.enabled) }}
+      initContainers:
+        {{- $jdbc := default "" .Values.persistence.sql.datasource.external.url }}
+        {{- /* assume format: jdbc:postgresql://host:port/dbname */ -}}
+        {{- $trimmed := trimPrefix "jdbc:postgresql://" $jdbc }}
+        {{- $hostPortDb := splitList "/" $trimmed }}
+        {{- $hostPort := index $hostPortDb 0 | default "" }}
+        {{- $hpSplit := splitList ":" $hostPort }}
+        {{- $dbHost := index $hpSplit 0 | default "postgres" }}
+        {{- $dbPort := default "5432" (index $hpSplit 1 | default "") }}
+
+        - name: wait-for-persistence
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              DB_HOST="{{ $dbHost }}"
+              DB_PORT="{{ $dbPort }}"
+              echo "Waiting for SQL DB at ${DB_HOST}:${DB_PORT}..."
+              i=0
+              until nc -z "${DB_HOST}" "${DB_PORT}"; do
+                i=$((i+1))
+                if [ "$i" -ge 60 ]; then
+                  echo "SQL DB not ready after $((i*5))s, giving up."
+                  exit 1
+                fi
+                echo "SQL DB not ready, waiting..."
+                sleep 5
+              done
+              echo "SQL DB is ready for FA³ST Registry!"
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -39,10 +71,14 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if hasKey .Values "logLevel" }}
+          args:
+            -  {{ printf "-%s" (.Values.logLevel | toString) | quote }}
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.server.port }}
               protocol: TCP
           {{- with .Values.livenessProbe }}
           livenessProbe:
@@ -56,13 +92,19 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
+            - name: config-volume
+              mountPath: "/app/config/application.properties"
+              subPath: application.properties
+          {{- with .Values.volumeMounts }}
+          {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
-        {{- toYaml . | nindent 8 }}
+        - name: config-volume
+          configMap:
+            name: {{ include "faaast-registry.fullname" . }}-config
+      {{- with .Values.volumes }}
+      {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
