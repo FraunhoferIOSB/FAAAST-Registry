@@ -27,18 +27,18 @@ data:
     {{- end }}
     ##################
 
-    {{- if .Values.server.ssl.enabled }}
     ###### SSL #######
+    {{- if .Values.server.ssl.enabled }}
     server.ssl.enabled=true
     server.ssl.bundle={{ .Values.server.ssl.bundle.name }}
     spring.ssl.bundle.jks.service.key.alias={{ .Values.server.ssl.bundle.jks.service.key.alias }}
     spring.ssl.bundle.jks.service.keystore.location={{ .Values.server.ssl.bundle.jks.service.keystore.location }}
     spring.ssl.bundle.jks.service.keystore.password={{ .Values.server.ssl.bundle.jks.service.keystore.password }}
     spring.ssl.bundle.jks.service.keystore.type={{ .Values.server.ssl.bundle.jks.service.keystore.type }}
-    ##################
     {{- else }}
     server.ssl.enabled=false
     {{- end }}
+    ##################
 
     {{- if .Values.persistence.sql.enabled }}
     ###### RDBS via JPA (SQL) #####

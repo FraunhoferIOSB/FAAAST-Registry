@@ -86,7 +86,7 @@ server:
     includeMessage: "always"            # server.error.include-message
 
   ssl:
-    enabled: true                       # server.ssl.enabled
+    enabled: false                       # server.ssl.enabled
     bundle:
       name: "service"                   # server.ssl.bundle
       jks:
