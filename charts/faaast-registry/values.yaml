@@ -125,7 +125,8 @@ persistence:
       hibernate:
         formatSql: true                 # spring.jpa.properties.hibernate.format_sql
         # Default dialect for “external” SQL DB (e.g. Postgres)
-        dialect: "org.hibernate.dialect.PostgreSQLDialect" # spring.jpa.properties.hibernate.dialect
+        # spring.jpa.properties.hibernate.dialect
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
 
     datasource:
       # external.enabled=false → H2 in-memory DB via JPA
@@ -133,7 +134,9 @@ persistence:
       external:
         enabled: false
 
-        driver: "org.postgresql.Driver" # spring.datasource.driver
-        url: "jdbc:postgresql://postgres:5432/fa3st-registry" # spring.datasource.url
+        # spring.datasource.driver
+        driver: "org.postgresql.Driver"
+        # spring.datasource.url
+        url: "jdbc:postgresql://postgres:5432/fa3st-registry"
         username: "fa3st-registry"       # spring.datasource.username
         password: "ChangeMe"             # spring.datasource.password
