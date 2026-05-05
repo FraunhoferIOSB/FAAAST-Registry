@@ -54,6 +54,16 @@
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
             <artifactId>dataformat-json</artifactId>
             <version>${faaast.service.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.jena</groupId>
+                    <artifactId>jena-arq</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.jena</groupId>
+                    <artifactId>jena-shacl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.fraunhofer.iosb.ilt.faaast.service</groupId>
@@ -63,6 +73,10 @@
                 <exclusion>
                     <groupId>com.vaadin.external.google</groupId>
                     <artifactId>android-json</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.jena</groupId>
+                    <artifactId>jena-shacl</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
