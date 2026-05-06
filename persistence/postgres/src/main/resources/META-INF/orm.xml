@@ -566,6 +566,27 @@
     <mapped-superclass class="SubmodelDescriptorEntityBase" access="PROPERTY">
         <attributes>
             <basic name="idShort"/>
+            <basic name="administration">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="endpoints">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="description">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="displayName">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="extensions">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="semanticId">
+                <column column-definition="jsonb"></column>
+            </basic>
+            <basic name="supplementalSemanticId">
+                <column column-definition="jsonb"></column>
+            </basic>
         </attributes>
     </mapped-superclass>
     
