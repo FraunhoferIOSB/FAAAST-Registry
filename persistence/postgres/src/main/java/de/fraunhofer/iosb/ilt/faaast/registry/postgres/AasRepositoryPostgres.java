@@ -20,6 +20,8 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundExc
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.util.EntityManagerHelper;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.util.ModelTransformationHelper;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
@@ -180,37 +182,100 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public Page<SubmodelDescriptor> getSubmodels(String aasId, PagingInfo paging) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            ensureAasId(aasId);
+            AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+            Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+            List<SubmodelDescriptor> list = aas.getSubmodelDescriptors();
+            return getPage(list, readCursor(paging), list.size());
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
     @Override
     public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return EntityManagerHelper.getPagedSubmodel(entityManager, readLimit(paging), readCursor(paging));
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
     @Override
     public SubmodelDescriptor getSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            ensureAasId(aasId);
+            ensureSubmodelId(submodelId);
+            SubmodelDescriptor retval = fetchSubmodel(aasId, submodelId);
+            Ensure.requireNonNull(retval, buildSubmodelNotFoundInAASException(aasId, submodelId));
+            return retval;
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
     @Override
     public SubmodelDescriptor getSubmodel(String submodelId) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            ensureSubmodelId(submodelId);
+            SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
+            Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
+            return submodel;
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
     @Override
     public SubmodelDescriptor addSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        SubmodelDescriptor retval = null;
+        if (!transactions.isEmpty()) {
+            retval = doAddSubmodel(aasId, descriptor);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doAddSubmodel(aasId, descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
+        return retval;
     }
 
 
     @Override
     public SubmodelDescriptor addSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        SubmodelDescriptor retval = null;
+        if (!transactions.isEmpty()) {
+            retval = doAddSubmodel(descriptor);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doAddSubmodel(descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
+        return retval;
     }
 
 
@@ -310,6 +375,29 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
     }
 
 
+    private SubmodelDescriptor fetchSubmodel(String aasId, String submodelId) throws DeserializationException {
+        //CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        //CriteriaQuery<SubmodelDescriptorEntity> queryCriteria = builder.createQuery(SubmodelDescriptorEntity.class);
+        //Root<SubmodelDescriptorEntity> root = queryCriteria.from(SubmodelDescriptorEntity.class);
+        //queryCriteria.where(builder.equal(root.get("aasid"), assetType))
+        var query = entityManager.createNativeQuery("select * from submodel_descriptors where aas_id = ? and id = ?", SubmodelDescriptorEntity.class);
+        query.setParameter(1, aasId);
+        query.setParameter(2, submodelId);
+        SubmodelDescriptorEntity result = (SubmodelDescriptorEntity) query.getSingleResultOrNull();
+        LOGGER.debug("fetchSubmodel: result: {}", result);
+        return ModelTransformationHelper.convertSubmodel(result);
+    }
+
+
+    private SubmodelDescriptor fetchSubmodelStandalone(String submodelId) throws DeserializationException {
+        var query = entityManager.createNativeQuery("select * from submodel_descriptors_standalone where id = ?", SubmodelDescriptorEntityStandalone.class);
+        query.setParameter(1, submodelId);
+        SubmodelDescriptorEntityStandalone result = (SubmodelDescriptorEntityStandalone) query.getSingleResultOrNull();
+        LOGGER.debug("fetchSubmodel: result: {}", result);
+        return ModelTransformationHelper.convertSubmodel(result);
+    }
+
+
     private AssetAdministrationShellDescriptor doCreate(AssetAdministrationShellDescriptor descriptor) throws ResourceAlreadyExistsException {
         try {
             ensureDescriptorId(descriptor);
@@ -320,7 +408,7 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
             entityManager.persist(entity);
             return ModelTransformationHelper.convertAAS(entity);
         }
-        catch (SerializationException | DeserializationException ex) {
+        catch (Exception ex) {
             throw new IllegalArgumentException(ex);
         }
     }
@@ -377,8 +465,44 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
             }
             return ModelTransformationHelper.convertAAS(newAas);
         }
+        catch (Exception ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+
+    private SubmodelDescriptor doAddSubmodel(String aasId, SubmodelDescriptor descriptor) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+        try {
+            ensureAasId(aasId);
+            ensureDescriptorId(descriptor);
+            AssetAdministrationShellDescriptorEntity aas = fetchAASEntity(aasId);
+            Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+            if (fetchSubmodel(aasId, descriptor.getId()) != null) {
+                throw buildSubmodelAlreadyExistsException(descriptor.getId());
+            }
+            SubmodelDescriptorEntity submodel = ModelTransformationHelper.convertSubmodel(descriptor);
+            aas.getSubmodelDescriptors().add(submodel);
+            entityManager.merge(aas);
+            return ModelTransformationHelper.convertSubmodel(submodel);
+        }
         catch (SerializationException | DeserializationException ex) {
             throw new IllegalArgumentException(ex);
         }
     }
+
+
+    private SubmodelDescriptor doAddSubmodel(SubmodelDescriptor descriptor) throws ResourceAlreadyExistsException {
+        try {
+            ensureDescriptorId(descriptor);
+            //SubmodelDescriptor submodel = fetchSubmodelStandalone(descriptor.getId());
+            Ensure.require(Objects.isNull(fetchSubmodelStandalone(descriptor.getId())), buildSubmodelAlreadyExistsException(descriptor.getId()));
+            SubmodelDescriptorEntityStandalone submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
+            entityManager.persist(submodel);
+            return ModelTransformationHelper.convertSubmodel(submodel);
+        }
+        catch (SerializationException | DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
 }

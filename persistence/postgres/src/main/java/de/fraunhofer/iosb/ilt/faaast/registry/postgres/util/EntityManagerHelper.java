@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -29,6 +30,7 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
@@ -73,7 +75,27 @@ public class EntityManagerHelper {
             queryCriteria.where(predicates.toArray(Predicate[]::new));
         }
         queryCriteria.orderBy(builder.asc(root.get("id")));
-        return doPaging(entityManager, limit, cursor, queryCriteria);
+        //return doPaging(entityManager, limit, cursor, queryCriteria);
+        return getPagedAas(entityManager, limit, cursor, queryCriteria);
+    }
+
+
+    /**
+     * Fetches all instances of SubmodelDescriptor.
+     *
+     * @param entityManager The entityManager to use.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @return All instances.
+     * @throws DeserializationException If a deserialization error occurs.
+     */
+    public static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor) throws DeserializationException {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SubmodelDescriptorEntity> queryCriteria = builder.createQuery(SubmodelDescriptorEntity.class);
+        queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntity.class));
+
+        //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        return getPagedSubmodel(entityManager, limit, cursor, queryCriteria);
     }
 
 
@@ -132,24 +154,89 @@ public class EntityManagerHelper {
     }
 
 
-    private static Page<AssetAdministrationShellDescriptor> doPaging(EntityManager entityManager, int limit, int cursor,
-                                                                     CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria)
+    /**
+     * Fetches all instances of a given type from the entityManager as a list of a desired return type.
+     *
+     * @param <R> the return type
+     * @param <T> the type to fetch
+     * @param entityManager the entityManager to use
+     * @param type the type to fetch
+     * @param returnType the type to return
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @return all instances of given type cast to return type
+     */
+    //public static <R, T> Page<R> getAllPaged(EntityManager entityManager, Class<T> type, Class<R> returnType, int limit, int cursor) {
+    //    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    //    CriteriaQuery<T> queryCriteria = builder.createQuery(type);
+    //    queryCriteria.select(queryCriteria.from(type));
+
+    //    var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+    //    return doPaging(entityManager, returnType, limit, cursor, queryCriteria);
+    //}
+
+    private static Page<AssetAdministrationShellDescriptor> getPagedAas(EntityManager entityManager, int limit, int cursor,
+                                                                        CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria)
             throws DeserializationException {
         var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
         List<AssetAdministrationShellDescriptor> list = query.getResultList().stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
                 .toList();
+        return doPaging(limit, cursor, list);
+    }
+
+
+    private static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor,
+                                                             CriteriaQuery<SubmodelDescriptorEntity> queryCriteria)
+            throws DeserializationException {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<SubmodelDescriptor> list = query.getResultList().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
+                .toList();
+        return doPaging(limit, cursor, list);
+    }
+
+    //public static void getAllPaged(EntityManager entityManager) {
+    //    Page<AssetAdministrationShellDescriptor> 
+    //}
+
+
+    //private static <R, T> Page<R> doPaging(EntityManager entityManager, Class<R> returnType, int limit, int cursor, CriteriaQuery<T> queryCriteria) {
+    private static <R, T> Page<R> doPaging(int limit, int cursor, List<R> list) {
+        //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        //List<R> list = query.getResultList().stream()
+        //        .map(x -> converter.apply(x))
+        //        .toList();
         String nextCursor = null;
         if (list.size() > limit) {
             nextCursor = Integer.toString(cursor + limit);
         }
-        return Page.<AssetAdministrationShellDescriptor> builder()
+        return Page.<R> builder()
                 .result(list.stream().limit(limit).toList())
                 .metadata(PagingMetadata.builder()
                         .cursor(nextCursor)
                         .build())
                 .build();
     }
+
+    //private static Page<AssetAdministrationShellDescriptor> doPaging(EntityManager entityManager, int limit, int cursor,
+    //                                                                 CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria)
+    //        throws DeserializationException {
+    //    var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+    //    List<AssetAdministrationShellDescriptor> list = query.getResultList().stream()
+    //            .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
+    //            .toList();
+    //    String nextCursor = null;
+    //    if (list.size() > limit) {
+    //        nextCursor = Integer.toString(cursor + limit);
+    //    }
+    //    return Page.<AssetAdministrationShellDescriptor> builder()
+    //            .result(list.stream().limit(limit).toList())
+    //            .metadata(PagingMetadata.builder()
+    //                    .cursor(nextCursor)
+    //                    .build())
+    //            .build();
+    //}
     //
     //
     //    private static Predicate createSpecificAssetIdSubquery(

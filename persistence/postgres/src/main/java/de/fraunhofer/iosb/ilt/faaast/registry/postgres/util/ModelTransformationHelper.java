@@ -16,6 +16,8 @@ package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityBase;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
 import de.fraunhofer.iosb.ilt.faaast.service.dataformat.json.DeserializerWrapper;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
 import java.util.List;
@@ -51,9 +53,9 @@ public class ModelTransformationHelper {
      *
      * @param aas The AssetAdministrationShellDescriptor.
      * @return The converted AssetAdministrationShellDescriptorEntity entity.
-     * @throws SerializationException If a serialization error occurs.
+     * @throws SerializationException If a serialization or deserialization error occurs.
      */
-    public static AssetAdministrationShellDescriptorEntity convertAAS(AssetAdministrationShellDescriptor aas) throws SerializationException {
+    public static AssetAdministrationShellDescriptorEntity convertAAS(AssetAdministrationShellDescriptor aas) throws Exception {
         if (aas == null) {
             return null;
         }
@@ -128,23 +130,37 @@ public class ModelTransformationHelper {
      * @param submodel The desired SubmodelDescriptor.
      * @return The converted SubmodelDescriptorEntity.
      * @throws SerializationException If a serialization error occurs.
+     * @throws DeserializationException If a deserialization error occurs.
      */
-    public static SubmodelDescriptorEntity convertSubmodel(SubmodelDescriptor submodel) throws SerializationException {
+    public static SubmodelDescriptorEntity convertSubmodel(SubmodelDescriptor submodel) throws SerializationException, DeserializationException {
         if (submodel == null) {
             return null;
         }
 
-        return new SubmodelDescriptorEntity.Builder()
-                .id(submodel.getId())
-                .idShort(submodel.getIdShort())
-                .administration(jsonSerializer.write(submodel.getAdministration()))
-                .endpoints(jsonSerializer.write(submodel.getEndpoints()))
-                .description(jsonSerializer.write(submodel.getDescription()))
-                .displayName(jsonSerializer.write(submodel.getDisplayName()))
-                .extensions(jsonSerializer.write(submodel.getExtensions()))
-                .semanticId(jsonSerializer.write(submodel.getSemanticId()))
-                .supplementalSemanticId(jsonSerializer.write(submodel.getSupplementalSemanticId()))
-                .build();
+        SubmodelDescriptorEntity.Builder builder = new SubmodelDescriptorEntity.Builder()
+                .id(submodel.getId());
+        setSubmodelEntityBaseData(builder, submodel);
+        return builder.build();
+    }
+
+
+    /**
+     * Generates a SubmodelDescriptorEntity from SubmodelDescriptor.
+     *
+     * @param submodel The desired SubmodelDescriptor.
+     * @return The converted SubmodelDescriptorEntity.
+     * @throws SerializationException If a serialization error occurs.
+     * @throws DeserializationException If a deserialization error occurs.
+     */
+    public static SubmodelDescriptorEntityStandalone convertSubmodelStandalone(SubmodelDescriptor submodel) throws SerializationException, DeserializationException {
+        if (submodel == null) {
+            return null;
+        }
+
+        SubmodelDescriptorEntityStandalone.Builder builder = new SubmodelDescriptorEntityStandalone.Builder()
+                .id(submodel.getId());
+        setSubmodelEntityBaseData(builder, submodel);
+        return builder.build();
     }
 
 
@@ -161,30 +177,29 @@ public class ModelTransformationHelper {
         }
 
         DefaultSubmodelDescriptor.Builder builder = new DefaultSubmodelDescriptor.Builder()
-                .id(submodel.getId())
-                .idShort(submodel.getIdShort());
+                .id(submodel.getId());
 
-        if ((submodel.getAdministration() != null) && (!submodel.getAdministration().isEmpty())) {
-            builder.administration(jsonDeserializer.read(submodel.getAdministration(), AdministrativeInformation.class));
+        setSubmodelDescriptorBaseData(builder, submodel);
+        return builder.build();
+    }
+
+
+    /**
+     * Generates a SubmodelDescriptor from a SubmodelDescriptorEntityStandalone.
+     *
+     * @param submodel The desired SubmodelDescriptorEntity.
+     * @return The converted SubmodelDescriptorEntity.
+     * @throws DeserializationException If a serialization error occurs.
+     */
+    public static SubmodelDescriptor convertSubmodel(SubmodelDescriptorEntityStandalone submodel) throws DeserializationException {
+        if (submodel == null) {
+            return null;
         }
-        if ((submodel.getEndpoints() != null) && (!submodel.getEndpoints().isEmpty())) {
-            builder.endpoints(jsonDeserializer.readList(submodel.getEndpoints(), Endpoint.class));
-        }
-        if ((submodel.getDescription() != null) && (!submodel.getDescription().isEmpty())) {
-            builder.description(jsonDeserializer.readList(submodel.getDescription(), LangStringTextType.class));
-        }
-        if ((submodel.getDisplayName() != null) && (!submodel.getDisplayName().isEmpty())) {
-            builder.displayName(jsonDeserializer.readList(submodel.getDisplayName(), LangStringNameType.class));
-        }
-        if ((submodel.getExtensions() != null) && (!submodel.getExtensions().isEmpty())) {
-            builder.extensions(jsonDeserializer.readList(submodel.getExtensions(), Extension.class));
-        }
-        if ((submodel.getSemanticId() != null) && (!submodel.getSemanticId().isEmpty())) {
-            builder.semanticId(jsonDeserializer.read(submodel.getSemanticId(), Reference.class));
-        }
-        if ((submodel.getSupplementalSemanticId() != null) && (!submodel.getSupplementalSemanticId().isEmpty())) {
-            builder.supplementalSemanticId(jsonDeserializer.readList(submodel.getSupplementalSemanticId(), Reference.class));
-        }
+
+        DefaultSubmodelDescriptor.Builder builder = new DefaultSubmodelDescriptor.Builder()
+                .id(submodel.getId());
+
+        setSubmodelDescriptorBaseData(builder, submodel);
         return builder.build();
     }
 
@@ -194,9 +209,9 @@ public class ModelTransformationHelper {
      *
      * @param submodels The desired list of SubmodelDescriptor.
      * @return The converted list of SubmodelDescriptorEntity.
-     * @throws SerializationException If a serialization error occurs.
+     * @throws Exception If a serialization or deserialization error occurs.
      */
-    public static List<SubmodelDescriptorEntity> convertSubmodels(List<SubmodelDescriptor> submodels) throws SerializationException {
+    public static List<SubmodelDescriptorEntity> convertSubmodels(List<SubmodelDescriptor> submodels) throws Exception {
         if (submodels == null) {
             return null;
         }
@@ -223,4 +238,45 @@ public class ModelTransformationHelper {
                 .map(LambdaExceptionHelper.rethrowFunction(s -> convertSubmodel(s)))
                 .toList();
     }
+
+
+    private static void setSubmodelDescriptorBaseData(DefaultSubmodelDescriptor.Builder builder, SubmodelDescriptorEntityBase submodel) throws DeserializationException {
+        builder.idShort(submodel.getIdShort());
+        if ((submodel.getAdministration() != null) && (!submodel.getAdministration().isEmpty())) {
+            builder.administration(jsonDeserializer.read(submodel.getAdministration(), AdministrativeInformation.class));
+        }
+        if ((submodel.getEndpoints() != null) && (!submodel.getEndpoints().isEmpty())) {
+            builder.endpoints(jsonDeserializer.readList(submodel.getEndpoints(), Endpoint.class));
+        }
+        if ((submodel.getDescription() != null) && (!submodel.getDescription().isEmpty())) {
+            builder.description(jsonDeserializer.readList(submodel.getDescription(), LangStringTextType.class));
+        }
+        if ((submodel.getDisplayName() != null) && (!submodel.getDisplayName().isEmpty())) {
+            builder.displayName(jsonDeserializer.readList(submodel.getDisplayName(), LangStringNameType.class));
+        }
+        if ((submodel.getExtensions() != null) && (!submodel.getExtensions().isEmpty())) {
+            builder.extensions(jsonDeserializer.readList(submodel.getExtensions(), Extension.class));
+        }
+        if ((submodel.getSemanticId() != null) && (!submodel.getSemanticId().isEmpty())) {
+            builder.semanticId(jsonDeserializer.read(submodel.getSemanticId(), Reference.class));
+        }
+        if ((submodel.getSupplementalSemanticId() != null) && (!submodel.getSupplementalSemanticId().isEmpty())) {
+            builder.supplementalSemanticId(jsonDeserializer.readList(submodel.getSupplementalSemanticId(), Reference.class));
+        }
+    }
+
+
+    private static void setSubmodelEntityBaseData(SubmodelDescriptorEntityBase.AbstractBuilder builder, SubmodelDescriptor submodel)
+            throws DeserializationException, SerializationException {
+        builder
+                .idShort(submodel.getIdShort())
+                .administration(jsonSerializer.write(submodel.getAdministration()))
+                .endpoints(jsonSerializer.write(submodel.getEndpoints()))
+                .description(jsonSerializer.write(submodel.getDescription()))
+                .displayName(jsonSerializer.write(submodel.getDisplayName()))
+                .extensions(jsonSerializer.write(submodel.getExtensions()))
+                .semanticId(jsonSerializer.write(submodel.getSemanticId()))
+                .supplementalSemanticId(jsonSerializer.write(submodel.getSupplementalSemanticId()));
+    }
+
 }
