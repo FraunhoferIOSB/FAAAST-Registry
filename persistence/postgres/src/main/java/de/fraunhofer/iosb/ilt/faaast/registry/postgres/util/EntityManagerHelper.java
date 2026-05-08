@@ -17,6 +17,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -89,13 +90,13 @@ public class EntityManagerHelper {
      * @return All instances.
      * @throws DeserializationException If a deserialization error occurs.
      */
-    public static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor) throws DeserializationException {
+    public static Page<SubmodelDescriptor> getPagedSubmodelStandalone(EntityManager entityManager, int limit, int cursor) throws DeserializationException {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SubmodelDescriptorEntity> queryCriteria = builder.createQuery(SubmodelDescriptorEntity.class);
-        queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntity.class));
+        CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria = builder.createQuery(SubmodelDescriptorEntityStandalone.class);
+        queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntityStandalone.class));
 
         //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        return getPagedSubmodel(entityManager, limit, cursor, queryCriteria);
+        return getPagedSubmodelStandalone(entityManager, limit, cursor, queryCriteria);
     }
 
 
@@ -188,6 +189,17 @@ public class EntityManagerHelper {
 
     private static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor,
                                                              CriteriaQuery<SubmodelDescriptorEntity> queryCriteria)
+            throws DeserializationException {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<SubmodelDescriptor> list = query.getResultList().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
+                .toList();
+        return doPaging(limit, cursor, list);
+    }
+
+
+    private static Page<SubmodelDescriptor> getPagedSubmodelStandalone(EntityManager entityManager, int limit, int cursor,
+                                                                       CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria)
             throws DeserializationException {
         var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
         List<SubmodelDescriptor> list = query.getResultList().stream()

@@ -198,7 +198,7 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
     @Override
     public Page<SubmodelDescriptor> getSubmodels(PagingInfo paging) {
         try {
-            return EntityManagerHelper.getPagedSubmodel(entityManager, readLimit(paging), readCursor(paging));
+            return EntityManagerHelper.getPagedSubmodelStandalone(entityManager, readLimit(paging), readCursor(paging));
         }
         catch (DeserializationException ex) {
             throw new IllegalArgumentException(ex);
@@ -281,13 +281,42 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public void deleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (!transactions.isEmpty()) {
+            doDeleteSubmodel(aasId, submodelId);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                doDeleteSubmodel(aasId, submodelId);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
     }
 
 
     @Override
     public void deleteSubmodel(String submodelId) throws ResourceNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        if (!transactions.isEmpty()) {
+            doDeleteSubmodel(submodelId);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                doDeleteSubmodel(submodelId);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+
+        }
     }
 
 
@@ -376,6 +405,11 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
 
     private SubmodelDescriptor fetchSubmodel(String aasId, String submodelId) throws DeserializationException {
+        return ModelTransformationHelper.convertSubmodel(fetchSubmodelEntity(aasId, submodelId));
+    }
+
+
+    private SubmodelDescriptorEntity fetchSubmodelEntity(String aasId, String submodelId) throws DeserializationException {
         //CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         //CriteriaQuery<SubmodelDescriptorEntity> queryCriteria = builder.createQuery(SubmodelDescriptorEntity.class);
         //Root<SubmodelDescriptorEntity> root = queryCriteria.from(SubmodelDescriptorEntity.class);
@@ -385,16 +419,21 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
         query.setParameter(2, submodelId);
         SubmodelDescriptorEntity result = (SubmodelDescriptorEntity) query.getSingleResultOrNull();
         LOGGER.debug("fetchSubmodel: result: {}", result);
-        return ModelTransformationHelper.convertSubmodel(result);
+        return result;
     }
 
 
     private SubmodelDescriptor fetchSubmodelStandalone(String submodelId) throws DeserializationException {
+        return ModelTransformationHelper.convertSubmodel(fetchSubmodelEntityStandalone(submodelId));
+    }
+
+
+    private SubmodelDescriptorEntityStandalone fetchSubmodelEntityStandalone(String submodelId) throws DeserializationException {
         var query = entityManager.createNativeQuery("select * from submodel_descriptors_standalone where id = ?", SubmodelDescriptorEntityStandalone.class);
         query.setParameter(1, submodelId);
         SubmodelDescriptorEntityStandalone result = (SubmodelDescriptorEntityStandalone) query.getSingleResultOrNull();
         LOGGER.debug("fetchSubmodel: result: {}", result);
-        return ModelTransformationHelper.convertSubmodel(result);
+        return result;
     }
 
 
@@ -505,4 +544,39 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
         }
     }
 
+
+    private void doDeleteSubmodel(String aasId, String submodelId) throws ResourceNotFoundException {
+        try {
+            ensureAasId(aasId);
+            ensureSubmodelId(submodelId);
+            //AssetAdministrationShellDescriptorEntity aas = fetchAASEntity(aasId);
+            //Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+            //Optional<SubmodelDescriptor> submodel = aas.getSubmodelDescriptors().stream()
+            //        .filter(x -> Objects.equals(x.getId(), submodelId)
+            //                || (Objects.nonNull(x.getId())
+            //                        && x.getId().equalsIgnoreCase(submodelId)))
+            //        .findAny();
+            SubmodelDescriptorEntity submodel = fetchSubmodelEntity(aasId, submodelId);
+            Ensure.requireNonNull(submodel, buildSubmodelNotFoundInAASException(aasId, submodelId));
+            entityManager.remove(submodel);
+            //aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodelId));
+            //entityManager.persist(aas);
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+
+    private void doDeleteSubmodel(String submodelId) throws ResourceNotFoundException {
+        try {
+            ensureSubmodelId(submodelId);
+            SubmodelDescriptorEntityStandalone submodel = fetchSubmodelEntityStandalone(submodelId);
+            Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
+            entityManager.remove(submodel);
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
 }
