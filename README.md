@@ -44,12 +44,6 @@ You can find a detailed documentation :blue_book: [here](https://faaast-registry
 implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:1.1.0'
 ```
 
-### As Gradle Dependency
-
-```groovy
-implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:1.1.0'
-```
-
 ### As Docker Process
 
 FA³ST docker images are hosted on <https://hub.docker.com/u/fraunhoferiosb>
