@@ -81,7 +81,7 @@ logLevel: v
 server:
   port: 8090                            # server.port
   servlet:
-    contextPath: "/api/v3.0"            # server.servlet.context-path
+    contextPath: ""            # server.servlet.context-path
   error:
     includeMessage: "always"            # server.error.include-message
 
@@ -99,44 +99,29 @@ server:
             type: "PKCS12"                      # spring.ssl.bundle.jks.service.keystore.type
 
 # CORS configuration (application.properties: cors.*)
-cors:
-  enabled: false                        # cors.enabled
-  allowedOrigins: "*"                   # cors.allowedOrigins
-  allowedMethods: "GET, POST"           # cors.allowedMethods
-  allowedHeaders: "*"                   # cors.allowedHeaders
-  # Optional: only set if you want a value
-  exposedHeaders: ""                    # cors.exposedHeaders
-  maxAge: 1800                          # cors.maxAge (seconds)
+  cors:
+    enabled: false
+    allowedOrigins: "*"
+    allowedMethods: "GET, HEAD, POST"
+    allowedHeaders: "*"
 
 # Persistence configuration (application.properties: spring.*)
-persistence:
-  sql:
-    # false → in‑memory (spring.profiles.active not set)
-    # true  → JPA profile active (spring.profiles.active=jpa)
-    enabled: false
-
+spring:
+  profiles:
+    active: "jpa"
+  jpa:
     # Common JPA settings
-    orm: "orm.xml"                      # spring.jpa.orm
-    showSql: false                      # spring.jpa.show-sql
-    openInView: true                    # spring.jpa.open-in-view
+    orm: "orm.xml"
+    showSql: false
+    openInView: true
     hibernate:
-      ddlAuto: "update"                 # spring.jpa.hibernate.ddl-auto
+      ddlAuto: "update"
     properties:
       hibernate:
-        formatSql: true                 # spring.jpa.properties.hibernate.format_sql
-        # Default dialect for “external” SQL DB (e.g. Postgres)
-        # spring.jpa.properties.hibernate.dialect
-        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+        formatSql: true
 
     datasource:
-      # external.enabled=false → H2 in-memory DB via JPA
-      # external.enabled=true  → external SQL DB (Postgres, etc.)
-      external:
-        enabled: false
-
-        # spring.datasource.driver
-        driver: "org.postgresql.Driver"
-        # spring.datasource.url
-        url: "jdbc:postgresql://postgres:5432/fa3st-registry"
-        username: "fa3st-registry"       # spring.datasource.username
-        password: "ChangeMe"             # spring.datasource.password
+        driver: "org.h2.Driver"
+        url: "jdbc:h2:mem:testdb"
+        username: "sa"
+        password: ""

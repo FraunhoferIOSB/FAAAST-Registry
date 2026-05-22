@@ -5,63 +5,10 @@ metadata:
   labels:
     {{- include "faaast-registry.labels" . | nindent 4 }}
 data:
-  application.properties: |
-    ###### Server settings ######
-    server.port={{ .Values.server.port }}
-    server.servlet.context-path={{ .Values.server.servlet.contextPath }}
-    server.error.include-message={{ default "always" .Values.server.error.includeMessage }}
-    #############################
-
-    ###### CORS ######
-    {{- if .Values.cors.enabled }}
-    cors.enabled=true
-    cors.allowedOrigins={{ default "*" .Values.cors.allowedOrigins }}
-    cors.allowedMethods={{ default "GET, POST" .Values.cors.allowedMethods }}
-    cors.allowedHeaders={{ default "*" .Values.cors.allowedHeaders }}
-    {{- if hasKey .Values.cors "exposedHeaders" }}
-    cors.exposedHeaders={{ .Values.cors.exposedHeaders }}
-    {{- end }}
-    {{- if hasKey .Values.cors "maxAge" }}
-    cors.maxAge={{ .Values.cors.maxAge }}
-    {{- end }}
-    {{- end }}
-    ##################
-
-    ###### SSL #######
-    {{- if .Values.server.ssl.enabled }}
-    server.ssl.enabled=true
-    server.ssl.bundle={{ .Values.server.ssl.bundle.name }}
-    spring.ssl.bundle.jks.service.key.alias={{ .Values.server.ssl.bundle.jks.service.key.alias }}
-    spring.ssl.bundle.jks.service.keystore.location={{ .Values.server.ssl.bundle.jks.service.keystore.location }}
-    spring.ssl.bundle.jks.service.keystore.password={{ .Values.server.ssl.bundle.jks.service.keystore.password }}
-    spring.ssl.bundle.jks.service.keystore.type={{ .Values.server.ssl.bundle.jks.service.keystore.type }}
-    {{- else }}
-    server.ssl.enabled=false
-    {{- end }}
-    ##################
-
-    {{- if .Values.persistence.sql.enabled }}
-    ###### RDBS via JPA (SQL) #####
-    spring.profiles.active=jpa
-    spring.jpa.orm={{ .Values.persistence.sql.orm }}
-    spring.jpa.show-sql={{ .Values.persistence.sql.showSql }}
-    spring.jpa.properties.hibernate.format_sql={{ .Values.persistence.sql.properties.hibernate.formatSql }}
-    spring.jpa.hibernate.ddl-auto={{ .Values.persistence.sql.hibernate.ddlAuto }}
-    spring.jpa.open-in-view={{ .Values.persistence.sql.openInView }}
-
-    ###### Datasource ######
-    {{- if .Values.persistence.sql.datasource.external.enabled }}
-    spring.jpa.properties.hibernate.dialect={{ .Values.persistence.sql.properties.hibernate.dialect }}
-    spring.datasource.driver={{ .Values.persistence.sql.datasource.external.driver }}
-    spring.datasource.url={{ .Values.persistence.sql.datasource.external.url }}
-    spring.datasource.username={{ .Values.persistence.sql.datasource.external.username }}
-    spring.datasource.password={{ .Values.persistence.sql.datasource.external.password }}
-    {{- else }}
-    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
-    spring.datasource.driver=org.h2.Driver
-    spring.datasource.url=jdbc:h2:mem:testdb
-    spring.datasource.username=sa
-    spring.datasource.password=
-    {{- end }}
-    {{- end }}
-    ########################
+  application.yaml: |
+    server:
+      {{- toYaml .Values.server | nindent 6 }}
+    cors:
+      {{- toYaml .Values.cors | nindent 6 }}
+    spring:
+      {{- toYaml .Values.spring | nindent 6 }}

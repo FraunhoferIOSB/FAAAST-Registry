@@ -32,11 +32,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if and (hasKey .Values.persistence "sql") (and .Values.persistence.sql.enabled .Values.persistence.sql.datasource.external.enabled) }}
+      {{- if and (and (hasKey .Values "spring") (and (hasKey .Values.spring "datasource") (and (hasKey .Values.spring.datasource "driver") (eq .Values.spring.datasource.driver "org.postgresql.Driver")))) (hasKey .Values.spring.datasource "url") }}
       initContainers:
-        {{- $jdbc := default "" .Values.persistence.sql.datasource.external.url }}
         {{- /* assume format: jdbc:postgresql://host:port/dbname */ -}}
-        {{- $trimmed := trimPrefix "jdbc:postgresql://" $jdbc }}
+        {{- $trimmed := trimPrefix "jdbc:postgresql://" .Values.spring.datasource.url }}
         {{- $hostPortDb := splitList "/" $trimmed }}
         {{- $hostPort := index $hostPortDb 0 | default "" }}
         {{- $hpSplit := splitList ":" $hostPort }}
@@ -54,11 +53,6 @@ spec:
               echo "Waiting for SQL DB at ${DB_HOST}:${DB_PORT}..."
               i=0
               until nc -z "${DB_HOST}" "${DB_PORT}"; do
-                i=$((i+1))
-                if [ "$i" -ge 60 ]; then
-                  echo "SQL DB not ready after $((i*5))s, giving up."
-                  exit 1
-                fi
                 echo "SQL DB not ready, waiting..."
                 sleep 5
               done
@@ -94,8 +88,8 @@ spec:
           {{- end }}
           volumeMounts:
             - name: config-volume
-              mountPath: "/app/config/application.properties"
-              subPath: application.properties
+              mountPath: "/app/config/application.yaml"
+              subPath: application.yaml
           {{- with .Values.volumeMounts }}
           {{- toYaml . | nindent 12 }}
           {{- end }}

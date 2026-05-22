@@ -9,3 +9,8 @@ For more details on FA³ST Registry see the full documentation :blue_book: [here
 
 | FA³ST Registry is still under development. Contributions in form of issues and pull requests are highly welcome. |
 |------------------------------------------------------------------------------------------------------------------|
+
+## Configuration
+
+If you want to bring existing FA³ST Registry configuration to helm, convert your .properties file into .yaml format, 
+then paste it into the faaast-registry section of your values.yaml file.
