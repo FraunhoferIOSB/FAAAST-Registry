@@ -37,7 +37,7 @@ spec:
               service:
                 name: {{ include "faaast-registry.fullname" $ }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $.Values.server.port }}
           {{- end }}
     {{- end }}
 {{- end }}
