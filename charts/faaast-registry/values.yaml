@@ -5,7 +5,7 @@
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: fraunhoferiosb/faaast-registry
-  tag: 1.1.0
+  tag: latest
   pullPolicy: IfNotPresent
 
 fullnameOverride: "faaast-registry"

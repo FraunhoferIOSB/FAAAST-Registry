@@ -2,8 +2,11 @@ name: Helm Build
 
 on:
   push:
+    # (push to main AND charts changed) OR (push a tag WITHOUT restriction of path)
     branches:
       - main
+    paths:
+      - charts
     tags:
       - "v*"
 
@@ -28,6 +31,11 @@ jobs:
           mkdir packaged
           helm package charts/faaast-registry -d packaged
 
+      - name: Prepare git
+        run: |
+          git config --global user.email "noReply@local"
+          git config --global user.name "Workflow Build"
+
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -40,6 +48,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts.git
           cp packaged/* helm-charts
+          helm repo index --url https://fraunhoferiosb.github.io/helm-charts/ ./helm-charts
           cd helm-charts
           git add .
           git remote rm origin
@@ -56,7 +65,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           git clone --quiet --branch master https://github.com/FraunhoferIOSB/helm-charts-snapshot.git
           cp packaged/* helm-charts-snapshot
-          cd helm-charts
+          helm repo index --url https://fraunhoferiosb.github.io/helm-charts-snapshot/ ./helm-charts-snapshot
+          cd helm-charts-snapshot
           git add .
           git remote rm origin
           git remote add origin git@github.com:FraunhoferIOSB/helm-charts-snapshot.git
