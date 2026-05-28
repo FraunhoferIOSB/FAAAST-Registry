@@ -30,6 +30,28 @@
 implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:1.1.0'
 ```
 
+### As Docker Process
+
+FA³ST docker images are hosted on <https://hub.docker.com/u/fraunhoferiosb>
+
+```sh
+docker run fraunhoferiosb/faaast-registry:1.1.0
+```
+
+### As Kubernetes Deployment (Helm Chart)
+
+```sh
+helm repo add fraunhofer-iosb https://fraunhoferiosb.github.io/helm-charts
+```
+
+In your parent chart, add FA³ST Registry:
+
+```yml
+- name: faaast-registry
+  version: 1.1.0
+  repository: "https://fraunhoferiosb.github.io/helm-charts/"
+```
+
 ## Building from Source
 
 ### Prerequisites

@@ -13,6 +13,8 @@ TAG_DOWNLOAD_SNAPSHOT="download-snapshot"
 TAG_CHANGELOG_HEADER="changelog-header"
 CHANGELOG_FILE="./docs/source/changelog/changelog.md"
 README_FILE="README.md"
+HELM_CHART_VALUES_FILE="charts/faaast-registry/values.yaml"
+HELM_CHART_CHART_FILE="charts/faaast-registry/Chart.yaml"
 INSTALLATION_FILE="./docs/source/gettingstarted/gettingstarted.md"
 README_LATEST_RELEASE_VERSION_CONTENT="[Download latest RELEASE version \($VERSION\)]\(https:\/\/repo1.maven.org\/maven2\/de\/fraunhofer\/iosb\/ilt\/faaast\/registry\/service\/${VERSION}\/service-${VERSION}.jar\)"
 README_LATEST_SNAPSHOT_VERSION_CONTENT="[Download latest SNAPSHOT version \($NEXTVERSION\-SNAPSHOT)]\(https:\/\/purl.archive.org\/faaast\/registry\/snapshot\/latest\)"
@@ -63,8 +65,25 @@ function replaceVersion()
 	replaceValue "$file" "$TAG_VERSION" "$new_version"
 	sed -r -z 's/(<artifactId>service<\/artifactId>[\r\n]+\s*<version>)[^<]+(<\/version>)/\1'"${new_version}"'\2/g' -i "$file"
 	sed -r -z 's/(\x27de.fraunhofer.iosb.ilt.faaast.registry:service:)[^\x27]*\x27/\1'"${new_version}"'\x27/g' -i "$file"
+  sed -r -i 's@(fraunhoferiosb/faaast-registry:)[^[:space:]]*@\1'"${new_version}"'@g' "$file"
+  sed -r -i '/^- name: faaast-registry\r?$/ {n; s/^([[:space:]]*version:[[:space:]]*).*/\1'"${new_version}"'/;}' "$file"
 }
 
+# arguments: file, newTag
+function setHelmImageTag() {
+  local file=$1
+  local new_tag=$2
+  # assumes a single "tag:" line for the image in values.yaml
+  sed -i -E "s/^(\s*tag:\s*).*/\1${new_tag}/" "$file"
+}
+
+# arguments: file, newVersion
+function setHelmAppVersion() {
+  local file=$1
+  local new_version=$2
+  # matches: appVersion: "..."
+  sed -i -E 's/^(appVersion:\s*").*(")/\1'"${new_version}"'\2/' "$file"
+}
 
 echo "Releasing:  ${VERSION},
 tagged:    v${VERSION},
@@ -84,6 +103,8 @@ replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_RELEASE" "$INSTALLATION_LATEST_
 replaceVersion "$INSTALLATION_FILE" "$VERSION"
 replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## ${VERSION}"
 removeTag "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER"
+setHelmImageTag "$HELM_CHART_VALUES_FILE" "$VERSION"
+setHelmAppVersion "$HELM_CHART_CHART_FILE" "$VERSION"
 
 mvn -B spotless:apply
 
@@ -107,6 +128,9 @@ replaceValue "$README_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$README_LATEST_SNAPSHOT_VE
 replaceValue "$INSTALLATION_FILE" "$TAG_DOWNLOAD_SNAPSHOT" "$INSTALLATION_LATEST_SNAPSHOT_VERSION_CONTENT"
 sed -i "2 i <!--start:${TAG_CHANGELOG_HEADER}-->\\n<!--end:${TAG_CHANGELOG_HEADER}-->" "$CHANGELOG_FILE"
 replaceValue "$CHANGELOG_FILE" "$TAG_CHANGELOG_HEADER" "## ${NEXTVERSION}-SNAPSHOT (current development version)"
+setHelmImageTag "$HELM_CHART_VALUES_FILE" "latest"
+setHelmAppVersion "$HELM_CHART_CHART_FILE" "$NEXTVERSION-SNAPSHOT"
+
 mvn -B spotless:apply
 
 echo "Git add ."
