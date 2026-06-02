@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "faaast-registry.fullname" . }}
+  labels:
+    {{- include "faaast-registry.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "faaast-registry.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "faaast-registry.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "faaast-registry.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if and (and (hasKey .Values "spring") (and (hasKey .Values.spring "datasource") (and (hasKey .Values.spring.datasource "driver") (eq .Values.spring.datasource.driver "org.postgresql.Driver")))) (hasKey .Values.spring.datasource "url") }}
+      initContainers:
+        {{- /* assume format: jdbc:postgresql://host:port/dbname */ -}}
+        {{- $trimmed := trimPrefix "jdbc:postgresql://" .Values.spring.datasource.url }}
+        {{- $hostPortDb := splitList "/" $trimmed }}
+        {{- $hostPort := index $hostPortDb 0 | default "" }}
+        {{- $hpSplit := splitList ":" $hostPort }}
+        {{- $dbHost := index $hpSplit 0 | default "postgres" }}
+        {{- $dbPort := default "5432" (index $hpSplit 1 | default "") }}
+
+        - name: wait-for-persistence
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              DB_HOST="{{ $dbHost }}"
+              DB_PORT="{{ $dbPort }}"
+              echo "Waiting for SQL DB at ${DB_HOST}:${DB_PORT}..."
+              i=0
+              until nc -z "${DB_HOST}" "${DB_PORT}"; do
+                echo "SQL DB not ready, waiting..."
+                sleep 5
+              done
+              echo "SQL DB is ready for FA³ST Registry!"
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- if hasKey .Values "logLevel" }}
+          args:
+            -  {{ printf "-%s" (.Values.logLevel | toString) | quote }}
+          {{- end }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.server.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/app/config/application.yaml"
+              subPath: application.yaml
+          {{- with .Values.volumeMounts }}
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "faaast-registry.fullname" . }}-config
+      {{- with .Values.volumes }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
