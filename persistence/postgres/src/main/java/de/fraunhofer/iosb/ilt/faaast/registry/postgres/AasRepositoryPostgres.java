@@ -366,25 +366,35 @@ public class AasRepositoryPostgres extends AbstractAasRepository {
 
     @Override
     public boolean getTransactionActive() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return !transactions.isEmpty();
     }
 
 
     @Override
     public void clear() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("clear not implemented");
     }
 
 
     @Override
     public Page<AssetAdministrationShellDescriptor> queryAASs(Query query, PagingInfo paging) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return EntityManagerHelper.getPagedAasQuery(entityManager, readLimit(paging), readCursor(paging), query);
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 
     @Override
     public Page<SubmodelDescriptor> querySubmodels(Query query, PagingInfo paging) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            return EntityManagerHelper.getPagedSubmodelQuery(entityManager, readLimit(paging), readCursor(paging), query);
+        }
+        catch (DeserializationException ex) {
+            throw new IllegalArgumentException(ex);
+        }
     }
 
 

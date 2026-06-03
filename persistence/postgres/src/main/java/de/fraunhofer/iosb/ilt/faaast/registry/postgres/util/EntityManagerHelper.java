@@ -15,6 +15,8 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
@@ -31,6 +33,7 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
+import org.eclipse.digitaltwin.aas4j.v3.model.Descriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,7 @@ public class EntityManagerHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerHelper.class);
     private static final ObjectMapper mapper = new ObjectMapper();
+    private static QueryEvaluator evaluator = new QueryEvaluator();
 
     private EntityManagerHelper() {}
 
@@ -114,14 +118,10 @@ public class EntityManagerHelper {
             throws DeserializationException {
 
         StringBuilder queryTxt = new StringBuilder();
-        //queryTxt.append("select aas from AssetAdministrationShellDescriptorEntity aas where ");
         queryTxt.append("select * from aas_descriptors where ");
         if (specificAssetIds != null && !specificAssetIds.isEmpty()) {
             queryTxt.append("specific_asset_ids @> CAST (? AS JSONB) ");
 
-            //queryTxt.append("CAST (? AS JSONB) ");
-            //queryTxt.append("' ");
-            //// queryTxt.append("]' ");
             if (globalAssetId != null) {
                 queryTxt.append("AND ");
             }
@@ -130,10 +130,6 @@ public class EntityManagerHelper {
         if (globalAssetId != null) {
             queryTxt.append("global_asset_id = ?");
         }
-
-        //String queryTxt2 = queryTxt.toString();
-        //queryTxt2 = queryTxt2.replace("AssetAdministrationShellDescriptorEntity", "aas_descriptors").replace("specificAssetIds", "specific_asset_ids").replace("globalAssetId",
-        //        "global_asset_id");
 
         var query = entityManager.createNativeQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
         int index = 1;
@@ -152,6 +148,46 @@ public class EntityManagerHelper {
         return resultList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
                 .toList();
+    }
+
+
+    /**
+     * Fetches all instances of SubmodelDescriptor.
+     *
+     * @param entityManager The entityManager to use.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @param aasQuery The desired AAS query.
+     * @return All instances.
+     * @throws DeserializationException If a deserialization error occurs.
+     */
+    public static Page<AssetAdministrationShellDescriptor> getPagedAasQuery(EntityManager entityManager, int limit, int cursor, Query aasQuery) throws DeserializationException {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria = builder.createQuery(AssetAdministrationShellDescriptorEntity.class);
+        queryCriteria.select(queryCriteria.from(AssetAdministrationShellDescriptorEntity.class));
+
+        //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        return getPagedAasQuery(entityManager, limit, cursor, queryCriteria, aasQuery);
+    }
+
+
+    /**
+     * Fetches all instances of SubmodelDescriptor.
+     *
+     * @param entityManager The entityManager to use.
+     * @param limit The desired limit.
+     * @param cursor The desired cursor.
+     * @param aasQuery The desired AAS query.
+     * @return All instances.
+     * @throws DeserializationException If a deserialization error occurs.
+     */
+    public static Page<SubmodelDescriptor> getPagedSubmodelQuery(EntityManager entityManager, int limit, int cursor, Query aasQuery) throws DeserializationException {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria = builder.createQuery(SubmodelDescriptorEntityStandalone.class);
+        queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntityStandalone.class));
+
+        //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        return getPagedSubmodelQuery(entityManager, limit, cursor, queryCriteria, aasQuery);
     }
 
 
@@ -229,6 +265,47 @@ public class EntityManagerHelper {
                         .cursor(nextCursor)
                         .build())
                 .build();
+    }
+
+
+    private static <R extends Descriptor, T> Page<R> doQueryPaging(int limit, int cursor, List<R> list, Query aasQuery) {
+        String nextCursor = null;
+        if (list.size() > limit) {
+            nextCursor = Integer.toString(cursor + limit);
+        }
+        return Page.<R> builder()
+                .result(list.stream()
+                        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                        .limit(limit)
+                        .toList())
+                .metadata(PagingMetadata.builder()
+                        .cursor(nextCursor)
+                        .build())
+                .build();
+    }
+
+
+    private static Page<AssetAdministrationShellDescriptor> getPagedAasQuery(EntityManager entityManager, int limit, int cursor,
+                                                                             CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria, Query aasQuery)
+            throws DeserializationException {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<AssetAdministrationShellDescriptor> list = query.getResultList().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
+                .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                .toList();
+        return doPaging(limit, cursor, list);
+    }
+
+
+    private static Page<SubmodelDescriptor> getPagedSubmodelQuery(EntityManager entityManager, int limit, int cursor,
+                                                                  CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria, Query aasQuery)
+            throws DeserializationException {
+        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+        List<SubmodelDescriptor> list = query.getResultList().stream()
+                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
+                .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                .toList();
+        return doPaging(limit, cursor, list);
     }
 
     //private static Page<AssetAdministrationShellDescriptor> doPaging(EntityManager entityManager, int limit, int cursor,
