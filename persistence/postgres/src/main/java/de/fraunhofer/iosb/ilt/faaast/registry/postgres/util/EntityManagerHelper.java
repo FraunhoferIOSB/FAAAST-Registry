@@ -16,9 +16,10 @@ package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.LogicalExpression;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
+import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Value;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
-import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
@@ -33,7 +34,6 @@ import java.util.List;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShellDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.AssetKind;
-import org.eclipse.digitaltwin.aas4j.v3.model.Descriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.SubmodelDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +47,7 @@ public class EntityManagerHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerHelper.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static QueryEvaluator evaluator = new QueryEvaluator();
+    private static final QueryEvaluator evaluator = new QueryEvaluator();
 
     private EntityManagerHelper() {}
 
@@ -162,12 +162,12 @@ public class EntityManagerHelper {
      * @throws DeserializationException If a deserialization error occurs.
      */
     public static Page<AssetAdministrationShellDescriptor> getPagedAasQuery(EntityManager entityManager, int limit, int cursor, Query aasQuery) throws DeserializationException {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria = builder.createQuery(AssetAdministrationShellDescriptorEntity.class);
-        queryCriteria.select(queryCriteria.from(AssetAdministrationShellDescriptorEntity.class));
+        //CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        //CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria = builder.createQuery(AssetAdministrationShellDescriptorEntity.class);
+        //queryCriteria.select(queryCriteria.from(AssetAdministrationShellDescriptorEntity.class));
 
         //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        return getPagedAasQuery(entityManager, limit, cursor, queryCriteria, aasQuery);
+        return getPagedAasQueryInternNative(entityManager, limit, cursor, aasQuery);
     }
 
 
@@ -222,16 +222,15 @@ public class EntityManagerHelper {
         return doPaging(limit, cursor, list);
     }
 
-
-    private static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor,
-                                                             CriteriaQuery<SubmodelDescriptorEntity> queryCriteria)
-            throws DeserializationException {
-        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        List<SubmodelDescriptor> list = query.getResultList().stream()
-                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
-                .toList();
-        return doPaging(limit, cursor, list);
-    }
+    //    private static Page<SubmodelDescriptor> getPagedSubmodel(EntityManager entityManager, int limit, int cursor,
+    //                                                             CriteriaQuery<SubmodelDescriptorEntity> queryCriteria)
+    //            throws DeserializationException {
+    //        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+    //        List<SubmodelDescriptor> list = query.getResultList().stream()
+    //                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
+    //                .toList();
+    //        return doPaging(limit, cursor, list);
+    //    }
 
 
     private static Page<SubmodelDescriptor> getPagedSubmodelStandalone(EntityManager entityManager, int limit, int cursor,
@@ -267,34 +266,67 @@ public class EntityManagerHelper {
                 .build();
     }
 
+    //    private static <R extends Descriptor, T> Page<R> doQueryPaging(int limit, int cursor, List<R> list, Query aasQuery) {
+    //        String nextCursor = null;
+    //        if (list.size() > limit) {
+    //            nextCursor = Integer.toString(cursor + limit);
+    //        }
+    //        return Page.<R> builder()
+    //                .result(list.stream()
+    //                        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+    //                        .limit(limit)
+    //                        .toList())
+    //                .metadata(PagingMetadata.builder()
+    //                        .cursor(nextCursor)
+    //                        .build())
+    //                .build();
+    //    }
 
-    private static <R extends Descriptor, T> Page<R> doQueryPaging(int limit, int cursor, List<R> list, Query aasQuery) {
-        String nextCursor = null;
-        if (list.size() > limit) {
-            nextCursor = Integer.toString(cursor + limit);
-        }
-        return Page.<R> builder()
-                .result(list.stream()
-                        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
-                        .limit(limit)
-                        .toList())
-                .metadata(PagingMetadata.builder()
-                        .cursor(nextCursor)
-                        .build())
-                .build();
-    }
 
-
-    private static Page<AssetAdministrationShellDescriptor> getPagedAasQuery(EntityManager entityManager, int limit, int cursor,
-                                                                             CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria, Query aasQuery)
+    private static Page<AssetAdministrationShellDescriptor> getPagedAasQueryInternNative(EntityManager entityManager, int limit, int cursor, Query aasQuery)
             throws DeserializationException {
-        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        List<AssetAdministrationShellDescriptor> list = query.getResultList().stream()
+
+        StringBuilder queryTxt = new StringBuilder();
+        queryTxt.append("select * from aas_descriptors");
+        List<Object> parameters = new ArrayList<>();
+        queryTxt.append(getAasQueryWhereClauses(aasQuery.get$condition(), parameters));
+
+        LOGGER.debug("getPagedAasQueryIntern: Query: {}", queryTxt);
+        var query = entityManager.createNativeQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
+        int index = 1;
+        for (var param: parameters) {
+            query.setParameter(index++, param);
+        }
+        List<AssetAdministrationShellDescriptorEntity> entityList = query.getResultList();
+
+        LOGGER.debug("getPagedAasQueryIntern: found {} entities", entityList.size());
+        List<AssetAdministrationShellDescriptor> list = entityList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
                 .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
                 .toList();
         return doPaging(limit, cursor, list);
     }
+
+    //    private static Page<AssetAdministrationShellDescriptor> getPagedAasQueryIntern(EntityManager entityManager, int limit, int cursor, Query aasQuery)
+    //            throws DeserializationException {
+    //
+    //        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    //        CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria = builder.createQuery(AssetAdministrationShellDescriptorEntity.class);
+    //        queryCriteria.select(queryCriteria.from(AssetAdministrationShellDescriptorEntity.class));
+    //
+    //        List<Predicate> predicates = addAasQueryCriteria(entityManager, queryCriteria.from(AssetAdministrationShellDescriptorEntity.class), aasQuery);
+    //        if (!predicates.isEmpty()) {
+    //            queryCriteria.where(predicates.toArray(Predicate[]::new));
+    //        }
+    //
+    //        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
+    //        List<AssetAdministrationShellDescriptorEntity> entityList = query.getResultList();
+    //        List<AssetAdministrationShellDescriptor> list = entityList.stream()
+    //                .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
+    //                .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+    //                .toList();
+    //        return doPaging(limit, cursor, list);
+    //    }
 
 
     private static Page<SubmodelDescriptor> getPagedSubmodelQuery(EntityManager entityManager, int limit, int cursor,
@@ -307,6 +339,216 @@ public class EntityManagerHelper {
                 .toList();
         return doPaging(limit, cursor, list);
     }
+
+
+    private static String getAasQueryWhereClauses(LogicalExpression condition, List<Object> parameters) {
+        StringBuilder builder = new StringBuilder();
+        if (isComparisonOperator(condition)) {
+            List<Value> list = getComparisonValues(condition);
+            if (list.size() != 2) {
+                throw new IllegalArgumentException("Equals must contain exactly 2 operators");
+            }
+            Value left = list.get(0);
+            Value right = list.get(1);
+            builder.append(valueToString(left, parameters));
+            builder.append(getComparisonString(condition));
+            builder.append(valueToString(right, parameters));
+        }
+
+        if (!builder.isEmpty()) {
+            builder.insert(0, " where ");
+        }
+
+        return builder.toString();
+    }
+
+    //    private static List<Predicate> addAasQueryCriteria(EntityManager entityManager, Root<AssetAdministrationShellDescriptorEntity> root, Query aasQuery) {
+    //        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    //        //Root<AssetAdministrationShellDescriptorEntity> root = queryCriteria.from(AssetAdministrationShellDescriptorEntity.class);
+    //        List<Predicate> predicates = new ArrayList<>();
+    //        LogicalExpression condition = aasQuery.get$condition();
+    //        if (condition.get$eq() != null) {
+    //            List<Value> list = condition.get$eq();
+    //            if (list.size() != 2) {
+    //                throw new IllegalArgumentException("Equals must contain exactly 2 operators");
+    //            }
+    //            Value left = list.get(0);
+    //            Value right = list.get(1);
+    //            var leftKind = evaluator.determineValueKind(left);
+    //            var rightKind = evaluator.determineValueKind(right);
+    //            Expression<?> expression = null;
+    //            Object object = null;
+    //            if (leftKind == FIELD) {
+    //                expression = root.get(left.get$field().substring(QueryEvaluator.PREFIX_AAS_DESC.length()));
+    //            }
+    //            else {
+    //                object = valueToObject(left);
+    //            }
+    //            if (rightKind == FIELD) {
+    //                expression = root.get(right.get$field().substring(QueryEvaluator.PREFIX_AAS_DESC.length()));
+    //            }
+    //            else {
+    //                object = valueToObject(right);
+    //            }
+    //            predicates.add(builder.equal(expression, object));
+    //        }
+    //        return predicates;
+    //    }
+
+
+    private static String valueToString(Value value, List<Object> parameters) {
+        String retval;
+        var kind = evaluator.determineValueKind(value);
+        switch (kind) {
+            case FIELD -> {
+                retval = value.get$field();
+                if (retval.startsWith(QueryEvaluator.PREFIX_AAS_DESC)) {
+                    retval = retval.substring(QueryEvaluator.PREFIX_AAS_DESC.length());
+                }
+                else if (retval.startsWith(QueryEvaluator.PREFIX_SM_DESC)) {
+                    retval = retval.substring(QueryEvaluator.PREFIX_SM_DESC.length());
+                }
+                retval = convertFieldToColumnName(retval);
+            }
+
+            case STR -> {
+                retval = "?";
+                parameters.add(value.get$strVal());
+            }
+
+            case NUM -> {
+                retval = "?";
+                parameters.add(value.get$numVal());
+            }
+
+            case HEX -> {
+                retval = "?";
+                parameters.add(value.get$hexVal());
+            }
+
+            case DATETIME -> {
+                retval = "?";
+                parameters.add(value.get$dateTimeVal());
+            }
+
+            case TIME -> {
+                retval = "?";
+                parameters.add(value.get$timeVal());
+            }
+
+            case BOOL -> {
+                retval = "?";
+                parameters.add(value.get$boolean());
+            }
+
+            default -> throw new UnsupportedOperationException(String.format("Value Kind %s not supported", kind));
+        }
+        return retval;
+    }
+
+
+    private static String convertFieldToColumnName(String field) {
+        String retval;
+        switch (field) {
+            case "idShort" -> retval = "id_short";
+            default -> throw new IllegalArgumentException(String.format("Field %s not supported", field));
+        }
+        return retval;
+    }
+
+
+    private static boolean isComparisonOperator(LogicalExpression condition) {
+        if ((condition.get$eq() != null) && (!condition.get$eq().isEmpty())) {
+            return true;
+        }
+        else if ((condition.get$ne() != null) && (!condition.get$ne().isEmpty())) {
+            return true;
+        }
+        else if ((condition.get$gt() != null) && (!condition.get$gt().isEmpty())) {
+            return true;
+        }
+        else if ((condition.get$ge() != null) && (!condition.get$ge().isEmpty())) {
+            return true;
+        }
+        else if ((condition.get$lt() != null) && (!condition.get$lt().isEmpty())) {
+            return true;
+        }
+        else if ((condition.get$le() != null) && (!condition.get$le().isEmpty())) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private static String getComparisonString(LogicalExpression condition) {
+        String retval;
+        if ((condition.get$eq() != null) && (!condition.get$eq().isEmpty())) {
+            retval = "=";
+        }
+        else if ((condition.get$ne() != null) && (!condition.get$ne().isEmpty())) {
+            retval = "!=";
+        }
+        else if ((condition.get$gt() != null) && (!condition.get$gt().isEmpty())) {
+            retval = ">";
+        }
+        else if ((condition.get$ge() != null) && (!condition.get$ge().isEmpty())) {
+            retval = ">=";
+        }
+        else if ((condition.get$lt() != null) && (!condition.get$lt().isEmpty())) {
+            retval = "<";
+        }
+        else if ((condition.get$le() != null) && (!condition.get$le().isEmpty())) {
+            retval = "<=";
+        }
+        else {
+            throw new IllegalArgumentException("Illegal Comparison Condition");
+        }
+
+        return retval;
+    }
+
+
+    private static List<Value> getComparisonValues(LogicalExpression condition) {
+        List<Value> retval;
+        if ((condition.get$eq() != null) && (!condition.get$eq().isEmpty())) {
+            retval = condition.get$eq();
+        }
+        else if ((condition.get$ne() != null) && (!condition.get$ne().isEmpty())) {
+            retval = condition.get$ne();
+        }
+        else if ((condition.get$gt() != null) && (!condition.get$gt().isEmpty())) {
+            retval = condition.get$gt();
+        }
+        else if ((condition.get$ge() != null) && (!condition.get$ge().isEmpty())) {
+            retval = condition.get$ge();
+        }
+        else if ((condition.get$lt() != null) && (!condition.get$lt().isEmpty())) {
+            retval = condition.get$lt();
+        }
+        else if ((condition.get$le() != null) && (!condition.get$le().isEmpty())) {
+            retval = condition.get$le();
+        }
+        else {
+            throw new IllegalArgumentException("Illegal Comparison Condition");
+        }
+        return retval;
+    }
+
+    //    private static Object valueToObject(Value value) {
+    //        Object retval;
+    //        var kind = evaluator.determineValueKind(value);
+    //        switch (kind) {
+    //            case FIELD -> retval = value.get$field();
+    //            case STR -> retval = value.get$strVal();
+    //            case NUM -> retval = value.get$numVal();
+    //            case HEX -> retval = value.get$hexVal();
+    //            case DATETIME -> retval = value.get$dateTimeVal();
+    //            case TIME -> retval = value.get$timeVal();
+    //            case BOOL -> retval = value.get$boolean();
+    //            default -> throw new UnsupportedOperationException(String.format("Value Kind %s not supported", kind));
+    //        }
+    //        return retval;
+    //    }
 
     //private static Page<AssetAdministrationShellDescriptor> doPaging(EntityManager entityManager, int limit, int cursor,
     //                                                                 CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria)

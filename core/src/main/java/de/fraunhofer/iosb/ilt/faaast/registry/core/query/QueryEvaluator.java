@@ -43,9 +43,10 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryEvaluator {
 
+    public static final String PREFIX_AAS_DESC = "$aasdesc#";
+    public static final String PREFIX_SM_DESC = "$smdesc#";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryEvaluator.class);
-    private static final String PREFIX_AAS_DESC = "$aasdesc#";
-    private static final String PREFIX_SM_DESC = "$smdesc#";
 
     public QueryEvaluator() {}
 
@@ -66,7 +67,10 @@ public class QueryEvaluator {
         }
     }
 
-    private enum ValueKind {
+    /**
+     * Enumerator for Value Kind.
+     */
+    public enum ValueKind {
         NONE,
         FIELD,
         STR,
@@ -150,6 +154,37 @@ public class QueryEvaluator {
 
         // string binary operators
         return evaluateFirstStringOperator(expr, descriptor);
+    }
+
+
+    /**
+     * determines the value kind of the given value.
+     *
+     * @param v The desired value.
+     * @return The value kind.
+     */
+    public ValueKind determineValueKind(Value v) {
+        if (v == null)
+            return ValueKind.NONE;
+        if (v.get$field() != null)
+            return ValueKind.FIELD;
+        if (v.get$strVal() != null)
+            return ValueKind.STR;
+        if (v.get$numVal() != null)
+            return ValueKind.NUM;
+        if (v.get$hexVal() != null)
+            return ValueKind.HEX;
+        if (v.get$dateTimeVal() != null)
+            return ValueKind.DATETIME;
+        if (v.get$timeVal() != null)
+            return ValueKind.TIME;
+        if (v.get$boolean() != null)
+            return ValueKind.BOOL;
+        if (v.get$strCast() != null)
+            return ValueKind.STR_CAST;
+        if (v.get$numCast() != null)
+            return ValueKind.NUM_CAST;
+        return ValueKind.NONE;
     }
 
 
@@ -274,31 +309,6 @@ public class QueryEvaluator {
     }
 
 
-    private ValueKind determineValueKind(Value v) {
-        if (v == null)
-            return ValueKind.NONE;
-        if (v.get$field() != null)
-            return ValueKind.FIELD;
-        if (v.get$strVal() != null)
-            return ValueKind.STR;
-        if (v.get$numVal() != null)
-            return ValueKind.NUM;
-        if (v.get$hexVal() != null)
-            return ValueKind.HEX;
-        if (v.get$dateTimeVal() != null)
-            return ValueKind.DATETIME;
-        if (v.get$timeVal() != null)
-            return ValueKind.TIME;
-        if (v.get$boolean() != null)
-            return ValueKind.BOOL;
-        if (v.get$strCast() != null)
-            return ValueKind.STR_CAST;
-        if (v.get$numCast() != null)
-            return ValueKind.NUM_CAST;
-        return ValueKind.NONE;
-    }
-
-
     private List<Object> getFieldValues(String field, Descriptor descriptor) {
         if (field == null || descriptor == null)
             return Collections.emptyList();
@@ -327,21 +337,26 @@ public class QueryEvaluator {
 
     private List<Object> getAasDescriptorFieldValues(AssetAdministrationShellDescriptor aas, String attr) {
         switch (attr) {
-            case "idShort":
+            case "idShort" -> {
                 return Collections.singletonList(aas.getIdShort());
-            case "id":
+            }
+            case "id" -> {
                 return Collections.singletonList(aas.getId());
-            case "assetKind":
+            }
+            case "assetKind" -> {
                 return (aas.getAssetKind() == null)
                         ? Collections.emptyList()
                         : Collections.singletonList(aas.getAssetKind().name());
-            case "assetType":
+            }
+            case "assetType" -> {
                 String assetType = aas.getAssetType();
                 return assetType == null ? Collections.emptyList() : Collections.singletonList(assetType);
-            case "globalAssetId":
+            }
+            case "globalAssetId" -> {
                 String globalAssetId = aas.getGlobalAssetId();
                 return globalAssetId == null ? Collections.emptyList() : Collections.singletonList(globalAssetId);
-            default:
+            }
+            default -> {
                 if (attr.startsWith("specificAssetIds")) {
                     if (aas.getSpecificAssetIds() == null) {
                         return Collections.emptyList();
@@ -372,6 +387,7 @@ public class QueryEvaluator {
                 }
                 LOGGER.error("getAasDescriptorFieldValues: Unsupported AAS attribute: {}", attr);
                 return Collections.emptyList();
+            }
         }
     }
 
@@ -705,14 +721,10 @@ public class QueryEvaluator {
         List<String> results = new ArrayList<>();
         for (Key key: selectedItems) {
             switch (selector.remainingSuffix) {
-                case ".type":
-                    results.add(key.getType().name());
-                    break;
-                case ".value":
-                    results.add(key.getValue());
-                    break;
-                default:
-                    break;
+                case ".type" -> results.add(key.getType().name());
+                case ".value" -> results.add(key.getValue());
+                default -> {
+                }
             }
         }
         return results;
