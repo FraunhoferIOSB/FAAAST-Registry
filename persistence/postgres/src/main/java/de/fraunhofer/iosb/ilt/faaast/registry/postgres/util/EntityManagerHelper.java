@@ -51,6 +51,11 @@ public class EntityManagerHelper {
 
     private EntityManagerHelper() {}
 
+    private enum LogicalMode {
+        UNUSED,
+        AND,
+        OR
+    }
 
     /**
      * Fetches all instances of AssetAdministrationShellDescriptor, matching the given criteria.
@@ -289,7 +294,12 @@ public class EntityManagerHelper {
         StringBuilder queryTxt = new StringBuilder();
         queryTxt.append("select * from aas_descriptors");
         List<Object> parameters = new ArrayList<>();
-        queryTxt.append(getAasQueryWhereClauses(aasQuery.get$condition(), parameters));
+        String whereTxt = getAasQueryWhereClauses(aasQuery.get$condition(), parameters);
+        if (!whereTxt.isEmpty()) {
+            whereTxt = " where " + whereTxt;
+        }
+
+        queryTxt.append(whereTxt);
 
         LOGGER.debug("getPagedAasQueryIntern: Query: {}", queryTxt);
         var query = entityManager.createNativeQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
@@ -343,6 +353,29 @@ public class EntityManagerHelper {
 
     private static String getAasQueryWhereClauses(LogicalExpression condition, List<Object> parameters) {
         StringBuilder builder = new StringBuilder();
+        LogicalMode mode = getLogicalOperatorMode(condition);
+        if (mode != LogicalMode.UNUSED) {
+            String txt = processLogicalOperator(condition, parameters, LogicalMode.AND);
+            if (!txt.isEmpty()) {
+                builder.append(txt);
+            }
+        }
+        //if ((condition.get$and() != null) && (!condition.get$and().isEmpty())) {
+        //    List<LogicalExpression> andList = condition.get$and();
+        //    String andTxt = "";
+        //    for (var expr: andList) {
+        //        String txt = getAasQueryWhereClauses(expr, parameters);
+        //        if (!txt.isEmpty()) {
+        //            if (!andTxt.isEmpty()) {
+        //                andTxt += " AND ";
+        //            }
+        //            andTxt += txt;
+        //        }
+        //    }
+        //    if (!andTxt.isEmpty()) {
+        //        builder.append(andTxt);
+        //    }
+        //}
         if (isComparisonOperator(condition)) {
             List<Value> list = getComparisonValues(condition);
             if (list.size() != 2) {
@@ -355,11 +388,60 @@ public class EntityManagerHelper {
             builder.append(valueToString(right, parameters));
         }
 
-        if (!builder.isEmpty()) {
-            builder.insert(0, " where ");
-        }
+        //if (!builder.isEmpty()) {
+        //    builder.insert(0, " where ");
+        //}
 
         return builder.toString();
+    }
+
+
+    private static String processLogicalOperator(LogicalExpression condition, List<Object> parameters, LogicalMode mode) {
+        //List<LogicalExpression> values = getLogicalValues(condition, mode);
+        String retval;
+        //if ((condition.get$and() != null) && (!condition.get$and().isEmpty())) {
+        if (mode != LogicalMode.UNUSED) {
+            List<LogicalExpression> values = getLogicalValues(condition, mode);
+            String fullTxt = "";
+            for (var expr: values) {
+                String txt = getAasQueryWhereClauses(expr, parameters);
+                if (!txt.isEmpty()) {
+                    if (!fullTxt.isEmpty()) {
+                        fullTxt += getLogicalOperator(mode);
+                    }
+                    fullTxt += txt;
+                }
+            }
+            retval = fullTxt;
+            //if (!fullTxt.isEmpty()) {
+            //    builder.append(fullTxt);
+            //}
+        }
+        else {
+            retval = "";
+        }
+        return retval;
+    }
+
+
+    private static List<LogicalExpression> getLogicalValues(LogicalExpression condition, LogicalMode mode) {
+        List<LogicalExpression> retval;
+        retval = switch (mode) {
+            case AND -> condition.get$and();
+            case OR -> condition.get$or();
+            default -> new ArrayList<>();
+        };
+        return retval;
+    }
+
+
+    private static String getLogicalOperator(LogicalMode mode) {
+        String retval = switch (mode) {
+            case AND -> " AND ";
+            case OR -> " OR ";
+            default -> "";
+        };
+        return retval;
     }
 
     //    private static List<Predicate> addAasQueryCriteria(EntityManager entityManager, Root<AssetAdministrationShellDescriptorEntity> root, Query aasQuery) {
@@ -458,25 +540,29 @@ public class EntityManagerHelper {
 
 
     private static boolean isComparisonOperator(LogicalExpression condition) {
+        boolean retval;
         if ((condition.get$eq() != null) && (!condition.get$eq().isEmpty())) {
-            return true;
+            retval = true;
         }
         else if ((condition.get$ne() != null) && (!condition.get$ne().isEmpty())) {
-            return true;
+            retval = true;
         }
         else if ((condition.get$gt() != null) && (!condition.get$gt().isEmpty())) {
-            return true;
+            retval = true;
         }
         else if ((condition.get$ge() != null) && (!condition.get$ge().isEmpty())) {
-            return true;
+            retval = true;
         }
         else if ((condition.get$lt() != null) && (!condition.get$lt().isEmpty())) {
-            return true;
+            retval = true;
         }
         else if ((condition.get$le() != null) && (!condition.get$le().isEmpty())) {
-            return true;
+            retval = true;
         }
-        return false;
+        else {
+            retval = false;
+        }
+        return retval;
     }
 
 
@@ -530,6 +616,21 @@ public class EntityManagerHelper {
         }
         else {
             throw new IllegalArgumentException("Illegal Comparison Condition");
+        }
+        return retval;
+    }
+
+
+    private static LogicalMode getLogicalOperatorMode(LogicalExpression condition) {
+        LogicalMode retval;
+        if ((condition.get$and() != null) && (!condition.get$and().isEmpty())) {
+            retval = LogicalMode.AND;
+        }
+        else if ((condition.get$or() != null) && (!condition.get$or().isEmpty())) {
+            retval = LogicalMode.OR;
+        }
+        else {
+            retval = LogicalMode.UNUSED;
         }
         return retval;
     }
