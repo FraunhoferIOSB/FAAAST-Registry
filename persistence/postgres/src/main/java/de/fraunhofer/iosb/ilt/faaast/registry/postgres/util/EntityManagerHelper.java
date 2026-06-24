@@ -19,6 +19,8 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.query.QueryToSqlTranslator;
+import de.fraunhofer.iosb.ilt.faaast.registry.postgres.query.SqlTranslationResult;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.Page;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.paging.PagingMetadata;
 import de.fraunhofer.iosb.ilt.faaast.service.util.LambdaExceptionHelper;
@@ -46,6 +48,7 @@ public class EntityManagerHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerHelper.class);
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final QueryEvaluator evaluator = new QueryEvaluator();
+    private static final QueryToSqlTranslator translator = new QueryToSqlTranslator();
 
     private EntityManagerHelper() {}
 
@@ -165,7 +168,7 @@ public class EntityManagerHelper {
         //queryCriteria.select(queryCriteria.from(AssetAdministrationShellDescriptorEntity.class));
 
         //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        return getPagedAasQueryInternNative(entityManager, limit, cursor, aasQuery);
+        return getPagedAasQueryNative(entityManager, limit, cursor, aasQuery);
     }
 
 
@@ -180,12 +183,12 @@ public class EntityManagerHelper {
      * @throws DeserializationException If a deserialization error occurs.
      */
     public static Page<SubmodelDescriptor> getPagedSubmodelQuery(EntityManager entityManager, int limit, int cursor, Query aasQuery) throws DeserializationException {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria = builder.createQuery(SubmodelDescriptorEntityStandalone.class);
-        queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntityStandalone.class));
+        //CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        //CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria = builder.createQuery(SubmodelDescriptorEntityStandalone.class);
+        //queryCriteria.select(queryCriteria.from(SubmodelDescriptorEntityStandalone.class));
 
         //var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        return getPagedSubmodelQuery(entityManager, limit, cursor, queryCriteria, aasQuery);
+        return getPagedSubmodelQueryNative(entityManager, limit, cursor, aasQuery);
     }
 
 
@@ -281,25 +284,39 @@ public class EntityManagerHelper {
     //    }
 
 
-    private static Page<AssetAdministrationShellDescriptor> getPagedAasQueryInternNative(EntityManager entityManager, int limit, int cursor, Query aasQuery)
+    //private static Page<AssetAdministrationShellDescriptor> getPagedAasQueryInternNative(EntityManager entityManager, int limit, int cursor, Query aasQuery)
+    private static Page<AssetAdministrationShellDescriptor> getPagedAasQueryNative(EntityManager entityManager, int limit, int cursor, Query aasQuery)
             throws DeserializationException {
 
-        StringBuilder queryTxt = new StringBuilder();
-        queryTxt.append("select * from aas_descriptors");
-        List<Object> parameters = new ArrayList<>();
-        String whereTxt = QueryHelper.getAasQueryWhereClauses(aasQuery.get$condition(), parameters);
-        if (!whereTxt.isEmpty()) {
-            whereTxt = " where " + whereTxt;
-        }
+        //SqlTranslationResult result = translator.translate(aasQuery, "$aasdesc");
 
-        queryTxt.append(whereTxt);
+        //LOGGER.atInfo().log("getPagedAasQueryInternNative: {}", result.toSql());
+        //LOGGER.atInfo().log("Parameters: {}", result.getParameters());
 
-        LOGGER.debug("getPagedAasQueryIntern: Query: {}", queryTxt);
-        var query = entityManager.createNativeQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
-        int index = 1;
-        for (var param: parameters) {
-            query.setParameter(index++, param);
-        }
+        //int index = 1;
+        //var query = entityManager.createNativeQuery(result.toSql(), result.getEntityClass());
+        //for (var param: result.getParameters()) {
+        //    query.setParameter(index++, param);
+        //}
+
+        var query = createDatabaseQuery(entityManager, aasQuery, "$aasdesc");
+
+        //StringBuilder queryTxt = new StringBuilder();
+        //queryTxt.append("select * from aas_descriptors");
+        //List<Object> parameters = new ArrayList<>();
+        //String whereTxt = QueryHelper.getAasQueryWhereClauses(aasQuery.get$condition(), parameters);
+        //if (!whereTxt.isEmpty()) {
+        //    whereTxt = " where " + whereTxt;
+        //}
+
+        //queryTxt.append(whereTxt);
+
+        //LOGGER.debug("getPagedAasQueryIntern: Query: {}", queryTxt);
+        //var query = entityManager.createNativeQuery(queryTxt.toString(), AssetAdministrationShellDescriptorEntity.class);
+        //int index = 1;
+        //for (var param: parameters) {
+        //    query.setParameter(index++, param);
+        //}
         List<AssetAdministrationShellDescriptorEntity> entityList = query.getResultList();
 
         LOGGER.debug("getPagedAasQueryIntern: found {} entities", entityList.size());
@@ -332,118 +349,31 @@ public class EntityManagerHelper {
     //    }
 
 
-    private static Page<SubmodelDescriptor> getPagedSubmodelQuery(EntityManager entityManager, int limit, int cursor,
-                                                                  CriteriaQuery<SubmodelDescriptorEntityStandalone> queryCriteria, Query aasQuery)
+    private static jakarta.persistence.Query createDatabaseQuery(EntityManager entityManager, Query aasQuery, String targetRoot) {
+        SqlTranslationResult result = translator.translate(aasQuery, targetRoot);
+
+        LOGGER.atInfo().log("getPagedAasQueryInternNative: {}", result.toSql());
+        LOGGER.atInfo().log("Parameters: {}", result.getParameters());
+
+        int index = 1;
+        var query = entityManager.createNativeQuery(result.toSql(), result.getEntityClass());
+        for (var param: result.getParameters()) {
+            query.setParameter(index++, param);
+        }
+        return query;
+    }
+
+
+    private static Page<SubmodelDescriptor> getPagedSubmodelQueryNative(EntityManager entityManager, int limit, int cursor, Query aasQuery)
             throws DeserializationException {
-        var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-        List<SubmodelDescriptor> list = query.getResultList().stream()
+        var query = createDatabaseQuery(entityManager, aasQuery, "$smdesc");
+        List<SubmodelDescriptorEntityStandalone> entityList = query.getResultList();
+
+        List<SubmodelDescriptor> list = entityList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
                 .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
                 .toList();
         return doPaging(limit, cursor, list);
     }
 
-    //    private static List<Predicate> addAasQueryCriteria(EntityManager entityManager, Root<AssetAdministrationShellDescriptorEntity> root, Query aasQuery) {
-    //        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    //        //Root<AssetAdministrationShellDescriptorEntity> root = queryCriteria.from(AssetAdministrationShellDescriptorEntity.class);
-    //        List<Predicate> predicates = new ArrayList<>();
-    //        LogicalExpression condition = aasQuery.get$condition();
-    //        if (condition.get$eq() != null) {
-    //            List<Value> list = condition.get$eq();
-    //            if (list.size() != 2) {
-    //                throw new IllegalArgumentException("Equals must contain exactly 2 operators");
-    //            }
-    //            Value left = list.get(0);
-    //            Value right = list.get(1);
-    //            var leftKind = evaluator.determineValueKind(left);
-    //            var rightKind = evaluator.determineValueKind(right);
-    //            Expression<?> expression = null;
-    //            Object object = null;
-    //            if (leftKind == FIELD) {
-    //                expression = root.get(left.get$field().substring(QueryEvaluator.PREFIX_AAS_DESC.length()));
-    //            }
-    //            else {
-    //                object = valueToObject(left);
-    //            }
-    //            if (rightKind == FIELD) {
-    //                expression = root.get(right.get$field().substring(QueryEvaluator.PREFIX_AAS_DESC.length()));
-    //            }
-    //            else {
-    //                object = valueToObject(right);
-    //            }
-    //            predicates.add(builder.equal(expression, object));
-    //        }
-    //        return predicates;
-    //    }
-
-    //    private static Object valueToObject(Value value) {
-    //        Object retval;
-    //        var kind = evaluator.determineValueKind(value);
-    //        switch (kind) {
-    //            case FIELD -> retval = value.get$field();
-    //            case STR -> retval = value.get$strVal();
-    //            case NUM -> retval = value.get$numVal();
-    //            case HEX -> retval = value.get$hexVal();
-    //            case DATETIME -> retval = value.get$dateTimeVal();
-    //            case TIME -> retval = value.get$timeVal();
-    //            case BOOL -> retval = value.get$boolean();
-    //            default -> throw new UnsupportedOperationException(String.format("Value Kind %s not supported", kind));
-    //        }
-    //        return retval;
-    //    }
-
-    //private static Page<AssetAdministrationShellDescriptor> doPaging(EntityManager entityManager, int limit, int cursor,
-    //                                                                 CriteriaQuery<AssetAdministrationShellDescriptorEntity> queryCriteria)
-    //        throws DeserializationException {
-    //    var query = entityManager.createQuery(queryCriteria).setFirstResult(cursor).setMaxResults(limit + 1);
-    //    List<AssetAdministrationShellDescriptor> list = query.getResultList().stream()
-    //            .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
-    //            .toList();
-    //    String nextCursor = null;
-    //    if (list.size() > limit) {
-    //        nextCursor = Integer.toString(cursor + limit);
-    //    }
-    //    return Page.<AssetAdministrationShellDescriptor> builder()
-    //            .result(list.stream().limit(limit).toList())
-    //            .metadata(PagingMetadata.builder()
-    //                    .cursor(nextCursor)
-    //                    .build())
-    //            .build();
-    //}
-    //
-    //
-    //    private static Predicate createSpecificAssetIdSubquery(
-    //                                                           Root<AssetAdministrationShellDescriptorEntity> root,
-    //                                                           Map<String, String> specificAssetIdNamesValues,
-    //                                                           CriteriaQuery<AssetAdministrationShellDescriptor> queryCriteria,
-    //                                                           CriteriaBuilder cb) {
-    //
-    //        Subquery<Long> subquery = queryCriteria.subquery(Long.class);
-    //        Root<AssetAdministrationShellDescriptorEntity> subRoot = subquery.from(AssetAdministrationShellDescriptorEntity.class);
-    //        Join<AssetAdministrationShellDescriptorEntity, JpaSpecificAssetId> join = subRoot.join("specificAssetIds");
-    //
-    //        // correlate
-    //        Predicate correlate = cb.equal(subRoot, root);
-    //
-    //        // OR of all key/value combinations to count matched pairs
-    //        List<Predicate> anyMatch = new ArrayList<>();
-    //        for (Map.Entry<String, String> specificAssetIdNameValuePair: specificAssetIdNamesValues.entrySet()) {
-    //            anyMatch.add(cb.and(
-    //                    cb.equal(join.get("name"), specificAssetIdNameValuePair.getKey()),
-    //                    cb.equal(join.get("value"), specificAssetIdNameValuePair.getValue())));
-    //        }
-    //
-    //        // JOIN ->  | Descriptor.id | Descriptor.idShort | ... | SpecificAssetId.name | SpecificAssetId.value | ... |
-    //        // WHERE -> Filter all rows where SpecificAssetId.name and SpecificAssetId.value match one of the arguments SpecificAssetIds
-    //        // WHERE -> Filter all rows with the other clauses from the root query
-    //        // COUNT all rows, grouping by Descriptor.id -> For each Descriptor, get "how many specific asset ids matched".
-    //        //          The "distinct" part prohibits any duplicate SpecificAssetIds to count as multiple matches -> If a Descriptor has duplicate SpecificAssetIds, they count as one.
-    //        // SELECT all ids from the Descriptors which have exactly as many filtered SpecificAssetIds as the argument.
-    //
-    //        subquery.select(cb.countDistinct(join.get("id")))
-    //                .where(cb.and(correlate, cb.or(anyMatch.toArray(Predicate[]::new))));
-    //
-    //        // ensure at least all provided pairs are present
-    //        return cb.equal(subquery, (long) specificAssetIdNamesValues.size());
-    //    }
 }
