@@ -37,6 +37,12 @@ public class QueryToSqlTranslator {
         private String valueCast;
         private String field;
 
+        public ValueCast() {
+            valueCast = "";
+            field = "";
+        }
+
+
         public String getValueCast() {
             return valueCast;
         }
@@ -240,7 +246,7 @@ public class QueryToSqlTranslator {
 
         // $strVal → string literal parameter
         if (value.get$strVal() != null) {
-            if (valueCast.getValueCast().equals("ASSET_KIND_ENUM")) {
+            if ((valueCast != null) && valueCast.getValueCast().equals("ASSET_KIND_ENUM")) {
                 ctx.addParameter(AssetKindParameterHandler.convertParameterValue(valueCast.getField(), value.get$strVal()));
             }
             else {

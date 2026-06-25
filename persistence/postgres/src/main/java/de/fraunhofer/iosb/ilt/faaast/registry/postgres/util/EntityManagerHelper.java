@@ -15,7 +15,6 @@
 package de.fraunhofer.iosb.ilt.faaast.registry.postgres.util;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.model.AssetLink;
-import de.fraunhofer.iosb.ilt.faaast.registry.core.query.QueryEvaluator;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.query.json.Query;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.AssetAdministrationShellDescriptorEntity;
 import de.fraunhofer.iosb.ilt.faaast.registry.postgres.model.SubmodelDescriptorEntityStandalone;
@@ -47,7 +46,7 @@ public class EntityManagerHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerHelper.class);
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final QueryEvaluator evaluator = new QueryEvaluator();
+    //private static final QueryEvaluator evaluator = new QueryEvaluator();
     private static final QueryToSqlTranslator translator = new QueryToSqlTranslator();
 
     private EntityManagerHelper() {}
@@ -322,7 +321,7 @@ public class EntityManagerHelper {
         LOGGER.debug("getPagedAasQueryIntern: found {} entities", entityList.size());
         List<AssetAdministrationShellDescriptor> list = entityList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertAAS(x)))
-                .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                //        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
                 .toList();
         return doPaging(limit, cursor, list);
     }
@@ -371,7 +370,7 @@ public class EntityManagerHelper {
 
         List<SubmodelDescriptor> list = entityList.stream()
                 .map(LambdaExceptionHelper.rethrowFunction(x -> ModelTransformationHelper.convertSubmodel(x)))
-                .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
+                //        .filter(aas -> evaluator.matches(aasQuery.get$condition(), aas))
                 .toList();
         return doPaging(limit, cursor, list);
     }
