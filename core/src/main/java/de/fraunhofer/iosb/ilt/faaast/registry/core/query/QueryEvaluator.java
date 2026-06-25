@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -90,27 +91,21 @@ public class QueryEvaluator {
         STR_CAST
     }
 
-    /**
-     * @param suffix e.g., ".name", "Sub.Path#value"
-     */
-    private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
-        private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
-            this.suffix = suffix;
-            this.operator = operator;
-            this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
-        }
-    }
+    private static final List<ValueKindCheck> VALUE_KIND_CHECKS = Arrays.asList(
+            new ValueKindCheck(ValueKind.FIELD, v -> v.get$field() != null),
+            new ValueKindCheck(ValueKind.STR, v -> v.get$strVal() != null),
+            new ValueKindCheck(ValueKind.NUM, v -> v.get$numVal() != null),
+            new ValueKindCheck(ValueKind.HEX, v -> v.get$hexVal() != null),
+            new ValueKindCheck(ValueKind.DATETIME, v -> v.get$dateTimeVal() != null),
+            new ValueKindCheck(ValueKind.TIME, v -> v.get$timeVal() != null),
+            new ValueKindCheck(ValueKind.BOOL, v -> v.get$boolean() != null),
+            new ValueKindCheck(ValueKind.STR_CAST, v -> v.get$strCast() != null),
+            new ValueKindCheck(ValueKind.NUM_CAST, v -> v.get$numCast() != null));
 
-    private record MatchOperation(ComparisonOperator operator, List<Value> args) {}
-
-    private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {}
-
-    private record IndexSelection(boolean selectAll, Integer index, String remainingSuffix) {}
-
-    /**
-     * @param argumentProvider provides arguments for this operator
-     */
-    private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>> argumentProvider) {}
+    private static final List<StringValueKindCheck> STRING_VALUE_KIND_CHECKS = Arrays.asList(
+            new StringValueKindCheck(StringValueKind.FIELD, v -> v.get$field() != null),
+            new StringValueKindCheck(StringValueKind.STR, v -> v.get$strVal() != null),
+            new StringValueKindCheck(StringValueKind.STR_CAST, v -> v.get$strCast() != null));
 
     /**
      * Used to decide whether to filter out the Descriptor.
@@ -157,36 +152,189 @@ public class QueryEvaluator {
     }
 
 
+    private boolean evaluateFirstValueOperator(LogicalExpression expr, Descriptor descriptor) {
+        List<OperationSpec<Value>> operations = Arrays.asList(
+                new OperationSpec<>(ComparisonOperator.EQ, expr::get$eq),
+                new OperationSpec<>(ComparisonOperator.NE, expr::get$ne),
+                new OperationSpec<>(ComparisonOperator.GT, expr::get$gt),
+                new OperationSpec<>(ComparisonOperator.GE, expr::get$ge),
+                new OperationSpec<>(ComparisonOperator.LT, expr::get$lt),
+                new OperationSpec<>(ComparisonOperator.LE, expr::get$le));
+        for (OperationSpec<Value> spec: operations) {
+            List<Value> args = spec.argumentProvider.get();
+            if (args != null && !args.isEmpty()) {
+                return evaluateBinaryComparison(args, descriptor, spec.operator);
+            }
+        }
+        return false;
+    }
+
+
+    private boolean evaluateFirstStringOperator(LogicalExpression expr, Descriptor descriptor) {
+        List<OperationSpec<StringValue>> operations = Arrays.asList(
+                new OperationSpec<>(ComparisonOperator.CONTAINS, expr::get$contains),
+                new OperationSpec<>(ComparisonOperator.STARTS_WITH, expr::get$startsWith),
+                new OperationSpec<>(ComparisonOperator.ENDS_WITH, expr::get$endsWith),
+                new OperationSpec<>(ComparisonOperator.REGEX, expr::get$regex));
+        for (OperationSpec<StringValue> spec: operations) {
+            List<StringValue> args = spec.argumentProvider.get();
+            if (args != null && !args.isEmpty()) {
+                return evaluateBinaryStringOperator(args, descriptor, spec.operator);
+            }
+        }
+        return false;
+    }
+
     /**
-     * determines the value kind of the given value.
+     * @param argumentProvider provides arguments for this operator
+     */
+    private record OperationSpec<T>(ComparisonOperator operator, Supplier<List<T>> argumentProvider) {}
+
+    private boolean evaluateBinaryComparison(List<Value> args, Descriptor descriptor, ComparisonOperator operator) {
+        if (args.size() < 2) {
+            LOGGER.error("Operator {} requires two arguments", operator);
+            return false;
+        }
+        List<Object> left = evaluateValue(args.get(0), descriptor);
+        List<Object> right = evaluateValue(args.get(1), descriptor);
+        return anyPairSatisfies(left, right, operator);
+    }
+
+
+    private boolean evaluateBinaryStringOperator(List<StringValue> args, Descriptor descriptor, ComparisonOperator operator) {
+        if (args.size() < 2) {
+            LOGGER.error("String operator {} requires two arguments", operator);
+            return false;
+        }
+        List<Object> left = evaluateStringValue(args.get(0), descriptor);
+        List<Object> right = evaluateStringValue(args.get(1), descriptor);
+        return anyPairSatisfies(left, right, operator);
+    }
+
+
+    private boolean anyPairSatisfies(List<Object> left, List<Object> right, ComparisonOperator operator) {
+        if (left == null || right == null) {
+            return false;
+        }
+        for (Object l: left) {
+            for (Object r: right) {
+                if (compareValues(l, r, operator)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param predicate checks if a value kind applies
+     */
+    private record ValueKindCheck(ValueKind kind, Predicate<Value> predicate) {}
+
+    /**
+     * @param predicate checks if a string value kind applies
+     */
+    private record StringValueKindCheck(StringValueKind kind, Predicate<StringValue> predicate) {}
+
+    /**
+     * Determines the ValueKind for the given value.
      *
-     * @param v The desired value.
-     * @return The value kind.
+     * @param v the desired value.
+     * @return The corresponding ValueKind.
      */
     public ValueKind determineValueKind(Value v) {
-        if (v == null)
+        if (v == null) {
             return ValueKind.NONE;
-        if (v.get$field() != null)
-            return ValueKind.FIELD;
-        if (v.get$strVal() != null)
-            return ValueKind.STR;
-        if (v.get$numVal() != null)
-            return ValueKind.NUM;
-        if (v.get$hexVal() != null)
-            return ValueKind.HEX;
-        if (v.get$dateTimeVal() != null)
-            return ValueKind.DATETIME;
-        if (v.get$timeVal() != null)
-            return ValueKind.TIME;
-        if (v.get$boolean() != null)
-            return ValueKind.BOOL;
-        if (v.get$strCast() != null)
-            return ValueKind.STR_CAST;
-        if (v.get$numCast() != null)
-            return ValueKind.NUM_CAST;
+        }
+        for (ValueKindCheck check: VALUE_KIND_CHECKS) {
+            if (check.predicate.test(v)) {
+                return check.kind;
+            }
+        }
         return ValueKind.NONE;
     }
 
+
+    private StringValueKind determineStringValueKind(StringValue sv) {
+        if (sv == null) {
+            return StringValueKind.NONE;
+        }
+        for (StringValueKindCheck check: STRING_VALUE_KIND_CHECKS) {
+            if (check.predicate.test(sv)) {
+                return check.kind;
+            }
+        }
+        return StringValueKind.NONE;
+    }
+
+
+    private List<Object> evaluateValue(Value v, Descriptor descriptor) {
+        return switch (determineValueKind(v)) {
+            case FIELD -> nonNull(getFieldValues(v.get$field(), descriptor));
+            case STR -> Collections.singletonList(v.get$strVal());
+            case NUM -> Collections.singletonList(v.get$numVal());
+            case HEX -> Collections.singletonList(v.get$hexVal());
+            case DATETIME -> Collections.singletonList(v.get$dateTimeVal());
+            case TIME -> Collections.singletonList(v.get$timeVal());
+            case BOOL -> Collections.singletonList(v.get$boolean());
+            case STR_CAST -> evaluateValue(v.get$strCast(), descriptor).stream()
+                    .map(String::valueOf).collect(Collectors.toList());
+            case NUM_CAST -> evaluateValue(v.get$numCast(), descriptor).stream()
+                    .map(String::valueOf)
+                    .map(this::parseDoubleOrNull)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            default -> Collections.emptyList();
+        };
+    }
+
+
+    private List<Object> evaluateStringValue(StringValue sv, Descriptor descriptor) {
+        return switch (determineStringValueKind(sv)) {
+            case FIELD -> nonNull(getFieldValues(sv.get$field(), descriptor));
+            case STR -> Collections.singletonList(sv.get$strVal());
+            case STR_CAST -> evaluateValue(sv.get$strCast(), descriptor).stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+            default -> {
+                LOGGER.error("Invalid string value: {}", sv);
+                yield Collections.emptyList();
+            }
+        };
+    }
+
+
+    private Double parseDoubleOrNull(String s) {
+        try {
+            return Double.valueOf(s);
+        }
+        catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+
+    private Double toDouble(Object o) {
+        if (o instanceof Number number) {
+            return number.doubleValue();
+        }
+        return parseDoubleOrNull(String.valueOf(o));
+    }
+
+    /**
+     * @param suffix e.g., ".name", "Sub.Path#value"
+     */
+    private record Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+        private Condition(String suffix, ComparisonOperator operator, List<Object> rightVals) {
+            this.suffix = suffix;
+            this.operator = operator;
+            this.rightVals = rightVals != null ? rightVals : Collections.emptyList();
+        }
+    }
+
+    private record MatchOperation(ComparisonOperator operator, List<Value> args) {}
+
+    private record MatchEvaluationContext(String commonPrefix, List<Condition> itemConditions, boolean directMismatch) {}
 
     private boolean evaluateMatch(List<MatchExpression> matches, Descriptor descriptor) {
         if (matches == null || matches.isEmpty()) {
@@ -271,6 +419,64 @@ public class QueryEvaluator {
     }
 
 
+    private boolean evaluateListMatch(String commonPrefix, List<Condition> itemConditions, Descriptor descriptor) {
+        switch (commonPrefix) {
+            case "$aasdesc#specificAssetIds":
+                if (!(descriptor instanceof AssetAdministrationShellDescriptor aas))
+                    return false;
+                if (aas.getSpecificAssetIds() == null)
+                    return false;
+
+                for (SpecificAssetId item: aas.getSpecificAssetIds()) {
+                    if (doAllItemConditionsMatch(itemConditions, cond -> {
+                        String s = getSpecificAssetIdAttribute(item, cond.suffix);
+                        return s == null ? Collections.emptyList() : Collections.singletonList(s);
+                    })) {
+                        return true;
+                    }
+                }
+                return false;
+
+            //            case PREFIX_SME:
+            //                if (!(identifiable instanceof Submodel sm))
+            //                    return false;
+            //                List<SubmodelElement> topLevel = sm.getSubmodelElements();
+            //                if (topLevel == null)
+            //                    return false;
+            //
+            //                for (SubmodelElement item: topLevel) {
+            //                    if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
+            //                        return true;
+            //                    }
+            //                }
+            //                return false;
+
+            default:
+                //                if (commonPrefix.startsWith(PREFIX_SME + ".")) {
+                //                    if (!(identifiable instanceof Submodel sm2))
+                //                        return false;
+                //                    String path = commonPrefix.substring((PREFIX_SME + ".").length());
+                //                    SubmodelElement listElem = getSubmodelElementByPath(sm2, path);
+                //                    if (!(listElem instanceof SubmodelElementList))
+                //                        return false;
+                //
+                //                    List<SubmodelElement> items = ((SubmodelElementList) listElem).getValue();
+                //                    if (items == null)
+                //                        return false;
+                //
+                //                    for (SubmodelElement item: items) {
+                //                        if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
+                //                            return true;
+                //                        }
+                //                    }
+                //                    return false;
+                //                }
+                LOGGER.error("evaluateListMatch: Unsupported prefix for $match: {}", commonPrefix);
+                return false;
+        }
+    }
+
+
     private MatchOperation getMatchOperation(MatchExpression m) {
         List<MatchOperation> candidates = Arrays.asList(
                 new MatchOperation(ComparisonOperator.EQ, m.get$eq()),
@@ -288,24 +494,15 @@ public class QueryEvaluator {
     }
 
 
-    private List<Object> evaluateValue(Value v, Descriptor descriptor) {
-        return switch (determineValueKind(v)) {
-            case FIELD -> nonNull(getFieldValues(v.get$field(), descriptor));
-            case STR -> Collections.singletonList(v.get$strVal());
-            case NUM -> Collections.singletonList(v.get$numVal());
-            case HEX -> Collections.singletonList(v.get$hexVal());
-            case DATETIME -> Collections.singletonList(v.get$dateTimeVal());
-            case TIME -> Collections.singletonList(v.get$timeVal());
-            case BOOL -> Collections.singletonList(v.get$boolean());
-            case STR_CAST -> evaluateValue(v.get$strCast(), descriptor).stream()
-                    .map(String::valueOf).collect(Collectors.toList());
-            case NUM_CAST -> evaluateValue(v.get$numCast(), descriptor).stream()
-                    .map(String::valueOf)
-                    .map(this::parseDoubleOrNull)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-            default -> Collections.emptyList();
-        };
+    private boolean doAllItemConditionsMatch(List<Condition> conditions,
+                                             java.util.function.Function<Condition, List<Object>> leftValueExtractor) {
+        for (Condition cond: conditions) {
+            List<Object> leftVals = nonNull(leftValueExtractor.apply(cond));
+            if (!anyPairSatisfies(leftVals, cond.rightVals, cond.operator)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -327,11 +524,6 @@ public class QueryEvaluator {
 
         LOGGER.error("Unsupported field: {}", field);
         return Collections.emptyList();
-    }
-
-
-    private static <T> List<T> nonNull(List<T> in) {
-        return in != null ? in : Collections.emptyList();
     }
 
 
@@ -445,48 +637,6 @@ public class QueryEvaluator {
     }
 
 
-    private IndexSelection parseIndexSelection(String s) {
-        if (s == null || s.isEmpty()) {
-            return new IndexSelection(true, null, "");
-        }
-        String rem = s;
-        boolean selectAll = false;
-        Integer idx = null;
-
-        if (rem.startsWith("[]")) {
-            selectAll = true;
-            rem = rem.substring(2);
-        }
-        else if (rem.startsWith("[")) {
-            int end = rem.indexOf(']');
-            if (end > 1) {
-                String idxStr = rem.substring(1, end);
-                try {
-                    idx = Integer.valueOf(idxStr);
-                }
-                catch (NumberFormatException e) {
-                    LOGGER.error("Invalid index in path: {}", s);
-                    return new IndexSelection(true, null, rem.substring(end + 1));
-                }
-                rem = rem.substring(end + 1);
-            }
-        }
-        return new IndexSelection(selectAll, idx, rem);
-    }
-
-
-    private <T> List<T> selectByIndex(List<T> list, IndexSelection selector) {
-        if (list == null || list.isEmpty()) {
-            return Collections.emptyList();
-        }
-        if (selector.selectAll || selector.index == null) {
-            return list;
-        }
-        int i = selector.index;
-        return (i >= 0 && i < list.size()) ? Collections.singletonList(list.get(i)) : Collections.emptyList();
-    }
-
-
     private String getSpecificAssetIdAttribute(SpecificAssetId sai, String path) {
         if ((sai == null) || (path == null)) {
             LOGGER.error("getSpecificAssetIdAttribute: Unsupported property {} for object {}", path, sai);
@@ -529,21 +679,6 @@ public class QueryEvaluator {
     }
 
 
-    private boolean anyPairSatisfies(List<Object> left, List<Object> right, ComparisonOperator operator) {
-        if (left == null || right == null) {
-            return false;
-        }
-        for (Object l: left) {
-            for (Object r: right) {
-                if (compareValues(l, r, operator)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
     private boolean compareValues(Object a, Object b, ComparisonOperator operator) {
         if (operator == null)
             return false;
@@ -572,41 +707,74 @@ public class QueryEvaluator {
 
 
     private boolean compareUsingGeneralComparison(Object a, Object b, ComparisonOperator operator) {
-        if (a == null || b == null) {
-            return (operator == ComparisonOperator.EQ)
-                    ? Objects.equals(a, b)
-                    : (operator == ComparisonOperator.NE) && !Objects.equals(a, b);
+        Boolean nullResult = compareNulls(a, b, operator);
+        if (nullResult != null) {
+            return nullResult;
         }
 
-        // try numeric
-        Double d1 = toDouble(a);
-        Double d2 = toDouble(b);
-        if (d1 != null && d2 != null) {
-            return switch (operator) {
-                case EQ -> Double.compare(d1, d2) == 0;
-                case NE -> Double.compare(d1, d2) != 0;
-                case GT -> d1 > d2;
-                case GE -> d1 >= d2;
-                case LT -> d1 < d2;
-                case LE -> d1 <= d2;
-                default -> false;
-            };
+        Boolean numericResult = compareNumbers(a, b, operator);
+        if (numericResult != null) {
+            return numericResult;
         }
 
-        // try boolean
         String sa = String.valueOf(a).trim();
         String sb = String.valueOf(b).trim();
-        Boolean ba = parseBooleanStrict(sa);
-        Boolean bb = parseBooleanStrict(sb);
-        if (ba != null && bb != null) {
-            return switch (operator) {
-                case EQ -> Objects.equals(ba, bb);
-                case NE -> !Objects.equals(ba, bb);
-                default -> false;
-            };
+        Boolean booleanResult = compareBooleans(sa, sb, operator);
+        if (booleanResult != null) {
+            return booleanResult;
         }
 
-        // string comparison
+        return compareStrings(sa, sb, operator);
+    }
+
+
+    private Boolean compareNulls(Object a, Object b, ComparisonOperator operator) {
+        if (a != null && b != null) {
+            return null;
+        }
+        if (operator == ComparisonOperator.EQ) {
+            return Objects.equals(a, b);
+        }
+        if (operator == ComparisonOperator.NE) {
+            return !Objects.equals(a, b);
+        }
+        return false;
+    }
+
+
+    private Boolean compareNumbers(Object a, Object b, ComparisonOperator operator) {
+        Double d1 = toDouble(a);
+        Double d2 = toDouble(b);
+        if (d1 == null || d2 == null) {
+            return null;
+        }
+        return switch (operator) {
+            case EQ -> Double.compare(d1, d2) == 0;
+            case NE -> Double.compare(d1, d2) != 0;
+            case GT -> d1 > d2;
+            case GE -> d1 >= d2;
+            case LT -> d1 < d2;
+            case LE -> d1 <= d2;
+            default -> false;
+        };
+    }
+
+
+    private Boolean compareBooleans(String sa, String sb, ComparisonOperator operator) {
+        Boolean ba = parseBooleanStrict(sa);
+        Boolean bb = parseBooleanStrict(sb);
+        if (ba == null || bb == null) {
+            return null;
+        }
+        return switch (operator) {
+            case EQ -> Objects.equals(ba, bb);
+            case NE -> !Objects.equals(ba, bb);
+            default -> false;
+        };
+    }
+
+
+    private boolean compareStrings(String sa, String sb, ComparisonOperator operator) {
         int cmp = sa.compareTo(sb);
         return switch (operator) {
             case EQ -> cmp == 0;
@@ -629,93 +797,14 @@ public class QueryEvaluator {
     }
 
 
-    private Double parseDoubleOrNull(String s) {
-        try {
-            return Double.valueOf(s);
-        }
-        catch (NumberFormatException e) {
-            return null;
-        }
+    private static <T> List<T> nonNull(List<T> in) {
+        return in != null ? in : Collections.emptyList();
     }
 
-
-    private Double toDouble(Object o) {
-        if (o instanceof Number number) {
-            return number.doubleValue();
-        }
-        return parseDoubleOrNull(String.valueOf(o));
-    }
-
-
-    private boolean evaluateListMatch(String commonPrefix, List<Condition> itemConditions, Descriptor descriptor) {
-        switch (commonPrefix) {
-            case "$aasdesc#specificAssetIds":
-                if (!(descriptor instanceof AssetAdministrationShellDescriptor aas))
-                    return false;
-                if (aas.getSpecificAssetIds() == null)
-                    return false;
-
-                for (SpecificAssetId item: aas.getSpecificAssetIds()) {
-                    if (doAllItemConditionsMatch(itemConditions, cond -> {
-                        String s = getSpecificAssetIdAttribute(item, cond.suffix);
-                        return s == null ? Collections.emptyList() : Collections.singletonList(s);
-                    })) {
-                        return true;
-                    }
-                }
-                return false;
-
-            //            case PREFIX_SME:
-            //                if (!(identifiable instanceof Submodel sm))
-            //                    return false;
-            //                List<SubmodelElement> topLevel = sm.getSubmodelElements();
-            //                if (topLevel == null)
-            //                    return false;
-            //
-            //                for (SubmodelElement item: topLevel) {
-            //                    if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
-            //                        return true;
-            //                    }
-            //                }
-            //                return false;
-
-            default:
-                //                if (commonPrefix.startsWith(PREFIX_SME + ".")) {
-                //                    if (!(identifiable instanceof Submodel sm2))
-                //                        return false;
-                //                    String path = commonPrefix.substring((PREFIX_SME + ".").length());
-                //                    SubmodelElement listElem = getSubmodelElementByPath(sm2, path);
-                //                    if (!(listElem instanceof SubmodelElementList))
-                //                        return false;
-                //
-                //                    List<SubmodelElement> items = ((SubmodelElementList) listElem).getValue();
-                //                    if (items == null)
-                //                        return false;
-                //
-                //                    for (SubmodelElement item: items) {
-                //                        if (doAllItemConditionsMatch(itemConditions, cond -> getPropertyValuesFromSuffix(item, cond.suffix))) {
-                //                            return true;
-                //                        }
-                //                    }
-                //                    return false;
-                //                }
-                LOGGER.error("evaluateListMatch: Unsupported prefix for $match: {}", commonPrefix);
-                return false;
-        }
-    }
-
-
-    private boolean doAllItemConditionsMatch(List<Condition> conditions,
-                                             java.util.function.Function<Condition, List<Object>> leftValueExtractor) {
-        for (Condition cond: conditions) {
-            List<Object> leftVals = nonNull(leftValueExtractor.apply(cond));
-            if (!anyPairSatisfies(leftVals, cond.rightVals, cond.operator)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /**
+     * @param remainingSuffix remaining suffix (e.g., ".name")
+     */
+    private record IndexSelection(boolean selectAll, Integer index, String remainingSuffix) {}
 
     private static List<String> extractKeyAttributeValues(List<Key> selectedItems, IndexSelection selector) {
         List<String> results = new ArrayList<>();
@@ -731,86 +820,45 @@ public class QueryEvaluator {
     }
 
 
-    private boolean evaluateFirstValueOperator(LogicalExpression expr, Descriptor descriptor) {
-        List<OperationSpec<Value>> operations = Arrays.asList(
-                new OperationSpec<>(ComparisonOperator.EQ, expr::get$eq),
-                new OperationSpec<>(ComparisonOperator.NE, expr::get$ne),
-                new OperationSpec<>(ComparisonOperator.GT, expr::get$gt),
-                new OperationSpec<>(ComparisonOperator.GE, expr::get$ge),
-                new OperationSpec<>(ComparisonOperator.LT, expr::get$lt),
-                new OperationSpec<>(ComparisonOperator.LE, expr::get$le));
-        for (OperationSpec<Value> spec: operations) {
-            List<Value> args = spec.argumentProvider.get();
-            if (args != null && !args.isEmpty()) {
-                return evaluateBinaryComparison(args, descriptor, spec.operator);
+    private IndexSelection parseIndexSelection(String s) {
+        if (s == null || s.isEmpty()) {
+            return new IndexSelection(true, null, "");
+        }
+        String rem = s;
+        boolean selectAll = false;
+        Integer idx = null;
+
+        if (rem.startsWith("[]")) {
+            selectAll = true;
+            rem = rem.substring(2);
+        }
+        else if (rem.startsWith("[")) {
+            int end = rem.indexOf(']');
+            if (end > 1) {
+                String idxStr = rem.substring(1, end);
+                try {
+                    idx = Integer.valueOf(idxStr);
+                }
+                catch (NumberFormatException e) {
+                    LOGGER.error("Invalid index in path: {}", s);
+                    return new IndexSelection(true, null, rem.substring(end + 1));
+                }
+                rem = rem.substring(end + 1);
             }
         }
-        return false;
+        return new IndexSelection(selectAll, idx, rem);
     }
 
 
-    private boolean evaluateBinaryComparison(List<Value> args, Descriptor descriptor, ComparisonOperator operator) {
-        if (args.size() < 2) {
-            LOGGER.error("Operator {} requires two arguments", operator);
-            return false;
+    private <T> List<T> selectByIndex(List<T> list, IndexSelection selector) {
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
         }
-        List<Object> left = evaluateValue(args.get(0), descriptor);
-        List<Object> right = evaluateValue(args.get(1), descriptor);
-        return anyPairSatisfies(left, right, operator);
-    }
-
-
-    private boolean evaluateFirstStringOperator(LogicalExpression expr, Descriptor descriptor) {
-        List<OperationSpec<StringValue>> operations = Arrays.asList(
-                new OperationSpec<>(ComparisonOperator.CONTAINS, expr::get$contains),
-                new OperationSpec<>(ComparisonOperator.STARTS_WITH, expr::get$startsWith),
-                new OperationSpec<>(ComparisonOperator.ENDS_WITH, expr::get$endsWith),
-                new OperationSpec<>(ComparisonOperator.REGEX, expr::get$regex));
-        for (OperationSpec<StringValue> spec: operations) {
-            List<StringValue> args = spec.argumentProvider.get();
-            if (args != null && !args.isEmpty()) {
-                return evaluateBinaryStringOperator(args, descriptor, spec.operator);
-            }
+        if (selector.selectAll || selector.index == null) {
+            return list;
         }
-        return false;
+        int i = selector.index;
+        return (i >= 0 && i < list.size()) ? Collections.singletonList(list.get(i)) : Collections.emptyList();
     }
 
-
-    private boolean evaluateBinaryStringOperator(List<StringValue> args, Descriptor descriptor, ComparisonOperator operator) {
-        if (args.size() < 2) {
-            LOGGER.error("String operator {} requires two arguments", operator);
-            return false;
-        }
-        List<Object> left = evaluateStringValue(args.get(0), descriptor);
-        List<Object> right = evaluateStringValue(args.get(1), descriptor);
-        return anyPairSatisfies(left, right, operator);
-    }
-
-
-    private List<Object> evaluateStringValue(StringValue sv, Descriptor descriptor) {
-        return switch (determineStringValueKind(sv)) {
-            case FIELD -> nonNull(getFieldValues(sv.get$field(), descriptor));
-            case STR -> Collections.singletonList(sv.get$strVal());
-            case STR_CAST -> evaluateValue(sv.get$strCast(), descriptor).stream()
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
-            default -> {
-                LOGGER.error("Invalid string value: {}", sv);
-                yield Collections.emptyList();
-            }
-        };
-    }
-
-
-    private StringValueKind determineStringValueKind(StringValue sv) {
-        if (sv == null)
-            return StringValueKind.NONE;
-        if (sv.get$field() != null)
-            return StringValueKind.FIELD;
-        if (sv.get$strVal() != null)
-            return StringValueKind.STR;
-        if (sv.get$strCast() != null)
-            return StringValueKind.STR_CAST;
-        return StringValueKind.NONE;
-    }
 }
