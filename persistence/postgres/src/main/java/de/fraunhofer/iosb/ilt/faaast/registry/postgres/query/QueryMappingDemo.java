@@ -38,8 +38,8 @@ public class QueryMappingDemo {
                   "Query": {
                     "$condition": {
                       "$eq": [
-                        { "$field": "$aasdesc#globalAssetId" },
-                        { "$strVal": "urn:example:asset:1" }
+                        { "$field": "$aasdesc#assetKind" },
+                        { "$strVal": "Instance" }
                       ]
                     }
                   }

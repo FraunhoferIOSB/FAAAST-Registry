@@ -33,6 +33,30 @@ public class QueryToSqlTranslator {
 
     private final FieldIdentifierResolver fieldResolver;
 
+    private class ValueCast {
+        private String valueCast;
+        private String field;
+
+        public String getValueCast() {
+            return valueCast;
+        }
+
+
+        public void setValueCast(String value) {
+            valueCast = value;
+        }
+
+
+        public String getField() {
+            return field;
+        }
+
+
+        public void setField(String value) {
+            field = value;
+        }
+    }
+
     public QueryToSqlTranslator() {
         this.fieldResolver = new FieldIdentifierResolver();
     }
@@ -70,7 +94,7 @@ public class QueryToSqlTranslator {
         // Translate condition
         LogicalExpression condition = query.get$condition();
         TranslationContext ctx = new TranslationContext();
-        String whereClause = translateLogicalExpression(condition, ctx);
+        String whereClause = translateLogicalExpression(condition, ctx, new ValueCast());
 
         result.setWhereClause(whereClause);
         result.setJoinClauses(ctx.getJoins());
@@ -85,12 +109,12 @@ public class QueryToSqlTranslator {
     // =========================================================================
 
 
-    private String translateLogicalExpression(LogicalExpression expr, TranslationContext ctx) {
+    private String translateLogicalExpression(LogicalExpression expr, TranslationContext ctx, ValueCast valueCast) {
         // $and
         if (expr.get$and() != null && !expr.get$and().isEmpty()) {
             List<String> parts = new ArrayList<>();
             for (LogicalExpression sub: expr.get$and()) {
-                parts.add("(" + translateLogicalExpression(sub, ctx) + ")");
+                parts.add("(" + translateLogicalExpression(sub, ctx, valueCast) + ")");
             }
             return String.join(" AND ", parts);
         }
@@ -99,19 +123,19 @@ public class QueryToSqlTranslator {
         if (expr.get$or() != null && !expr.get$or().isEmpty()) {
             List<String> parts = new ArrayList<>();
             for (LogicalExpression sub: expr.get$or()) {
-                parts.add("(" + translateLogicalExpression(sub, ctx) + ")");
+                parts.add("(" + translateLogicalExpression(sub, ctx, valueCast) + ")");
             }
             return String.join(" OR ", parts);
         }
 
         // $not
         if (expr.get$not() != null) {
-            return "NOT (" + translateLogicalExpression(expr.get$not(), ctx) + ")";
+            return "NOT (" + translateLogicalExpression(expr.get$not(), ctx, valueCast) + ")";
         }
 
         // $match (translates like $and but with correlated element identity)
         if (expr.get$match() != null && !expr.get$match().isEmpty()) {
-            return translateMatchExpression(expr.get$match(), ctx);
+            return translateMatchExpression(expr.get$match(), ctx, valueCast);
         }
 
         // $boolean literal
@@ -141,16 +165,16 @@ public class QueryToSqlTranslator {
 
         // String operators
         if (listIsNotEmpty(expr.get$contains())) {
-            return translateStringOp(expr.get$contains(), "LIKE", "%", "%", ctx);
+            return translateStringOp(expr.get$contains(), "LIKE", "%", "%", ctx, valueCast);
         }
         if (listIsNotEmpty(expr.get$startsWith())) {
-            return translateStringOp(expr.get$startsWith(), "LIKE", "", "%", ctx);
+            return translateStringOp(expr.get$startsWith(), "LIKE", "", "%", ctx, valueCast);
         }
         if (listIsNotEmpty(expr.get$endsWith())) {
-            return translateStringOp(expr.get$endsWith(), "LIKE", "%", "", ctx);
+            return translateStringOp(expr.get$endsWith(), "LIKE", "%", "", ctx, valueCast);
         }
         if (listIsNotEmpty(expr.get$regex())) {
-            return translateStringRegex(expr.get$regex(), ctx);
+            return translateStringRegex(expr.get$regex(), ctx, valueCast);
         }
 
         throw new IllegalArgumentException("Cannot translate logical expression: no recognized operator");
@@ -165,29 +189,30 @@ public class QueryToSqlTranslator {
         if (operands.size() != 2) {
             throw new IllegalArgumentException("Comparison requires exactly 2 operands");
         }
-        String left = translateValue(operands.get(0), ctx);
-        String right = translateValue(operands.get(1), ctx);
+        ValueCast valueCast = new ValueCast();
+        String left = translateValue(operands.get(0), ctx, valueCast);
+        String right = translateValue(operands.get(1), ctx, valueCast);
         return left + " " + sqlOp + " " + right;
     }
 
 
     private String translateStringOp(List<StringValue> operands, String op,
-                                     String prefix, String suffix, TranslationContext ctx) {
+                                     String prefix, String suffix, TranslationContext ctx, ValueCast valueCast) {
         if (operands.size() != 2) {
             throw new IllegalArgumentException("String operation requires exactly 2 operands");
         }
-        String left = translateStringValue(operands.get(0), ctx);
-        String right = translateStringValueLiteral(operands.get(1), ctx, prefix, suffix);
+        String left = translateStringValue(operands.get(0), ctx, valueCast);
+        String right = translateStringValueLiteral(operands.get(1), ctx, prefix, suffix, valueCast);
         return left + " " + op + " " + right;
     }
 
 
-    private String translateStringRegex(List<StringValue> operands, TranslationContext ctx) {
+    private String translateStringRegex(List<StringValue> operands, TranslationContext ctx, ValueCast valueCast) {
         if (operands.size() != 2) {
             throw new IllegalArgumentException("Regex operation requires exactly 2 operands");
         }
-        String left = translateStringValue(operands.get(0), ctx);
-        String right = translateStringValue(operands.get(1), ctx);
+        String left = translateStringValue(operands.get(0), ctx, valueCast);
+        String right = translateStringValue(operands.get(1), ctx, valueCast);
         // PostgreSQL regex operator
         return left + " ~ " + right;
     }
@@ -197,7 +222,7 @@ public class QueryToSqlTranslator {
     // =========================================================================
 
 
-    private String translateValue(Value value, TranslationContext ctx) {
+    private String translateValue(Value value, TranslationContext ctx, ValueCast valueCast) {
         // $field → resolve to SQL expression
         if (value.get$field() != null) {
             FieldMapping mapping = fieldResolver.resolve(value.get$field());
@@ -205,6 +230,9 @@ public class QueryToSqlTranslator {
 
             // assetKind special handling: compare as integer
             if (mapping.isRequiresCast() && "ASSET_KIND_ENUM".equals(mapping.getCastType())) {
+                valueCast.setValueCast(mapping.getCastType());
+                valueCast.setField(value.get$field());
+                //Object v = AssetKindParameterHandler.convertParameterValue(value.get$field(), value.)
                 return mapping.getSqlExpression();
             }
             return mapping.getSqlExpression();
@@ -212,7 +240,12 @@ public class QueryToSqlTranslator {
 
         // $strVal → string literal parameter
         if (value.get$strVal() != null) {
-            ctx.addParameter(value.get$strVal());
+            if (valueCast.getValueCast().equals("ASSET_KIND_ENUM")) {
+                ctx.addParameter(AssetKindParameterHandler.convertParameterValue(valueCast.getField(), value.get$strVal()));
+            }
+            else {
+                ctx.addParameter(value.get$strVal());
+            }
             return "?";
         }
 
@@ -249,27 +282,27 @@ public class QueryToSqlTranslator {
 
         // $strCast → explicit cast to text
         if (value.get$strCast() != null) {
-            return "(" + translateValue(value.get$strCast(), ctx) + ")::TEXT";
+            return "(" + translateValue(value.get$strCast(), ctx, valueCast) + ")::TEXT";
         }
 
         // $numCast → explicit cast to numeric
         if (value.get$numCast() != null) {
-            return "(" + translateValue(value.get$numCast(), ctx) + ")::NUMERIC";
+            return "(" + translateValue(value.get$numCast(), ctx, valueCast) + ")::NUMERIC";
         }
 
         // $boolCast → explicit cast to boolean
         if (value.get$boolCast() != null) {
-            return "(" + translateValue(value.get$boolCast(), ctx) + ")::BOOLEAN";
+            return "(" + translateValue(value.get$boolCast(), ctx, valueCast) + ")::BOOLEAN";
         }
 
         // $dateTimeCast
         if (value.get$dateTimeCast() != null) {
-            return "(" + translateValue(value.get$dateTimeCast(), ctx) + ")::TIMESTAMPTZ";
+            return "(" + translateValue(value.get$dateTimeCast(), ctx, valueCast) + ")::TIMESTAMPTZ";
         }
 
         // $timeCast
         if (value.get$timeCast() != null) {
-            return "(" + translateValue(value.get$timeCast(), ctx) + ")::TIME";
+            return "(" + translateValue(value.get$timeCast(), ctx, valueCast) + ")::TIME";
         }
 
         // $dayOfWeek, $dayOfMonth, $month, $year (date part extraction)
@@ -294,7 +327,7 @@ public class QueryToSqlTranslator {
     }
 
 
-    private String translateStringValue(StringValue sv, TranslationContext ctx) {
+    private String translateStringValue(StringValue sv, TranslationContext ctx, ValueCast valueCast) {
         if (sv.get$field() != null) {
             FieldMapping mapping = fieldResolver.resolve(sv.get$field());
             registerMapping(mapping, ctx);
@@ -305,14 +338,14 @@ public class QueryToSqlTranslator {
             return "?";
         }
         if (sv.get$strCast() != null) {
-            return "(" + translateValue(sv.get$strCast(), ctx) + ")::TEXT";
+            return "(" + translateValue(sv.get$strCast(), ctx, valueCast) + ")::TEXT";
         }
         throw new IllegalArgumentException("Cannot translate StringValue");
     }
 
 
     private String translateStringValueLiteral(StringValue sv, TranslationContext ctx,
-                                               String prefix, String suffix) {
+                                               String prefix, String suffix, ValueCast valueCast) {
         if (sv.get$strVal() != null) {
             // Wrap for LIKE: e.g. '%value%'
             String likeValue = prefix + escapeLike(sv.get$strVal()) + suffix;
@@ -334,7 +367,7 @@ public class QueryToSqlTranslator {
             }
             return mapping.getSqlExpression();
         }
-        return translateStringValue(sv, ctx);
+        return translateStringValue(sv, ctx, valueCast);
     }
 
 
@@ -349,7 +382,7 @@ public class QueryToSqlTranslator {
     // =========================================================================
 
 
-    private String translateMatchExpression(List<MatchExpression> matchItems, TranslationContext ctx) {
+    private String translateMatchExpression(List<MatchExpression> matchItems, TranslationContext ctx, ValueCast valueCast) {
         // $match ensures all conditions apply to the SAME array element.
         // We detect the common array (lateral) and ensure a single lateral alias.
 
@@ -361,7 +394,7 @@ public class QueryToSqlTranslator {
 
         List<String> conditions = new ArrayList<>();
         for (MatchExpression item: matchItems) {
-            conditions.add(translateMatchExpressionItem(item, matchCtx));
+            conditions.add(translateMatchExpressionItem(item, matchCtx, valueCast));
         }
 
         // If a lateral was introduced by match, wrap in EXISTS subquery
@@ -376,12 +409,12 @@ public class QueryToSqlTranslator {
     }
 
 
-    private String translateMatchExpressionItem(MatchExpression item, MatchTranslationContext ctx) {
+    private String translateMatchExpressionItem(MatchExpression item, MatchTranslationContext ctx, ValueCast valueCast) {
         // Nested $match
         if (item.get$match() != null && !item.get$match().isEmpty()) {
             List<String> parts = new ArrayList<>();
             for (MatchExpression sub: item.get$match()) {
-                parts.add(translateMatchExpressionItem(sub, ctx));
+                parts.add(translateMatchExpressionItem(sub, ctx, valueCast));
             }
             return "(" + String.join(" AND ", parts) + ")";
         }
@@ -406,16 +439,16 @@ public class QueryToSqlTranslator {
             return translateComparison(item.get$le(), "<=", ctx.getParent());
         }
         if (listIsNotEmpty(item.get$contains())) {
-            return translateStringOp(item.get$contains(), "LIKE", "%", "%", ctx.getParent());
+            return translateStringOp(item.get$contains(), "LIKE", "%", "%", ctx.getParent(), valueCast);
         }
         if (listIsNotEmpty(item.get$startsWith())) {
-            return translateStringOp(item.get$startsWith(), "LIKE", "", "%", ctx.getParent());
+            return translateStringOp(item.get$startsWith(), "LIKE", "", "%", ctx.getParent(), valueCast);
         }
         if (listIsNotEmpty(item.get$endsWith())) {
-            return translateStringOp(item.get$endsWith(), "LIKE", "%", "", ctx.getParent());
+            return translateStringOp(item.get$endsWith(), "LIKE", "%", "", ctx.getParent(), valueCast);
         }
         if (listIsNotEmpty(item.get$regex())) {
-            return translateStringRegex(item.get$regex(), ctx.getParent());
+            return translateStringRegex(item.get$regex(), ctx.getParent(), valueCast);
         }
         if (item.get$boolean() != null) {
             return item.get$boolean() ? "TRUE" : "FALSE";
