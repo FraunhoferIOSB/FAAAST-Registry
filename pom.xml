@@ -52,8 +52,8 @@
     </issueManagement>
     <properties>
         <assertj.version>3.27.7</assertj.version>
-        <checkstyle.version>12.3.0</checkstyle.version>
-        <eclipse.jdt.version>4.38</eclipse.jdt.version>
+        <checkstyle.version>12.3.1</checkstyle.version>
+        <eclipse.jdt.version>4.40</eclipse.jdt.version>
         <faaast.service.version>1.4.0-SNAPSHOT</faaast.service.version>
         <glassfish.jaxb-runtime>4.0.9</glassfish.jaxb-runtime>
         <h2.version>2.4.240</h2.version>
