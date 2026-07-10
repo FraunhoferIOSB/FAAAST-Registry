@@ -141,7 +141,7 @@ public class ConstraintHelper {
             CommonConstraintHelper.raiseConstraintViolatedException("submodel doesn't have an endpoint");
         }
         CommonConstraintHelper.checkReference(submodel.getSemanticId());
-        CommonConstraintHelper.checkReferences(submodel.getSupplementalSemanticId());
+        CommonConstraintHelper.checkReferences(submodel.getSupplementalSemanticIds());
     }
 
 

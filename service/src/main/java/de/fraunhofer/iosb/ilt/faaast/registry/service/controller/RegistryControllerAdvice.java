@@ -19,7 +19,7 @@ import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.MovedPermanentlyExc
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceAlreadyExistsException;
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.ResourceNotFoundException;
 import de.fraunhofer.iosb.ilt.faaast.service.model.api.Message;
-import org.eclipse.digitaltwin.aas4j.v3.model.MessageTypeEnum;
+import org.eclipse.digitaltwin.aas4j.v3.model.MessageType;
 import org.eclipse.digitaltwin.aas4j.v3.model.Result;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResult;
 import org.springframework.http.HttpStatus;
@@ -47,7 +47,7 @@ public class RegistryControllerAdvice {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(e.getMessage())
                                 .build())
                         .build(),
@@ -66,7 +66,7 @@ public class RegistryControllerAdvice {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(e.getMessage())
                                 .build())
                         .build(),
@@ -89,7 +89,7 @@ public class RegistryControllerAdvice {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(e.getMessage())
                                 .build())
                         .build(),
@@ -108,7 +108,7 @@ public class RegistryControllerAdvice {
         return new ResponseEntity<>(
                 new DefaultResult.Builder()
                         .messages(Message.builder()
-                                .messageType(MessageTypeEnum.ERROR)
+                                .messageType(MessageType.ERROR)
                                 .text(e.getMessage())
                                 .build())
                         .build(),
