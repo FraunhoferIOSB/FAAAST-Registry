@@ -41,7 +41,7 @@ public abstract class JpaSubmodelDescriptorBase extends DefaultSubmodelDescripto
                 displayName(ModelTransformationHelper.convertDisplayNames(other.getDisplayName()));
                 semanticId(ModelTransformationHelper.convertReference(other.getSemanticId()));
                 extensions(ModelTransformationHelper.convertExtensions(other.getExtensions()));
-                supplementalSemanticId(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticId()));
+                supplementalSemanticIds(ModelTransformationHelper.convertReferences(other.getSupplementalSemanticIds()));
             }
             return getSelf();
         }

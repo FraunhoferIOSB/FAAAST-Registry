@@ -207,7 +207,7 @@
                 <cascade><cascade-all/></cascade>
             </many-to-one>
 
-            <many-to-many name="supplementalSemanticId" target-entity="JpaReference" fetch="EAGER" >
+            <many-to-many name="supplementalSemanticIds" target-entity="JpaReference" fetch="EAGER" >
                 <cascade><cascade-all/></cascade>
             </many-to-many>
     

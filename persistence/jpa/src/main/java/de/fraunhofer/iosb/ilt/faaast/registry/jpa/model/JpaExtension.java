@@ -85,7 +85,7 @@ public class JpaExtension extends DefaultExtension {
                 name(other.getName());
                 valueType(other.getValueType());
                 value(other.getValue());
-                refersTo(ModelTransformationHelper.convertReferences(other.getRefersTo()));
+                refersTos(ModelTransformationHelper.convertReferences(other.getRefersTo()));
             }
             return getSelf();
         }
