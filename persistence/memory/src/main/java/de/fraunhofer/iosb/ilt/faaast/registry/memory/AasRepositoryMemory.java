@@ -83,8 +83,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     @Override
     public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
-        Ensure.requireNonNull(id, "id must be non-null");
-        AssetAdministrationShellDescriptor aas = fetchAAS(id);
+        AssetAdministrationShellDescriptor aas = getAASIntern(id);
         Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
     }
@@ -119,11 +118,12 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        AssetAdministrationShellDescriptor oldAAS = getAASIntern(aasId);
         if (Objects.nonNull(oldAAS)) {
             shellDescriptors.remove(aasId);
-            shellDescriptors.put(descriptor.getId(), descriptor);
         }
+        shellDescriptors.put(descriptor.getId(), descriptor);
         return descriptor;
     }
 
@@ -303,4 +303,10 @@ public class AasRepositoryMemory extends AbstractAasRepository {
                 .collect(Collectors.toUnmodifiableList());
     }
 
+
+    private AssetAdministrationShellDescriptor getAASIntern(String id) throws ResourceNotFoundException {
+        Ensure.requireNonNull(id, "id must be non-null");
+        AssetAdministrationShellDescriptor aas = fetchAAS(id);
+        return aas;
+    }
 }

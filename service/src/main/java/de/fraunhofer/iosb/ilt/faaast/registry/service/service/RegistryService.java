@@ -373,8 +373,17 @@ public class RegistryService {
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
-        aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
-        return aasRepository.addSubmodel(aasIdDecoded, submodel);
+        int nr = aasRepository.startTransaction();
+        try {
+            aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
+            SubmodelDescriptor retval = aasRepository.addSubmodel(aasIdDecoded, submodel);
+            aasRepository.commitTransaction(nr);
+            return retval;
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
+        }
     }
 
 
