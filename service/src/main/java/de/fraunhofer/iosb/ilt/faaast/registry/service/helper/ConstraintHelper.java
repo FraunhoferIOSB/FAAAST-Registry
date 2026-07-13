@@ -39,7 +39,7 @@ public class ConstraintHelper {
     public static final Pattern LANG_LANGUAGE_PATTERN = Pattern.compile(
             "^(([a-zA-Z]{2,3}(-[a-zA-Z]{3}(-[a-zA-Z]{3}){2})?|[a-zA-Z]{4}|[a-zA-Z]{5,8})(-[a-zA-Z]{4})?(-([a-zA-Z]{2}|[0-9]{3}))?(-(([a-zA-Z0-9]){5,8}|[0-9]([a-zA-Z0-9]){3}))*(-[0-9A-WY-Za-wy-z](-([a-zA-Z0-9]){2,8})+)*(-[xX](-([a-zA-Z0-9]){1,8})+)?|[xX](-([a-zA-Z0-9]){1,8})+|((en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)|(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang)))$");
     private static final Pattern VERSION_PATTERN = Pattern.compile("^(0|[1-9][0-9]*)$");
-    public static final int MAX_IDENTIFIER_LENGTH = 2000;
+    public static final int MAX_IDENTIFIER_LENGTH = 2048;
     public static final int MAX_IDSHORT_LENGTH = 128;
     public static final int MAX_DESCRIPTION_TEXT_LENGTH = 1023;
     public static final int MAX_IEC61360_NAME_TEXT_LENGTH = 255;
