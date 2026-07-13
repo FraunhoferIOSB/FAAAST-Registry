@@ -76,6 +76,7 @@ public class DiscoveryController {
      * @return Requested Asset Administration Shell ids.
      */
     @GetMapping(value = "/shells")
+    @Deprecated(since = "1.2")
     public Page<String> getAllAssetAdministrationShellIdsBySpecificAssetIds(@RequestParam(name = "assetIds", required = false, defaultValue = "W10") List<SpecificAssetId> assetIds,
                                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                                             @RequestParam(name = "cursor", required = false) String cursor) {
