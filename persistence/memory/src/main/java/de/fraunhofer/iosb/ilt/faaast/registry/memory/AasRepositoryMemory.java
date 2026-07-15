@@ -205,7 +205,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         boolean found = aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
-        submodelDescriptors.remove(submodelId);
     }
 
 
