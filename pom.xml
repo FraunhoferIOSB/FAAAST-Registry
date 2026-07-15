@@ -57,11 +57,11 @@
         <faaast.service.version>1.4.0-SNAPSHOT</faaast.service.version>
         <glassfish.jaxb-runtime>4.0.9</glassfish.jaxb-runtime>
         <h2.version>2.4.240</h2.version>
-        <hibernate.version>7.4.4.Final</hibernate.version>
+        <hibernate.version>7.4.5.Final</hibernate.version>
         <jackson.annotations.version>2.22</jackson.annotations.version>
-        <jackson.version>3.2.0</jackson.version>
+        <jackson.version>3.2.1</jackson.version>
         <janino.version>3.1.12</janino.version>
-        <junit.jupiter.version>6.1.1</junit.jupiter.version>
+        <junit.jupiter.version>6.1.2</junit.jupiter.version>
         <log4j.api.version>2.26.1</log4j.api.version>
         <logback.version>1.5.38</logback.version>
         <maven.compiler.source>17</maven.compiler.source>
