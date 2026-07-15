@@ -148,7 +148,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
         AssetAdministrationShellDescriptor retval;
         if (!transactions.isEmpty()) {
             retval = doUpdate(aasId, descriptor);
@@ -367,6 +367,50 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
+    @Override
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+        SubmodelDescriptor retval = null;
+        if (!transactions.isEmpty()) {
+            retval = doUpdateSubmodel(submodelId, descriptor);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doUpdateSubmodel(submodelId, descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
+        return retval;
+    }
+
+
+    @Override
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        SubmodelDescriptor retval = null;
+        if (!transactions.isEmpty()) {
+            retval = doUpdateSubmodel(aasId, submodelId, descriptor);
+        }
+        else {
+            // use internal transaction
+            int nr = startTransaction();
+            try {
+                retval = doUpdateSubmodel(aasId, submodelId, descriptor);
+                commitTransaction(nr);
+            }
+            catch (Exception ex) {
+                rollbackTransaction(nr);
+                throw ex;
+            }
+        }
+        return retval;
+    }
+
+
     private void doDeleteAAS(String aasId) throws ResourceNotFoundException {
         ensureAasId(aasId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
@@ -385,13 +429,16 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         JpaAssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
-        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        if (aas != null) {
+            entityManager.remove(aas);
+        }
         return entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
-                .id(aas.getId())
+                .id(aasId)
                 .from(descriptor)
                 .build());
     }
@@ -427,11 +474,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         ensureSubmodelId(submodelId);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        Optional<SubmodelDescriptor> submodel = aas.getSubmodelDescriptors().stream()
-                .filter(x -> Objects.equals(x.getId(), submodelId)
-                        || (Objects.nonNull(x.getId())
-                                && x.getId().equalsIgnoreCase(submodelId)))
-                .findAny();
+        Optional<SubmodelDescriptor> submodel = getSubmodelInternal(aas.getSubmodelDescriptors(), submodelId);
         Ensure.require(submodel.isPresent(), buildSubmodelNotFoundInAASException(aasId, submodelId));
         entityManager.remove(aas);
         aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodelId));
@@ -444,6 +487,38 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         SubmodelDescriptor submodel = fetchSubmodelStandalone(submodelId);
         Ensure.requireNonNull(submodel, buildSubmodelNotFoundException(submodelId));
         entityManager.remove(submodel);
+    }
+
+
+    private SubmodelDescriptor doUpdateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        entityManager.remove(aas);
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        if (getSubmodelInternal(aas.getSubmodelDescriptors(), submodelId).isPresent()) {
+            aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodelId));
+        }
+        JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
+        aas.getSubmodelDescriptors().add(submodel);
+        entityManager.persist(aas);
+        return submodel;
+    }
+
+
+    private SubmodelDescriptor doUpdateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        JpaSubmodelDescriptorStandalone submodel = fetchSubmodelStandalone(descriptor.getId());
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        if (submodel == null) {
+            entityManager.remove(submodel);
+        }
+        submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
+        entityManager.merge(submodel);
+        return submodel;
     }
 
 
@@ -471,4 +546,5 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         // Pre-filter to get subset of descriptors matching most commonly defined fields in a specific asset id (name,value) and global asset id
         return EntityManagerHelper.getAas(entityManager, specificAssetIdNameValueMap, globalAssetIdString);
     }
+
 }

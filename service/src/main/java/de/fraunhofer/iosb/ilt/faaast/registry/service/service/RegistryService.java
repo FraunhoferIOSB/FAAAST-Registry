@@ -345,8 +345,7 @@ public class RegistryService {
         LOGGER.debug("updateSubmodel: Submodel {}", submodelIdDecoded);
         int nr = aasRepository.startTransaction();
         try {
-            aasRepository.deleteSubmodel(submodelIdDecoded);
-            SubmodelDescriptor retval = aasRepository.addSubmodel(submodel);
+            SubmodelDescriptor retval = aasRepository.updateSubmodel(submodelIdDecoded, submodel);
             aasRepository.commitTransaction(nr);
             return retval;
         }
@@ -375,8 +374,7 @@ public class RegistryService {
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
         int nr = aasRepository.startTransaction();
         try {
-            aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
-            SubmodelDescriptor retval = aasRepository.addSubmodel(aasIdDecoded, submodel);
+            SubmodelDescriptor retval = aasRepository.updateSubmodel(aasIdDecoded, submodelIdDecoded, submodel);
             aasRepository.commitTransaction(nr);
             return retval;
         }

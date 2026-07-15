@@ -115,7 +115,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
@@ -252,35 +252,36 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     }
 
 
-    private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
-        ensureAasId(aasId);
-        return shellDescriptors.getOrDefault(aasId, null);
-    }
-
-
-    private static boolean filterAssetType(AssetAdministrationShellDescriptor aas, String assetType) {
-        if (assetType == null) {
-            return true;
-        }
-        else {
-            return aas.getAssetType().equals(assetType);
-        }
-    }
-
-
-    private static boolean filterAssetKind(AssetAdministrationShellDescriptor aas, AssetKind assetKind) {
-        if (assetKind == null) {
-            return true;
-        }
-        else {
-            return aas.getAssetKind() == assetKind;
-        }
+    @Override
+    public boolean getTransactionActive() {
+        return transactionActive;
     }
 
 
     @Override
-    public boolean getTransactionActive() {
-        return transactionActive;
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        if (submodelDescriptors.containsKey(submodelId)) {
+            submodelDescriptors.remove(submodelId);
+        }
+        submodelDescriptors.put(descriptor.getId(), descriptor);
+        return descriptor;
+    }
+
+
+    @Override
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
+        aas.getSubmodelDescriptors().add(descriptor);
+        return descriptor;
     }
 
 
@@ -307,5 +308,31 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     private AssetAdministrationShellDescriptor getAASIntern(String id) {
         Ensure.requireNonNull(id, "id must be non-null");
         return fetchAAS(id);
+    }
+
+
+    private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
+        ensureAasId(aasId);
+        return shellDescriptors.getOrDefault(aasId, null);
+    }
+
+
+    private static boolean filterAssetType(AssetAdministrationShellDescriptor aas, String assetType) {
+        if (assetType == null) {
+            return true;
+        }
+        else {
+            return aas.getAssetType().equals(assetType);
+        }
+    }
+
+
+    private static boolean filterAssetKind(AssetAdministrationShellDescriptor aas, AssetKind assetKind) {
+        if (assetKind == null) {
+            return true;
+        }
+        else {
+            return aas.getAssetKind() == assetKind;
+        }
     }
 }
