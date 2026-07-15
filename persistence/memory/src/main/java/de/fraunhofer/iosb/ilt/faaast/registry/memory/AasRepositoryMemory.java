@@ -304,9 +304,8 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     }
 
 
-    private AssetAdministrationShellDescriptor getAASIntern(String id) throws ResourceNotFoundException {
+    private AssetAdministrationShellDescriptor getAASIntern(String id) {
         Ensure.requireNonNull(id, "id must be non-null");
-        AssetAdministrationShellDescriptor aas = fetchAAS(id);
-        return aas;
+        return fetchAAS(id);
     }
 }
