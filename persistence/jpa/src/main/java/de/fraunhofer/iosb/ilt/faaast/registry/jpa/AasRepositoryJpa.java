@@ -496,14 +496,13 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        entityManager.remove(aas);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
         if (getSubmodelInternal(aas.getSubmodelDescriptors(), submodelId).isPresent()) {
             aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodelId));
         }
         JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
-        entityManager.persist(aas);
+        entityManager.merge(aas);
         return submodel;
     }
 
@@ -513,7 +512,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         ensureDescriptorId(descriptor);
         JpaSubmodelDescriptorStandalone submodel = fetchSubmodelStandalone(descriptor.getId());
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
-        if (submodel == null) {
+        if (submodel != null) {
             entityManager.remove(submodel);
         }
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
