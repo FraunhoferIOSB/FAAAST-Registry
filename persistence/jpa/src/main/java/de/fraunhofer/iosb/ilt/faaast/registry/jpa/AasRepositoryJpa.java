@@ -502,8 +502,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         }
         JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
-        entityManager.merge(aas);
-        return submodel;
+        return getSubmodelInternal(entityManager.merge(aas).getSubmodelDescriptors(), submodel.getId()).get();
     }
 
 
@@ -516,8 +515,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             entityManager.remove(submodel);
         }
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
-        entityManager.merge(submodel);
-        return submodel;
+        return entityManager.merge(submodel);
     }
 
 
