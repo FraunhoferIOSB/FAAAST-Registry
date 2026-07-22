@@ -502,7 +502,13 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         }
         JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
-        return getSubmodelInternal(entityManager.merge(aas).getSubmodelDescriptors(), submodel.getId()).get();
+        Optional<SubmodelDescriptor> retval = getSubmodelInternal(entityManager.merge(aas).getSubmodelDescriptors(), submodel.getId());
+        if (retval.isPresent()) {
+            return retval.get();
+        }
+        else {
+            return submodel;
+        }
     }
 
 
