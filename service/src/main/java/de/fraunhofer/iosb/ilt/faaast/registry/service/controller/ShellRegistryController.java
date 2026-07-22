@@ -148,15 +148,14 @@ public class ShellRegistryController {
      *
      * @param aasIdentifier The ID of the desired Asset Administration Shell.
      * @param aas The desired Asset Administration Shell.
-     * @return The updated Asset Administration Shell.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     @PutMapping(value = "/{aasIdentifier}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public AssetAdministrationShellDescriptor update(@PathVariable("aasIdentifier") String aasIdentifier,
-                                                     @RequestBody AssetAdministrationShellDescriptor aas)
+    public void update(@PathVariable("aasIdentifier") String aasIdentifier,
+                       @RequestBody AssetAdministrationShellDescriptor aas)
             throws ResourceNotFoundException {
-        return service.updateAAS(aasIdentifier, aas);
+        service.updateAAS(aasIdentifier, aas);
     }
 
 
@@ -235,17 +234,16 @@ public class ShellRegistryController {
      * @param aasIdentifier The ID of the desired AAS.
      * @param submodelIdentifier The ID of the desired Submodel.
      * @param submodel The desired Submodel.
-     * @return The updated Submodel.
      * @throws ResourceNotFoundException When the AAS was not found.
      * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PutMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public SubmodelDescriptor updateSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
-                                                  @PathVariable("submodelIdentifier") String submodelIdentifier,
-                                                  @RequestBody SubmodelDescriptor submodel)
+    public void updateSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                    @PathVariable("submodelIdentifier") String submodelIdentifier,
+                                    @RequestBody SubmodelDescriptor submodel)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        return service.updateSubmodel(aasIdentifier, submodelIdentifier, submodel);
+        service.updateSubmodel(aasIdentifier, submodelIdentifier, submodel);
     }
 
 

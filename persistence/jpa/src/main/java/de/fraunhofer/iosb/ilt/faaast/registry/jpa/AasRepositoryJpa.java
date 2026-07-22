@@ -148,16 +148,15 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
-        AssetAdministrationShellDescriptor retval;
+    public void update(String aasId, AssetAdministrationShellDescriptor descriptor) {
         if (!transactions.isEmpty()) {
-            retval = doUpdate(aasId, descriptor);
+            doUpdate(aasId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                retval = doUpdate(aasId, descriptor);
+                doUpdate(aasId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -165,7 +164,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
-        return retval;
     }
 
 
@@ -368,16 +366,15 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
-        SubmodelDescriptor retval = null;
+    public void updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
         if (!transactions.isEmpty()) {
-            retval = doUpdateSubmodel(submodelId, descriptor);
+            doUpdateSubmodel(submodelId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                retval = doUpdateSubmodel(submodelId, descriptor);
+                doUpdateSubmodel(submodelId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -385,21 +382,19 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
-        return retval;
     }
 
 
     @Override
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
-        SubmodelDescriptor retval = null;
+    public void updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
         if (!transactions.isEmpty()) {
-            retval = doUpdateSubmodel(aasId, submodelId, descriptor);
+            doUpdateSubmodel(aasId, submodelId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                retval = doUpdateSubmodel(aasId, submodelId, descriptor);
+                doUpdateSubmodel(aasId, submodelId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -407,7 +402,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
-        return retval;
     }
 
 
@@ -429,7 +423,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) {
+    private void doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         JpaAssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
@@ -437,7 +431,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         if (aas != null) {
             entityManager.remove(aas);
         }
-        return entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
+        entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
                 .id(aasId)
                 .from(descriptor)
                 .build());
@@ -490,7 +484,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private SubmodelDescriptor doUpdateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    private void doUpdateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
@@ -502,17 +496,11 @@ public class AasRepositoryJpa extends AbstractAasRepository {
         }
         JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
         aas.getSubmodelDescriptors().add(submodel);
-        Optional<SubmodelDescriptor> retval = getSubmodelInternal(entityManager.merge(aas).getSubmodelDescriptors(), submodel.getId());
-        if (retval.isPresent()) {
-            return retval.get();
-        }
-        else {
-            return submodel;
-        }
+        entityManager.merge(aas);
     }
 
 
-    private SubmodelDescriptor doUpdateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+    private void doUpdateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
         JpaSubmodelDescriptorStandalone submodel = fetchSubmodelStandalone(descriptor.getId());
@@ -521,7 +509,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             entityManager.remove(submodel);
         }
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
-        return entityManager.merge(submodel);
+        entityManager.merge(submodel);
     }
 
 

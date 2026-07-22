@@ -115,7 +115,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+    public void update(String aasId, AssetAdministrationShellDescriptor descriptor) {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
@@ -124,7 +124,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             shellDescriptors.remove(aasId);
         }
         shellDescriptors.put(descriptor.getId(), descriptor);
-        return descriptor;
     }
 
 
@@ -258,7 +257,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+    public void updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
@@ -266,12 +265,11 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             submodelDescriptors.remove(submodelId);
         }
         submodelDescriptors.put(descriptor.getId(), descriptor);
-        return descriptor;
     }
 
 
     @Override
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    public void updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
@@ -280,7 +278,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
         aas.getSubmodelDescriptors().add(descriptor);
-        return descriptor;
     }
 
 

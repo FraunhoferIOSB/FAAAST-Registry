@@ -127,15 +127,14 @@ public class SubmodelRegistryController {
      *
      * @param submodelIdentifier The ID of the desired Submodel.
      * @param submodel The desired Submodel.
-     * @return The updated Submodel.
      * @throws ResourceNotFoundException When the Submodel was not found.
      * @throws ResourceAlreadyExistsException When an error occurs.
      */
     @PutMapping(value = "/{submodelIdentifier}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public SubmodelDescriptor update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel)
+    public void update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel)
             throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        return service.updateSubmodel(submodelIdentifier, submodel);
+        service.updateSubmodel(submodelIdentifier, submodel);
     }
 
 

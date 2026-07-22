@@ -98,9 +98,8 @@ public interface AasRepository {
      *
      * @param aasId The ID of the desired Asset Administration Shell.
      * @param descriptor The desired Asset Administration Shell.
-     * @return The updated Asset Administration Shell.
      */
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor);
+    public void update(String aasId, AssetAdministrationShellDescriptor descriptor);
 
 
     /**
@@ -229,9 +228,8 @@ public interface AasRepository {
      *
      * @param submodelId The ID of the desired Submodel.
      * @param descriptor The submodel to add.
-     * @return The descriptor of the created submodel.
      */
-    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor);
+    public void updateSubmodel(String submodelId, SubmodelDescriptor descriptor);
 
 
     /**
@@ -240,8 +238,7 @@ public interface AasRepository {
      * @param aasId The ID of the desired Asset Administration Shell.
      * @param submodelId The ID of the desired Submodel.
      * @param descriptor The submodel to add.
-     * @return The descriptor of the created submodel.
      * @throws ResourceNotFoundException if the requested resource does not exist
      */
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException;
+    public void updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException;
 }
