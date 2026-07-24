@@ -40,6 +40,8 @@ public class DescriptionController {
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
+                .profile(ServiceSpecificationProfile.AAS_REGISTRY_BULK)
+                .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_BULK)
                 .build();
     }
 

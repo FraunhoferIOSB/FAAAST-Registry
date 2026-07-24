@@ -64,8 +64,10 @@ public class JpaProtocolInformation extends DefaultProtocolInformation {
     public void setJpaEndpointProtocolVersion(List<JpaString> jpaEndpointProtocolVersion) {
         this.jpaEndpointProtocolVersion = jpaEndpointProtocolVersion;
         List<String> versions = new ArrayList<>();
-        for (var v: jpaEndpointProtocolVersion) {
-            versions.add(v.getValue());
+        if (jpaEndpointProtocolVersion != null) {
+            for (var v: jpaEndpointProtocolVersion) {
+                versions.add(v.getValue());
+            }
         }
         setEndpointProtocolVersion(versions);
     }

@@ -74,8 +74,12 @@ public class DiscoveryController {
      * @param cursor A server-generated identifier retrieved from pagingMetadata that specifies from which position the
      *            result listing should continue.
      * @return Requested Asset Administration Shell ids.
+     * @deprecated use
+     *             {@link #searchAllAssetAdministrationShellIdsByAssetLink(java.lang.Long, java.lang.String, java.util.List)}
+     *             instead.
      */
     @GetMapping(value = "/shells")
+    @Deprecated(since = "1.2")
     public Page<String> getAllAssetAdministrationShellIdsBySpecificAssetIds(@RequestParam(name = "assetIds", required = false, defaultValue = "W10") List<SpecificAssetId> assetIds,
                                                                             @RequestParam(name = "limit", required = false) Long limit,
                                                                             @RequestParam(name = "cursor", required = false) String cursor) {

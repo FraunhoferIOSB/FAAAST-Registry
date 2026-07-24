@@ -83,8 +83,7 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
     @Override
     public AssetAdministrationShellDescriptor getAAS(String id) throws ResourceNotFoundException {
-        Ensure.requireNonNull(id, "id must be non-null");
-        AssetAdministrationShellDescriptor aas = fetchAAS(id);
+        AssetAdministrationShellDescriptor aas = getAASIntern(id);
         Ensure.requireNonNull(aas, buildAASNotFoundException(id));
         return aas;
     }
@@ -116,15 +115,23 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) throws ResourceNotFoundException {
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+        AssetAdministrationShellDescriptor retval;
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
-        AssetAdministrationShellDescriptor oldAAS = getAAS(aasId);
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the AAS is created, the descriptor is returned, if it's updated, null is returned.
+        AssetAdministrationShellDescriptor oldAAS = getAASIntern(aasId);
         if (Objects.nonNull(oldAAS)) {
+            // This remove operation is necessary, as aasId can possibly be another ID than the one in descriptor.
             shellDescriptors.remove(aasId);
-            shellDescriptors.put(descriptor.getId(), descriptor);
+            retval = null;
         }
-        return descriptor;
+        else {
+            retval = descriptor;
+        }
+        shellDescriptors.put(descriptor.getId(), descriptor);
+        return retval;
     }
 
 
@@ -205,7 +212,6 @@ public class AasRepositoryMemory extends AbstractAasRepository {
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         boolean found = aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
         Ensure.require(found, buildSubmodelNotFoundException(submodelId));
-        submodelDescriptors.remove(submodelId);
     }
 
 
@@ -252,6 +258,79 @@ public class AasRepositoryMemory extends AbstractAasRepository {
     }
 
 
+    @Override
+    public boolean getTransactionActive() {
+        return transactionActive;
+    }
+
+
+    @Override
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        SubmodelDescriptor retval;
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
+        if (submodelDescriptors.containsKey(submodelId)) {
+            submodelDescriptors.remove(submodelId);
+            retval = null;
+        }
+        else {
+            retval = descriptor;
+        }
+        submodelDescriptors.put(descriptor.getId(), descriptor);
+        return retval;
+    }
+
+
+    @Override
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        ensureAasId(aasId);
+        ensureSubmodelId(submodelId);
+        ensureDescriptorId(descriptor);
+        SubmodelDescriptor retval;
+        // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
+        AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
+        Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
+        if (aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId))) {
+            retval = null;
+        }
+        else {
+            retval = descriptor;
+        }
+        aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), descriptor.getId()));
+        aas.getSubmodelDescriptors().add(descriptor);
+        return retval;
+    }
+
+
+    private List<AssetAdministrationShellDescriptor> shellsDeepCopy() {
+        return shellDescriptors.values().stream()
+                .map(descriptor -> new DefaultAssetAdministrationShellDescriptor.Builder()
+                        .id(descriptor.getId())
+                        .idShort(descriptor.getIdShort())
+                        .specificAssetIds(descriptor.getSpecificAssetIds())
+                        .globalAssetId(descriptor.getGlobalAssetId())
+                        .submodelDescriptors(descriptor.getSubmodelDescriptors())
+                        .extensions(descriptor.getExtensions())
+                        .endpoints(descriptor.getEndpoints())
+                        .displayName(descriptor.getDisplayName())
+                        .administration(descriptor.getAdministration())
+                        .assetType(descriptor.getAssetType())
+                        .assetKind(descriptor.getAssetKind())
+                        .description(descriptor.getDescription())
+                        .build())
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+
+    private AssetAdministrationShellDescriptor getAASIntern(String id) {
+        Ensure.requireNonNull(id, "id must be non-null");
+        return fetchAAS(id);
+    }
+
+
     private AssetAdministrationShellDescriptor fetchAAS(String aasId) {
         ensureAasId(aasId);
         return shellDescriptors.getOrDefault(aasId, null);
@@ -276,31 +355,4 @@ public class AasRepositoryMemory extends AbstractAasRepository {
             return aas.getAssetKind() == assetKind;
         }
     }
-
-
-    @Override
-    public boolean getTransactionActive() {
-        return transactionActive;
-    }
-
-
-    private List<AssetAdministrationShellDescriptor> shellsDeepCopy() {
-        return shellDescriptors.values().stream()
-                .map(descriptor -> new DefaultAssetAdministrationShellDescriptor.Builder()
-                        .id(descriptor.getId())
-                        .idShort(descriptor.getIdShort())
-                        .specificAssetIds(descriptor.getSpecificAssetIds())
-                        .globalAssetId(descriptor.getGlobalAssetId())
-                        .submodelDescriptors(descriptor.getSubmodelDescriptors())
-                        .extensions(descriptor.getExtensions())
-                        .endpoints(descriptor.getEndpoints())
-                        .displayName(descriptor.getDisplayName())
-                        .administration(descriptor.getAdministration())
-                        .assetType(descriptor.getAssetType())
-                        .assetKind(descriptor.getAssetKind())
-                        .description(descriptor.getDescription())
-                        .build())
-                .collect(Collectors.toUnmodifiableList());
-    }
-
 }

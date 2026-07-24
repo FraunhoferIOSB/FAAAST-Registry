@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +44,9 @@ class DescriptionControllerIT {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Value("${server.servlet.context-path}")
+    private String apiPrefix;
+
     @Test
     void testDescription() {
         assertDescriptions("");
@@ -64,12 +68,14 @@ class DescriptionControllerIT {
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.DISCOVERY_FULL)
+                .profile(ServiceSpecificationProfile.AAS_REGISTRY_BULK)
+                .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_BULK)
                 .build();
         Assertions.assertEquals(expected, response.getBody());
     }
 
 
     private String createURLWithPort(String uri) {
-        return "http://localhost:" + port + "/api/v3.0/description" + uri;
+        return "http://localhost:" + port + apiPrefix + "/description" + uri;
     }
 }

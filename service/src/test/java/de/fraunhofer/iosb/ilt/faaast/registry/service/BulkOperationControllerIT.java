@@ -49,6 +49,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,6 +80,9 @@ class BulkOperationControllerIT {
 
     @Autowired
     private AasRepository aasRepository;
+
+    @Value("${server.servlet.context-path}")
+    private String apiPrefix;
 
     @BeforeEach
     void init() {
@@ -286,7 +290,7 @@ class BulkOperationControllerIT {
 
 
     private String createURLWithPort(String uri) {
-        return "http://localhost:" + port + "/api/v3.0/bulk" + uri;
+        return "http://localhost:" + port + apiPrefix + "/bulk" + uri;
     }
 
 
