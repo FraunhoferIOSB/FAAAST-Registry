@@ -539,7 +539,6 @@ public class AasRepositoryJpa extends AbstractAasRepository {
             entityManager.remove(submodel);
             update = true;
         }
-        //JpaSubmodelDescriptorStandalone submodel2 = fetchSubmodelStandalone(descriptor.getId());
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
         SubmodelDescriptor retval = entityManager.merge(submodel);
         if (update) {
