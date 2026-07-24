@@ -115,15 +115,23 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public void update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+        AssetAdministrationShellDescriptor retval;
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the AAS is created, the descriptor is returned, if it's updated, null is returned.
         AssetAdministrationShellDescriptor oldAAS = getAASIntern(aasId);
         if (Objects.nonNull(oldAAS)) {
+            // This remove operation is necessary, as aasId can possibly be another ID than the one in descriptor.
             shellDescriptors.remove(aasId);
+            retval = null;
+        }
+        else {
+            retval = descriptor;
         }
         shellDescriptors.put(descriptor.getId(), descriptor);
+        return retval;
     }
 
 
@@ -257,27 +265,43 @@ public class AasRepositoryMemory extends AbstractAasRepository {
 
 
     @Override
-    public void updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
+        SubmodelDescriptor retval;
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
         if (submodelDescriptors.containsKey(submodelId)) {
             submodelDescriptors.remove(submodelId);
+            retval = null;
+        }
+        else {
+            retval = descriptor;
         }
         submodelDescriptors.put(descriptor.getId(), descriptor);
+        return retval;
     }
 
 
     @Override
-    public void updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
+        SubmodelDescriptor retval;
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
-        aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId));
+        if (aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), submodelId))) {
+            retval = null;
+        }
+        else {
+            retval = descriptor;
+        }
+        aas.getSubmodelDescriptors().removeIf(x -> Objects.equals(x.getId(), descriptor.getId()));
         aas.getSubmodelDescriptors().add(descriptor);
+        return retval;
     }
 
 

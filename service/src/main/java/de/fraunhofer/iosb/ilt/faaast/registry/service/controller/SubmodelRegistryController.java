@@ -127,14 +127,21 @@ public class SubmodelRegistryController {
      *
      * @param submodelIdentifier The ID of the desired Submodel.
      * @param submodel The desired Submodel.
+     * @return The descriptor and status Created of the created submodel, null and status NoContent if updated.
      * @throws ResourceNotFoundException When the Submodel was not found.
-     * @throws ResourceAlreadyExistsException When an error occurs.
      */
     @PutMapping(value = "/{submodelIdentifier}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel)
-            throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        service.updateSubmodel(submodelIdentifier, submodel);
+    public ResponseEntity<SubmodelDescriptor> update(@PathVariable("submodelIdentifier") String submodelIdentifier, @RequestBody SubmodelDescriptor submodel)
+            throws ResourceNotFoundException {
+        SubmodelDescriptor retval = service.updateSubmodel(submodelIdentifier, submodel);
+        if (retval != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(retval.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(retval);
+        }
+        return ResponseEntity.noContent().build();
     }
 
 

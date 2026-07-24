@@ -148,15 +148,16 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public void update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+    public AssetAdministrationShellDescriptor update(String aasId, AssetAdministrationShellDescriptor descriptor) {
+        AssetAdministrationShellDescriptor retval;
         if (!transactions.isEmpty()) {
-            doUpdate(aasId, descriptor);
+            retval = doUpdate(aasId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                doUpdate(aasId, descriptor);
+                retval = doUpdate(aasId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -164,6 +165,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
+        return retval;
     }
 
 
@@ -366,15 +368,16 @@ public class AasRepositoryJpa extends AbstractAasRepository {
 
 
     @Override
-    public void updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+        SubmodelDescriptor retval;
         if (!transactions.isEmpty()) {
-            doUpdateSubmodel(submodelId, descriptor);
+            retval = doUpdateSubmodel(submodelId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                doUpdateSubmodel(submodelId, descriptor);
+                retval = doUpdateSubmodel(submodelId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -382,19 +385,21 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
+        return retval;
     }
 
 
     @Override
-    public void updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+        SubmodelDescriptor retval;
         if (!transactions.isEmpty()) {
-            doUpdateSubmodel(aasId, submodelId, descriptor);
+            retval = doUpdateSubmodel(aasId, submodelId, descriptor);
         }
         else {
             // use internal transaction
             int nr = startTransaction();
             try {
-                doUpdateSubmodel(aasId, submodelId, descriptor);
+                retval = doUpdateSubmodel(aasId, submodelId, descriptor);
                 commitTransaction(nr);
             }
             catch (Exception ex) {
@@ -402,6 +407,7 @@ public class AasRepositoryJpa extends AbstractAasRepository {
                 throw ex;
             }
         }
+        return retval;
     }
 
 
@@ -423,18 +429,27 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private void doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) {
+    private AssetAdministrationShellDescriptor doUpdate(String aasId, AssetAdministrationShellDescriptor descriptor) {
         ensureAasId(aasId);
         ensureDescriptorId(descriptor);
-        JpaAssetAdministrationShellDescriptor aas = fetchAAS(descriptor.getId());
+        AssetAdministrationShellDescriptor retval;
+        JpaAssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the AAS is created, the descriptor is returned, if it's updated, null is returned.
+        boolean update = false;
         if (aas != null) {
+            // This remove operation is necessary, as aasId can possibly be another ID than the one in descriptor.
             entityManager.remove(aas);
+            update = true;
         }
-        entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
+        retval = entityManager.merge(new JpaAssetAdministrationShellDescriptor.Builder()
                 .id(aasId)
                 .from(descriptor)
                 .build());
+        if (update) {
+            return null;
+        }
+        return retval;
     }
 
 
@@ -484,32 +499,53 @@ public class AasRepositoryJpa extends AbstractAasRepository {
     }
 
 
-    private void doUpdateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
+    private SubmodelDescriptor doUpdateSubmodel(String aasId, String submodelId, SubmodelDescriptor descriptor) throws ResourceNotFoundException {
         ensureAasId(aasId);
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
         AssetAdministrationShellDescriptor aas = fetchAAS(aasId);
         Ensure.requireNonNull(aas, buildAASNotFoundException(aasId));
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
-        if (getSubmodelInternal(aas.getSubmodelDescriptors(), submodelId).isPresent()) {
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
+        Optional<SubmodelDescriptor> oldSubmodel = getSubmodelInternal(aas.getSubmodelDescriptors(), submodelId);
+        boolean created = oldSubmodel.isEmpty();
+        if (oldSubmodel.isPresent()) {
             aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodelId));
+            if (!submodelId.equals(descriptor.getId())) {
+                entityManager.remove(oldSubmodel.get());
+            }
         }
         JpaSubmodelDescriptor submodel = ModelTransformationHelper.convertSubmodel(descriptor, aasId);
+        aas.getSubmodelDescriptors().removeIf(x -> x.getId().equals(submodel.getId()));
         aas.getSubmodelDescriptors().add(submodel);
-        entityManager.merge(aas);
+        Optional<SubmodelDescriptor> retval = getSubmodelInternal(entityManager.merge(aas).getSubmodelDescriptors(), submodel.getId());
+        if (retval.isPresent() && created) {
+            return submodel;
+        }
+        else {
+            return null;
+        }
     }
 
 
-    private void doUpdateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
+    private SubmodelDescriptor doUpdateSubmodel(String submodelId, SubmodelDescriptor descriptor) {
         ensureSubmodelId(submodelId);
         ensureDescriptorId(descriptor);
-        JpaSubmodelDescriptorStandalone submodel = fetchSubmodelStandalone(descriptor.getId());
+        JpaSubmodelDescriptorStandalone submodel = fetchSubmodelStandalone(submodelId);
         // since AAS version 3.1, PUT can also create the considered resource, not only replace it
+        // when the Submodel is created, the descriptor is returned, if it's updated, null is returned.
+        boolean update = false;
         if (submodel != null) {
             entityManager.remove(submodel);
+            update = true;
         }
+        //JpaSubmodelDescriptorStandalone submodel2 = fetchSubmodelStandalone(descriptor.getId());
         submodel = ModelTransformationHelper.convertSubmodelStandalone(descriptor);
-        entityManager.merge(submodel);
+        SubmodelDescriptor retval = entityManager.merge(submodel);
+        if (update) {
+            return null;
+        }
+        return retval;
     }
 
 

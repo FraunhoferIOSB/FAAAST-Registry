@@ -148,14 +148,22 @@ public class ShellRegistryController {
      *
      * @param aasIdentifier The ID of the desired Asset Administration Shell.
      * @param aas The desired Asset Administration Shell.
+     * @return The descriptor and status Created of the created AAS, null and status NoContent if updated.
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     @PutMapping(value = "/{aasIdentifier}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@PathVariable("aasIdentifier") String aasIdentifier,
-                       @RequestBody AssetAdministrationShellDescriptor aas)
+    public ResponseEntity<AssetAdministrationShellDescriptor> update(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                                     @RequestBody AssetAdministrationShellDescriptor aas)
             throws ResourceNotFoundException {
-        service.updateAAS(aasIdentifier, aas);
+        AssetAdministrationShellDescriptor retval = service.updateAAS(aasIdentifier, aas);
+        if (retval != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(aas.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(retval);
+        }
+        return ResponseEntity.noContent().build();
     }
 
 
@@ -234,16 +242,23 @@ public class ShellRegistryController {
      * @param aasIdentifier The ID of the desired AAS.
      * @param submodelIdentifier The ID of the desired Submodel.
      * @param submodel The desired Submodel.
+     * @return The descriptor and status Created of the created submodel, null and status NoContent if updated.
      * @throws ResourceNotFoundException When the AAS was not found.
-     * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
     @PutMapping(value = "/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
-                                    @PathVariable("submodelIdentifier") String submodelIdentifier,
-                                    @RequestBody SubmodelDescriptor submodel)
-            throws ResourceNotFoundException, ResourceAlreadyExistsException {
-        service.updateSubmodel(aasIdentifier, submodelIdentifier, submodel);
+    public ResponseEntity<SubmodelDescriptor> updateSubmodelOfAAS(@PathVariable("aasIdentifier") String aasIdentifier,
+                                                                  @PathVariable("submodelIdentifier") String submodelIdentifier,
+                                                                  @RequestBody SubmodelDescriptor submodel)
+            throws ResourceNotFoundException {
+        SubmodelDescriptor retval = service.updateSubmodel(aasIdentifier, submodelIdentifier, submodel);
+        if (retval != null) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path(String.format("/%s", EncodingHelper.base64UrlEncode(retval.getId())))
+                    .build().toUri();
+            return ResponseEntity.created(location).body(retval);
+        }
+        return ResponseEntity.noContent().build();
     }
 
 
