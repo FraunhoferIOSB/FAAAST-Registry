@@ -49,7 +49,7 @@ implementation 'de.fraunhofer.iosb.ilt.faaast.registry:service:1.1.0'
 FA³ST docker images are hosted on <https://hub.docker.com/u/fraunhoferiosb>
 
 ```sh
-docker run -v /path/to/your/model.aasx:/app/model.aasx fraunhoferiosb/faaast-registry:1.1.0
+docker run fraunhoferiosb/faaast-registry:1.1.0
 ```
 
 ### As Kubernetes Deployment (Helm Chart)
