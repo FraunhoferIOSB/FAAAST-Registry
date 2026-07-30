@@ -6,7 +6,7 @@
 - General
 	- Update to version 3.1 of AAS specification
 - HTTP
-	- Add discovery API (v3.0.1)
+	- Add discovery API (v3.1)
 	- Ignore trailing slashes in URLs
 	- Support Async Bulk APIs
 
