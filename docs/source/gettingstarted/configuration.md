@@ -16,10 +16,10 @@ With `server.ssl.enabled` you can turn off SSL. The default value is `true`.
 server.ssl.enabled=false
 ```
 
-With `server.servlet.context-path` you can can configure the API prefix. The default value is `/api/v3.0`.
+With `server.servlet.context-path` you can can configure the API prefix. The default value is `/api/v3.1`.
 
 ```properties
-server.servlet.context-path=/api/v3.0
+server.servlet.context-path=/api/v3.1
 ```
 
 ## CORS

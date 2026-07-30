@@ -7,6 +7,7 @@
 	- Add discovery API (v3.0.1)
 	- Ignore trailing slashes in URLs
 	- Support Async Bulk APIs
+	- Update to version 3.1 of AAS specification
 
 **Internal changes & bugfixes**
 - General

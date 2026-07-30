@@ -10,7 +10,7 @@ The FA³ST Registry contains two separate Registry instances: An AAS Registry fo
 ## Implemented AAS Specification
 | Specification | Version |
 |:--| -- |
-| Details of the Asset Administration Shell - Part 2<br />Application Programming Interfaces | Version 3.0<br />([specification](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01002-3-0_SpecificationAssetAdministrationShell_Part2_API_.pdf))<br />([swagger](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.0.1)) |
+| Details of the Asset Administration Shell - Part 2<br />Application Programming Interfaces | Version 3.1.2<br />([specification](https://industrialdigitaltwin.org/wp-content/uploads/2026/04/IDTA-01002-3-1-2_AAS-Specification_Part2_API.pdf))<br />([swagger](https://app.swaggerhub.com/apis/Plattform_i40/Entire-API-Collection/V3.1.2)) |
 
 ## Features
 
