@@ -3,11 +3,12 @@
 ## 1.2.0-SNAPSHOT (current development version)<!--end:changelog-header-->
 
 **New Features & Major Changes**
+- General
+	- Update to version 3.1 of AAS specification
 - HTTP
 	- Add discovery API (v3.0.1)
 	- Ignore trailing slashes in URLs
 	- Support Async Bulk APIs
-	- Update to version 3.1 of AAS specification
 
 **Internal changes & bugfixes**
 - General
