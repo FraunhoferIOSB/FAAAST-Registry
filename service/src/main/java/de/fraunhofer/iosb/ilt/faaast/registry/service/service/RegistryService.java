@@ -156,7 +156,7 @@ public class RegistryService {
      *
      * @param id The ID of the desired Asset Administration Shell.
      * @param aas The desired Asset Administration Shell.
-     * @return The updated Asset Administration Shell.
+     * @return The Asset Administration Shell if it was created, null if it was updated..
      * @throws ResourceNotFoundException When the AAS was not found.
      */
     public AssetAdministrationShellDescriptor updateAAS(String id, AssetAdministrationShellDescriptor aas) throws ResourceNotFoundException {
@@ -334,19 +334,17 @@ public class RegistryService {
      *
      * @param submodelId The ID of the desired Submodel.
      * @param submodel The desired Submodel.
-     * @return The updated Submodel.
+     * @return The Submodel if it was created, null if it was updated.
      * @throws ResourceNotFoundException When the Submodel was not found.
-     * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
-    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor updateSubmodel(String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: Submodel {}", submodelIdDecoded);
         int nr = aasRepository.startTransaction();
         try {
-            aasRepository.deleteSubmodel(submodelIdDecoded);
-            SubmodelDescriptor retval = aasRepository.addSubmodel(submodel);
+            SubmodelDescriptor retval = aasRepository.updateSubmodel(submodelIdDecoded, submodel);
             aasRepository.commitTransaction(nr);
             return retval;
         }
@@ -363,18 +361,25 @@ public class RegistryService {
      * @param aasId The ID of the desired AAS.
      * @param submodelId The ID of the desired Submodel.
      * @param submodel The desired Submodel.
-     * @return The updated Submodel.
+     * @return The Submodel if it was created, null if it was updated.
      * @throws ResourceNotFoundException When the AAS was not found.
-     * @throws ResourceAlreadyExistsException When the Submodel already exists.
      */
-    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException, ResourceAlreadyExistsException {
+    public SubmodelDescriptor updateSubmodel(String aasId, String submodelId, SubmodelDescriptor submodel) throws ResourceNotFoundException {
         Ensure.requireNonNull(submodel, SUBMODEL_NOT_NULL_TXT);
         String aasIdDecoded = EncodingHelper.base64UrlDecode(aasId);
         String submodelIdDecoded = EncodingHelper.base64UrlDecode(submodelId);
         checkSubmodelIdentifiers(submodel);
         LOGGER.debug("updateSubmodel: AAS '{}'; Submodel {}", aasIdDecoded, submodelIdDecoded);
-        aasRepository.deleteSubmodel(aasIdDecoded, submodelIdDecoded);
-        return aasRepository.addSubmodel(aasIdDecoded, submodel);
+        int nr = aasRepository.startTransaction();
+        try {
+            SubmodelDescriptor retval = aasRepository.updateSubmodel(aasIdDecoded, submodelIdDecoded, submodel);
+            aasRepository.commitTransaction(nr);
+            return retval;
+        }
+        catch (Exception ex) {
+            aasRepository.rollbackTransaction(nr);
+            throw ex;
+        }
     }
 
 

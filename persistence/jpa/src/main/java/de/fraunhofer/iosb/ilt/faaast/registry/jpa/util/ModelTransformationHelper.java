@@ -109,6 +109,9 @@ public class ModelTransformationHelper {
      * @return The converted list of descriptions.
      */
     public static List<LangStringTextType> convertDescriptions(List<LangStringTextType> descriptions) {
+        if (Objects.isNull(descriptions)) {
+            return new ArrayList<>();
+        }
         return descriptions.stream()
                 .map(x -> new JpaDescription.Builder().from(x).build())
                 .collect(Collectors.toList());
@@ -122,6 +125,9 @@ public class ModelTransformationHelper {
      * @return The converted list of names.
      */
     public static List<LangStringNameType> convertDisplayNames(List<LangStringNameType> names) {
+        if (Objects.isNull(names)) {
+            return new ArrayList<>();
+        }
         return names.stream()
                 .map(x -> new JpaDisplayName.Builder().from(x).build())
                 .collect(Collectors.toList());
@@ -421,6 +427,9 @@ public class ModelTransformationHelper {
      * @return The converted list of EmbeddedDataSpecifications.
      */
     public static List<EmbeddedDataSpecification> convertEmbeddedDataSpecifications(List<EmbeddedDataSpecification> embeddedDataSpecifications) {
+        if (Objects.isNull(embeddedDataSpecifications)) {
+            return new ArrayList<>();
+        }
         return embeddedDataSpecifications.stream()
                 .map(x -> new JpaEmbeddedDataSpecification.Builder().from(x).build())
                 .collect(Collectors.toList());
@@ -434,6 +443,9 @@ public class ModelTransformationHelper {
      * @return The converted list of SecurityAttributeObjects.
      */
     public static List<SecurityAttributeObject> convertSecurityAttributes(List<SecurityAttributeObject> securityAttributes) {
+        if (Objects.isNull(securityAttributes)) {
+            return new ArrayList<>();
+        }
         return securityAttributes.stream()
                 .map(x -> new JpaSecurityAttributeObject.Builder().from(x).build())
                 .collect(Collectors.toList());
@@ -447,6 +459,9 @@ public class ModelTransformationHelper {
      * @return The converted list of Strings.
      */
     public static List<JpaString> convertStrings(List<String> versions) {
+        if (Objects.isNull(versions)) {
+            return new ArrayList<>();
+        }
         return versions.stream()
                 .map(x -> new JpaString.Builder().value(x).build())
                 .collect(Collectors.toList());

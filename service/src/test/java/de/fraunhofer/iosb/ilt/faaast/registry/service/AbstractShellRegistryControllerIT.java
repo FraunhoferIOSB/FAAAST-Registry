@@ -44,6 +44,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -62,6 +63,9 @@ public abstract class AbstractShellRegistryControllerIT {
     @Autowired
     protected TestRestTemplate restTemplate;
 
+    @Value("${server.servlet.context-path}")
+    private String apiPrefix;
+
     public AbstractShellRegistryControllerIT(String baseResourceName) {
         this.baseResourceName = baseResourceName;
     }
@@ -69,7 +73,7 @@ public abstract class AbstractShellRegistryControllerIT {
 
     protected void createAas(AssetAdministrationShellDescriptor aas) {
         HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + "/api/v3" + ".0/shell-descriptors", HttpMethod.POST,
+        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + apiPrefix + "/shell-descriptors", HttpMethod.POST,
                 entity, AssetAdministrationShellDescriptor.class);
         Assertions.assertNotNull(responsePost);
         Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
@@ -78,7 +82,7 @@ public abstract class AbstractShellRegistryControllerIT {
 
 
     protected String createURLWithPort(String uri) {
-        return "http://localhost:" + port + "/api/v3.0" + baseResourceName + uri;
+        return "http://localhost:" + port + apiPrefix + baseResourceName + uri;
     }
 
 

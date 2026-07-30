@@ -36,6 +36,7 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,9 @@ class MultipleTestIT {
     @LocalServerPort
     protected int port;
 
+    @Value("${server.servlet.context-path}")
+    private String apiPrefix;
+
     private final HttpClient client;
     private final JsonSerializer jsonSerializer;
 
@@ -66,7 +70,7 @@ class MultipleTestIT {
     void testCreateAas() throws SerializationException, InterruptedException, ExecutionException {
         AssetAdministrationShellDescriptor aas1 = getAasMultiple1();
         AssetAdministrationShellDescriptor aas2 = getAasMultiple2();
-        String url = "http://localhost:" + port + "/api/v3.0/shell-descriptors";
+        String url = "http://localhost:" + port + apiPrefix + "/shell-descriptors";
 
         var futureResponse1 = doCreateAas(url, aas1);
         var futureResponse2 = doCreateAas(url, aas2);
@@ -105,7 +109,7 @@ class MultipleTestIT {
     void testCreateSubmodel() throws SerializationException, InterruptedException, ExecutionException {
         SubmodelDescriptor submodel1 = getSubmodelMultiple1();
         SubmodelDescriptor submodel2 = getSubmodelMultiple2();
-        String url = "http://localhost:" + port + "/api/v3.0/submodel-descriptors";
+        String url = "http://localhost:" + port + apiPrefix + "/submodel-descriptors";
 
         var futureResponse1 = doCreateSubmodel(url, submodel1);
         var futureResponse2 = doCreateSubmodel(url, submodel2);

@@ -158,8 +158,9 @@ public abstract class AbstractAasRepository implements AasRepository {
      */
     protected static Optional<SubmodelDescriptor> getSubmodelInternal(List<SubmodelDescriptor> submodels, String submodelId) {
         return submodels.stream()
-                .filter(x -> Objects.nonNull(x.getId())
-                        && Objects.equals(x.getId(), submodelId))
+                .filter(x -> Objects.equals(x.getId(), submodelId)
+                        || (Objects.nonNull(x.getId())
+                                && x.getId().equalsIgnoreCase(submodelId)))
                 .findAny();
     }
 

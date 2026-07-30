@@ -22,6 +22,7 @@ The Registry uses a configurable API prefix for all API calls. By default, the p
   - /description ![GET](https://img.shields.io/badge/GET-blue)
 
 - Discovery Interface
+  - /lookup/shellsByAssetLink ![POST](https://img.shields.io/badge/POST-brightgreen)
   - /lookup/shells ![GET](https://img.shields.io/badge/GET-blue)
   - /lookup/shells/{aasIdentifier} ![GET](https://img.shields.io/badge/GET-blue) ![POST](https://img.shields.io/badge/POST-orange) ![DELETE](https://img.shields.io/badge/DELETE-red)
 
@@ -41,4 +42,4 @@ The Registry uses a configurable API prefix for all API calls. By default, the p
 
 In the default configuration, the base URL for the API is e.g.:
 
-https://localhost:8090/api/v3.0/shell-descriptors
+https://localhost:8090/api/v3.1/shell-descriptors

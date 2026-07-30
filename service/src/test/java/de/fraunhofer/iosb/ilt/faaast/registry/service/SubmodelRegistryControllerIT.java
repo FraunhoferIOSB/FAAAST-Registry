@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,6 +59,9 @@ class SubmodelRegistryControllerIT {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Value("${server.servlet.context-path}")
+    private String apiPrefix;
 
     @Test
     void testGetSubmodels() {
@@ -238,7 +242,7 @@ class SubmodelRegistryControllerIT {
 
 
     private String createURLWithPort(String uri) {
-        return "http://localhost:" + port + "/api/v3.0/submodel-descriptors" + uri;
+        return "http://localhost:" + port + apiPrefix + "/submodel-descriptors" + uri;
     }
 
 
