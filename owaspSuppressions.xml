@@ -14,4 +14,8 @@
         <notes><![CDATA[False positive]]></notes>
         <cve>CVE-2016-4571</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[Does not apply because vulnerable functionality is not used]]></notes>
+        <cve>CVE-2026-66299</cve>
+    </suppress>
 </suppressions>
