@@ -56,7 +56,7 @@
         <eclipse.jdt.version>4.40</eclipse.jdt.version>
         <faaast.service.version>1.4.0-SNAPSHOT</faaast.service.version>
         <glassfish.jaxb-runtime>4.0.9</glassfish.jaxb-runtime>
-        <h2.version>2.4.240</h2.version>
+        <h2.version>2.5.250</h2.version>
         <hibernate.version>7.4.7.Final</hibernate.version>
         <jackson.annotations.version>2.22</jackson.annotations.version>
         <jackson.version>3.2.2</jackson.version>
