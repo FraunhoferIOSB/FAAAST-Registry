@@ -12,7 +12,7 @@ For more details on FA³ST Registry see the full documentation :blue_book: [here
 
 ## Prerequisites
 
--   Java 17+
+-   Java 21+
 
 ## Getting Started
 
