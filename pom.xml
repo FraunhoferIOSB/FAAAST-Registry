@@ -79,6 +79,7 @@
         <maven.plugin.javadoc.version>3.12.0</maven.plugin.javadoc.version>
         <maven.plugin.owasp.version>13.0.0</maven.plugin.owasp.version>
         <maven.plugin.picocli.version>4.7.7</maven.plugin.picocli.version>
+        <maven.plugin.release.version>3.3.1</maven.plugin.release.version>
         <maven.plugin.sonar.version>5.8.0.7211</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
         <maven.plugin.spotless.version>3.10.3</maven.plugin.spotless.version>
@@ -219,6 +220,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.plugin.compiler.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven.plugin.release.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
