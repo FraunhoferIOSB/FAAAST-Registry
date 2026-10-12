@@ -86,7 +86,7 @@
         <maven.plugin.surefire.version>3.6.0</maven.plugin.surefire.version>
         <org.apache.log4j-to-slf4j>2.26.1</org.apache.log4j-to-slf4j>
         <picocli.version>4.7.7</picocli.version>
-        <postgres.version>42.7.13</postgres.version>
+        <postgres.version>42.7.14</postgres.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <protobuf.version>4.36.2</protobuf.version>
         <root.basedir>${project.basedir}</root.basedir>
