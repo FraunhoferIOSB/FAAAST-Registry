@@ -4,6 +4,7 @@
 
 **New Features & Major Changes**
 - General
+	- Now requires Java 21+
 	- Update to version 3.1 of AAS specification
 - HTTP
 	- Add discovery API (v3.1)
