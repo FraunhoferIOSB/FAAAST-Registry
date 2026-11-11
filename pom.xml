@@ -57,8 +57,8 @@
         <faaast.service.version>1.4.0-SNAPSHOT</faaast.service.version>
         <glassfish.jaxb-runtime>4.0.9</glassfish.jaxb-runtime>
         <h2.version>2.5.252</h2.version>
-        <hibernate.version>7.4.14.Final</hibernate.version>
-        <jackson.annotations.version>2.22</jackson.annotations.version>
+        <hibernate.version>7.4.15.Final</hibernate.version>
+        <jackson.annotations.version>2.23</jackson.annotations.version>
         <jackson.version>3.2.4</jackson.version>
         <janino.version>3.1.12</janino.version>
         <junit.jupiter.version>6.1.3</junit.jupiter.version>
@@ -82,7 +82,7 @@
         <maven.plugin.release.version>3.3.1</maven.plugin.release.version>
         <maven.plugin.sonar.version>5.8.0.7211</maven.plugin.sonar.version>
         <maven.plugin.source.version>3.4.0</maven.plugin.source.version>
-        <maven.plugin.spotless.version>3.10.4</maven.plugin.spotless.version>
+        <maven.plugin.spotless.version>3.11.0</maven.plugin.spotless.version>
         <maven.plugin.surefire.version>3.6.1</maven.plugin.surefire.version>
         <org.apache.log4j-to-slf4j>2.26.1</org.apache.log4j-to-slf4j>
         <picocli.version>4.7.7</picocli.version>
@@ -315,7 +315,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.7.1</version>
+                    <version>2.8.0</version>
                     <configuration>
                         <outputDirectory>${root.basedir}/docs/third_party_licenses_report</outputDirectory>
                         <licenseMerges>
