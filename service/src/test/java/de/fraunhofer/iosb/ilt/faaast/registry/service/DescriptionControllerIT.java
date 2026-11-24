@@ -16,54 +16,47 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.test.web.servlet.client.assertj.RestTestClientResponse;
 
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 class DescriptionControllerIT {
 
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+    //@Autowired
+    //private TestRestTemplate restTemplate;
 
     @Value("${server.servlet.context-path}")
     private String apiPrefix;
 
     @Test
-    void testDescription() {
-        assertDescriptions("");
+    void testDescription(@Autowired RestTestClient restClient) {
+        assertDescriptions(restClient, "");
     }
 
 
     @Test
-    void testDescriptionWithSlash() {
-        assertDescriptions("/");
+    void testDescriptionWithSlash(@Autowired RestTestClient restClient) {
+        assertDescriptions(restClient, "/");
     }
 
 
-    private void assertDescriptions(String urlPostfix) {
-        ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(urlPostfix), HttpMethod.GET, null, ServiceDescription.class);
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
+    private void assertDescriptions(RestTestClient restClient, String urlPostfix) {
         ServiceDescription expected = ServiceDescription.builder()
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_FULL)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_FULL)
@@ -71,7 +64,15 @@ class DescriptionControllerIT {
                 .profile(ServiceSpecificationProfile.AAS_REGISTRY_BULK)
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_BULK)
                 .build();
-        Assertions.assertEquals(expected, response.getBody());
+
+        RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(urlPostfix).exchange());
+        response.assertThat().hasStatusOk().bodyJson().convertTo(ServiceDescription.class).isEqualTo(expected);
+
+        //ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(urlPostfix), HttpMethod.GET, null, ServiceDescription.class);
+        //Assertions.assertNotNull(response);
+        //Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //Assertions.assertNotNull(response.getBody());
+        //Assertions.assertEquals(expected, response.getBody());
     }
 
 

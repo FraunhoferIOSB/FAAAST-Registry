@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
@@ -62,13 +62,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.test.web.servlet.client.assertj.RestTestClientResponse;
 
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 class BulkOperationControllerIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationControllerIT.class);
 
@@ -91,17 +93,18 @@ class BulkOperationControllerIT {
 
 
     @Test
-    void testAsyncAasCommit() {
+    void testAsyncAasCommit(@Autowired RestTestClient restClient) {
         List<AssetAdministrationShellDescriptor> commitAASList = List.of(
                 generateAas("001"),
                 generateAas("002"),
                 generateAas("003"));
 
         HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(commitAASList);
-        ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
+        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/shell-descriptors")).body(entity).exchange());
+        //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
         Assertions.assertNotNull(createResponse);
-        Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
-        URI location = createResponse.getHeaders().getLocation();
+        Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getExchangeResult().getStatus());
+        URI location = createResponse.getExchangeResult().getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullCreate = location.toString().replace("..", createURLWithPort(""));
         await()
@@ -270,12 +273,14 @@ class BulkOperationControllerIT {
 
 
     @Test
-    void testStatusUnknownHandle() {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                createURLWithPort("/status/unknown-id"),
-                String.class);
+    void testStatusUnknownHandle(@Autowired RestTestClient restClient) {
+        RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange());
+        response.assertThat().hasStatus(HttpStatus.NOT_FOUND);
+        //ResponseEntity<String> response = restTemplate.getForEntity(
+        //        createURLWithPort("/status/unknown-id"),
+        //        String.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        //Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
 
