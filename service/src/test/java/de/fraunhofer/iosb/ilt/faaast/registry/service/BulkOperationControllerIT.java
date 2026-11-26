@@ -52,10 +52,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -98,8 +96,8 @@ class BulkOperationControllerIT {
                 generateAas("002"),
                 generateAas("003"));
 
-        HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(commitAASList);
-        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/shell-descriptors")).body(entity).exchange());
+        //HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(commitAASList);
+        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange());
         //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
         Assertions.assertNotNull(createResponse);
         Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getExchangeResult().getStatus());
@@ -114,8 +112,14 @@ class BulkOperationControllerIT {
                     //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                     //        fullCreate,
                     //        String.class);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        String resultLocation = fullCreate.replace("/status", "/result");
+        RestTestClientResponse resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
@@ -123,8 +127,8 @@ class BulkOperationControllerIT {
             aas.setIdShort(aas.getIdShort() + "_new");
         }
 
-        HttpEntity<List<AssetAdministrationShellDescriptor>> updateEntity = new HttpEntity<>(commitAASList);
-        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/shell-descriptors")).body(updateEntity).exchange());
+        //HttpEntity<List<AssetAdministrationShellDescriptor>> updateEntity = new HttpEntity<>(commitAASList);
+        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange());
         //ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
         //Assertions.assertNotNull(updateResponse);
         //Assertions.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
@@ -142,8 +146,14 @@ class BulkOperationControllerIT {
                     //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                     //        fullUpdate,
                     //        String.class);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        resultLocation = fullUpdate.replace("/status", "/result");
+        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
@@ -151,9 +161,9 @@ class BulkOperationControllerIT {
         for (var aas: commitAASList) {
             shellIds.add(aas.getId());
         }
-        HttpEntity<List<String>> deleteEntity = new HttpEntity<>(shellIds);
+        //HttpEntity<List<String>> deleteEntity = new HttpEntity<>(shellIds);
         RestTestClientResponse deleteResponse = RestTestClientResponse
-                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/shell-descriptors")).body(deleteEntity).exchange());
+                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/shell-descriptors")).body(shellIds).exchange());
         //restClient.delete().uri(createURLWithPort("/shell-descriptors")).exchange()
         //ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
         //Assertions.assertNotNull(deleteResponse);
@@ -171,8 +181,15 @@ class BulkOperationControllerIT {
                     //        fullDelete,
                     //        String.class);
                     //LOGGER.info("status: {}", statusResponse.getStatusCode());
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        resultLocation = fullDelete.replace("/status", "/result");
+        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+
         Assertions.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
     }
 
@@ -224,9 +241,9 @@ class BulkOperationControllerIT {
                 generateSubmodel("002"),
                 generateSubmodel("003"));
 
-        HttpEntity<List<SubmodelDescriptor>> entity = new HttpEntity<>(commitSubmodelList);
+        //HttpEntity<List<SubmodelDescriptor>> entity = new HttpEntity<>(commitSubmodelList);
         //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.POST, entity, Void.class);
-        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/submodel-descriptors")).body(entity).exchange());
+        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange());
         //Assertions.assertNotNull(createResponse);
         //Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
         createResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
@@ -241,8 +258,14 @@ class BulkOperationControllerIT {
                     //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                     //        fullCreate,
                     //        String.class);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        String resultLocation = fullCreate.replace("/status", "/result");
+        RestTestClientResponse resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
 
@@ -250,8 +273,8 @@ class BulkOperationControllerIT {
             aas.setIdShort(aas.getIdShort() + "_new");
         }
 
-        HttpEntity<List<SubmodelDescriptor>> updateEntity = new HttpEntity<>(commitSubmodelList);
-        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/submodel-descriptors")).body(updateEntity).exchange());
+        //HttpEntity<List<SubmodelDescriptor>> updateEntity = new HttpEntity<>(commitSubmodelList);
+        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange());
         //ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
         //Assertions.assertNotNull(updateResponse);
         //Assertions.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
@@ -268,8 +291,14 @@ class BulkOperationControllerIT {
                     //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
                     //        fullUpdate,
                     //        String.class);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        resultLocation = fullUpdate.replace("/status", "/result");
+        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
 
@@ -277,9 +306,9 @@ class BulkOperationControllerIT {
         for (var aas: commitSubmodelList) {
             submodelIds.add(aas.getId());
         }
-        HttpEntity<List<String>> deleteEntity = new HttpEntity<>(submodelIds);
+        //HttpEntity<List<String>> deleteEntity = new HttpEntity<>(submodelIds);
         RestTestClientResponse deleteResponse = RestTestClientResponse
-                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/submodel-descriptors")).body(deleteEntity).exchange());
+                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/submodel-descriptors")).body(submodelIds).exchange());
         //ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
         //Assertions.assertNotNull(deleteResponse);
         //Assertions.assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
@@ -296,8 +325,15 @@ class BulkOperationControllerIT {
                     //        fullDelete,
                     //        String.class);
                     //LOGGER.info("status: {}", statusResponse.getStatusCode());
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
+                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
                 });
+
+        // Get result 
+        resultLocation = fullDelete.replace("/status", "/result");
+        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
+        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+
         Assertions.assertEquals(new ArrayList<SubmodelDescriptor>(), aasRepository.getSubmodels(PagingInfo.ALL).getContent());
     }
 
