@@ -16,9 +16,9 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service.helper;
 
 import de.fraunhofer.iosb.ilt.faaast.registry.core.exception.BadRequestException;
 import de.fraunhofer.iosb.ilt.faaast.service.util.EncodingHelper;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.DeserializationException;
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.json.JsonDeserializer;
 import org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId;
