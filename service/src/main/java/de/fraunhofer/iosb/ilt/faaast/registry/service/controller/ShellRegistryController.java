@@ -56,7 +56,6 @@ public class ShellRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShellRegistryController.class);
 
-    //@Autowired
     private final RegistryService service;
 
     @Autowired

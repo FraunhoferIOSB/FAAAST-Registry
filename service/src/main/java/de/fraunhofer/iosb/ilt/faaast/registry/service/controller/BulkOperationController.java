@@ -41,7 +41,6 @@ public class BulkOperationController {
     private static final String STATUS_URI = "../status/";
     private static final Logger LOGGER = LoggerFactory.getLogger(BulkOperationController.class);
 
-    //@Autowired
     private final RegistryService service;
 
     @Autowired
@@ -62,7 +61,6 @@ public class BulkOperationController {
      * @throws InterruptedException the operation was interrupted.
      */
     @PostMapping(value = "/submodel-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkCreateSubmodels(submodels);
@@ -90,7 +88,6 @@ public class BulkOperationController {
      * @throws InterruptedException the operation was interrupted.
      */
     @PutMapping(value = "/submodel-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkUpdateSubmodels(@RequestBody List<SubmodelDescriptor> submodels)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkUpdateSubmodels(submodels);
@@ -116,7 +113,6 @@ public class BulkOperationController {
      * @throws InterruptedException The operation was interrupted.
      */
     @DeleteMapping(value = "/submodel-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkDeleteSubmodels(@RequestBody List<String> submodelIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkDeleteSubmodels(submodelIdentifiers);
@@ -144,7 +140,6 @@ public class BulkOperationController {
      * @throws ExecutionException an error occurs.
      */
     @PostMapping(value = "/shell-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkCreateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException,
             ExecutionException {
@@ -173,7 +168,6 @@ public class BulkOperationController {
      * @throws InterruptedException The execution was interrupted.
      */
     @PutMapping(value = "/shell-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkUpdateShells(@RequestBody List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkUpdateShells(shells);
@@ -201,7 +195,6 @@ public class BulkOperationController {
      * @throws InterruptedException The execution was interrupted.
      */
     @DeleteMapping(value = "/shell-descriptors")
-    //@ResponseStatus(HttpStatus.ACCEPTED)
     public ResponseEntity<Void> bulkDeleteShells(@RequestBody List<String> shellIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         String handleId = service.bulkDeleteShells(shellIdentifiers);
