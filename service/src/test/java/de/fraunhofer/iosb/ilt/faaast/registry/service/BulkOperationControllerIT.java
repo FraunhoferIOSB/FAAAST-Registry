@@ -276,13 +276,15 @@ class BulkOperationControllerIT {
 
     @Test
     void testStatusUnknownHandle(@Autowired RestTestClient restClient) {
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange().returnResult().getStatus());
+        restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange()
+                .expectStatus().isNotFound();
     }
 
 
     @Test
     void testResultUnknownHandle() {
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange().returnResult().getStatus());
+        restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange()
+                .expectStatus().isNotFound();
     }
 
 
