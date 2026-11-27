@@ -16,6 +16,7 @@ package de.fraunhofer.iosb.ilt.faaast.registry.service;
 
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceDescription;
 import de.fraunhofer.iosb.ilt.faaast.service.model.ServiceSpecificationProfile;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +24,8 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.springframework.test.web.servlet.client.assertj.RestTestClientResponse;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -62,14 +63,12 @@ class DescriptionControllerIT {
                 .profile(ServiceSpecificationProfile.SUBMODEL_REGISTRY_BULK)
                 .build();
 
-        RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(createURLWithPort(urlPostfix)).exchange());
-        response.assertThat().hasStatusOk().bodyJson().convertTo(ServiceDescription.class).isEqualTo(expected);
-
-        //ResponseEntity<ServiceDescription> response = restTemplate.exchange(createURLWithPort(urlPostfix), HttpMethod.GET, null, ServiceDescription.class);
-        //Assertions.assertNotNull(response);
-        //Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //Assertions.assertNotNull(response.getBody());
-        //Assertions.assertEquals(expected, response.getBody());
+        EntityExchangeResult<ServiceDescription> response = restClient.get().uri(createURLWithPort(urlPostfix)).exchange()
+                .expectStatus().isOk()
+                .expectBody(ServiceDescription.class)
+                .returnResult();
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(expected, response.getResponseBody());
     }
 
 

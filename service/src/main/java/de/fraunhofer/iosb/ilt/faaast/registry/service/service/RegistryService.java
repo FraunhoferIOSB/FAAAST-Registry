@@ -448,8 +448,6 @@ public class RegistryService {
      * @throws ResourceAlreadyExistsException When an AAS already exists.
      * @throws InterruptedException The operation was interrupted.
      */
-    //@Async
-    //@Transactional
     public String bulkCreateShells(List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, ResourceAlreadyExistsException, InterruptedException {
 
@@ -469,7 +467,6 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @throws InterruptedException The execution was interrupted.
      */
-    //@Async
     public String bulkUpdateShells(List<AssetAdministrationShellDescriptor> shells)
             throws BadRequestException, UnauthorizedException, ForbiddenException, InternalServerErrorException, InterruptedException {
         ConstraintHelper.validate(shells);
@@ -488,7 +485,6 @@ public class RegistryService {
      * @throws InternalServerErrorException an error occurs.
      * @throws java.lang.InterruptedException
      */
-    //@Async
     public String bulkDeleteShells(List<String> shellIdentifiers)
             throws BadRequestException, UnauthorizedException, ResourceNotFoundException, InternalServerErrorException, InterruptedException {
         return transactionService.deleteShells(shellIdentifiers);

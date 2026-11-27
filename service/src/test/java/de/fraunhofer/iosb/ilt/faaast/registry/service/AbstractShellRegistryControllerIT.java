@@ -55,9 +55,6 @@ public abstract class AbstractShellRegistryControllerIT {
     @LocalServerPort
     protected int port;
 
-    //@Autowired
-    //protected TestRestTemplate restTemplate;
-
     @Autowired
     RestTestClient restClient;
 
@@ -70,18 +67,10 @@ public abstract class AbstractShellRegistryControllerIT {
 
 
     protected void createAas(AssetAdministrationShellDescriptor aas) {
-        //HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
         restClient.post().uri("http://localhost:" + port + apiPrefix + "/shell-descriptors").body(aas).exchange()
                 .expectStatus().isCreated()
                 .expectBody(AssetAdministrationShellDescriptor.class)
                 .isEqualTo(aas);
-        //postResponse.assertThat().hasStatus(HttpStatus.CREATED);
-        //postResponse.getExchangeResult().
-        //ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + apiPrefix + "/shell-descriptors", HttpMethod.POST,
-        //        entity, AssetAdministrationShellDescriptor.class);
-        //Assertions.assertNotNull(responsePost);
-        //Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        //Assertions.assertEquals(aas, responsePost.getBody());
     }
 
 

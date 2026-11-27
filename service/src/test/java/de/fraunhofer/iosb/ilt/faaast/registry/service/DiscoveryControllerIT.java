@@ -36,10 +36,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.client.EntityExchangeResult;
-import org.springframework.test.web.servlet.client.ExchangeResult;
 
 
-// @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -58,11 +56,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         restClient.get().uri(urlWithPort).exchange()
                 .expectStatus().isNotFound();
-        //ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.GET, null, Object.class);
-
-        //Assertions.assertNotNull(response);
-        //Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        //Assertions.assertNotNull(response.getResponseBody());
     }
 
 
@@ -72,7 +65,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         createAas(descriptor);
 
         String identifierB64 = EncodingHelper.base64UrlEncode(descriptor.getId());
-
         String urlWithPort = createURLWithPort(String.format("/shells/%s", identifierB64));
 
         EntityExchangeResult<List<SpecificAssetId>> response = getAllAssetLinksById(urlWithPort);
@@ -349,12 +341,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         restClient.post().uri(urlWithPort).body(updatedSpecificAssetIds).exchange()
                 .expectStatus().isNotFound();
-
-        //ResponseEntity<Object> response = restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(updatedSpecificAssetIds), Object.class);
-
-        //Assertions.assertNotNull(response);
-        //Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        //Assertions.assertNotNull(response.getBody());
     }
 
 
@@ -414,7 +400,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatus());
-
         Assertions.assertNotNull(response.getResponseBody());
 
         Assertions.assertEquals(1,
@@ -449,10 +434,8 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         Assertions.assertNotNull(preconditionResponse.getResponseBody());
         Assertions.assertFalse(preconditionResponse.getResponseBody().isEmpty());
 
-        ExchangeResult response = deleteAllAssetLinksById(urlWithPort);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatus());
+        restClient.delete().uri(urlWithPort).exchange()
+                .expectStatus().isNoContent();
 
         // postcondition: no specific asset ids
         EntityExchangeResult<List<SpecificAssetId>> postconditionResponse = getAllAssetLinksById(urlWithPort);
@@ -468,10 +451,8 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         createAas(shellDescriptor);
 
         String urlWithPort = createURLWithPort(String.format("/shells/%s", EncodingHelper.base64UrlEncode("unknown")));
-        ExchangeResult response = deleteAllAssetLinksById(urlWithPort);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        restClient.delete().uri(urlWithPort).exchange()
+                .expectStatus().isNotFound();
     }
 
 
@@ -493,7 +474,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
         Page<String> expected = Page.of();
 
         var mySpecificAssetIds = List.of(new AssetLinkHelper(FaaastConstants.KEY_GLOBAL_ASSET_ID, UUID.randomUUID().toString()));
-
         String urlWithPort = createURLWithPort("/shellsByAssetLink");
 
         EntityExchangeResult<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, mySpecificAssetIds);
@@ -511,7 +491,6 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
         String urlWithPort = createURLWithPort("/shellsByAssetLink");
 
-        //EntityExchangeResult<Page<String>> response = searchAllAssetAdministrationShellIdsBySpecificAssetIds(urlWithPort, null);
         EntityExchangeResult<Page<String>> response = restClient.post().uri(urlWithPort).exchange().expectBody(new ParameterizedTypeReference<Page<String>>() {}).returnResult();
 
         Assertions.assertNotNull(response);
@@ -682,35 +661,22 @@ class DiscoveryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private EntityExchangeResult<Page<String>> getAllAssetAdministrationShellIdsBySpecificAssetIds(String urlWithPort) {
-        //RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(urlWithPort).exchange());
-        //return restClient.get().uri(urlWithPort).exchange().returnResult(new ParameterizedTypeReference<Page<String>>() {}).getResponseBody();
         return restClient.get().uri(urlWithPort).exchange().expectBody(new ParameterizedTypeReference<Page<String>>() {}).returnResult();
-        //response.getExchangeResult().getResponseBodyContent()
-        //return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
     }
 
 
     private EntityExchangeResult<List<SpecificAssetId>> getAllAssetLinksById(String urlWithPort) {
         return restClient.get().uri(urlWithPort).exchange().expectBody(new ParameterizedTypeReference<List<SpecificAssetId>>() {}).returnResult();
-        //return restTemplate.exchange(urlWithPort, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
     }
 
 
     private EntityExchangeResult<List<SpecificAssetId>> postAllAssetLinksById(String urlWithPort, List<SpecificAssetId> specificAssetIds) {
         return restClient.post().uri(urlWithPort).body(specificAssetIds).exchange().expectBody(new ParameterizedTypeReference<List<SpecificAssetId>>() {}).returnResult();
-        //return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(specificAssetIds), new ParameterizedTypeReference<>() {});
-    }
-
-
-    private ExchangeResult deleteAllAssetLinksById(String urlWithPort) {
-        return restClient.delete().uri(urlWithPort).exchange().returnResult();
-        //return restTemplate.exchange(urlWithPort, HttpMethod.DELETE, null, Void.class);
     }
 
 
     private EntityExchangeResult<Page<String>> searchAllAssetAdministrationShellIdsBySpecificAssetIds(String urlWithPort, List<AssetLinkHelper> assetLinks) {
         return restClient.post().uri(urlWithPort).body(assetLinks).exchange().expectBody(new ParameterizedTypeReference<Page<String>>() {}).returnResult();
-        //return restTemplate.exchange(urlWithPort, HttpMethod.POST, new HttpEntity<>(assetLinks), new ParameterizedTypeReference<>() {});
     }
 
 }

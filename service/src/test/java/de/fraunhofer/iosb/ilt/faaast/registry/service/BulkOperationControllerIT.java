@@ -56,11 +56,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.client.ExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.springframework.test.web.servlet.client.assertj.RestTestClientResponse;
 
 
-// @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -70,9 +69,6 @@ class BulkOperationControllerIT {
 
     @LocalServerPort
     private int port;
-
-    //@Autowired
-    //private TestRestTemplate restTemplate;
 
     @Autowired
     RestTestClient restClient;
@@ -96,30 +92,23 @@ class BulkOperationControllerIT {
                 generateAas("002"),
                 generateAas("003"));
 
-        //HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(commitAASList);
-        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange());
-        //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
-        Assertions.assertNotNull(createResponse);
-        Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getExchangeResult().getStatus());
-        URI location = createResponse.getExchangeResult().getResponseHeaders().getLocation();
+        ExchangeResult createResponse = restClient.post().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        URI location = createResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullCreate = location.toString().replace("..", createURLWithPort(""));
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullCreate).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullCreate,
-                    //        String.class);
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullCreate).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         String resultLocation = fullCreate.replace("/status", "/result");
-        RestTestClientResponse resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
 
         Assertions.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
@@ -127,14 +116,11 @@ class BulkOperationControllerIT {
             aas.setIdShort(aas.getIdShort() + "_new");
         }
 
-        //HttpEntity<List<AssetAdministrationShellDescriptor>> updateEntity = new HttpEntity<>(commitAASList);
-        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange());
-        //ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
-        //Assertions.assertNotNull(updateResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
-        updateResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
+        ExchangeResult updateResponse = restClient.put().uri(createURLWithPort("/shell-descriptors")).body(commitAASList).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
 
-        location = updateResponse.getExchangeResult().getResponseHeaders().getLocation();
+        location = updateResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullUpdate = location.toString().replace("..", createURLWithPort(""));
 
@@ -142,18 +128,13 @@ class BulkOperationControllerIT {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullUpdate).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullUpdate,
-                    //        String.class);
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullUpdate).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         resultLocation = fullUpdate.replace("/status", "/result");
-        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
 
         Assertions.assertEquals(commitAASList, aasRepository.getAASs(PagingInfo.ALL).getContent());
 
@@ -161,34 +142,24 @@ class BulkOperationControllerIT {
         for (var aas: commitAASList) {
             shellIds.add(aas.getId());
         }
-        //HttpEntity<List<String>> deleteEntity = new HttpEntity<>(shellIds);
-        RestTestClientResponse deleteResponse = RestTestClientResponse
-                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/shell-descriptors")).body(shellIds).exchange());
-        //restClient.delete().uri(createURLWithPort("/shell-descriptors")).exchange()
-        //ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
-        //Assertions.assertNotNull(deleteResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
-        deleteResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
-        location = deleteResponse.getExchangeResult().getResponseHeaders().getLocation();
+
+        ExchangeResult deleteResponse = restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/shell-descriptors")).body(shellIds).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        location = deleteResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullDelete = location.toString().replace("..", createURLWithPort(""));
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullDelete).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullDelete,
-                    //        String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullDelete).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         resultLocation = fullDelete.replace("/status", "/result");
-        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
 
         Assertions.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
     }
@@ -201,13 +172,10 @@ class BulkOperationControllerIT {
                 generateAas("005"),
                 generateAas("004"));
 
-        //HttpEntity<List<AssetAdministrationShellDescriptor>> entity = new HttpEntity<>(rollbackAASList);
-        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/shell-descriptors")).body(rollbackAASList).exchange());
-        //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/shell-descriptors"), HttpMethod.POST, entity, Void.class);
-        //Assertions.assertNotNull(createResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
-        createResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
-        URI location = createResponse.getExchangeResult().getResponseHeaders().getLocation();
+        ExchangeResult createResponse = restClient.post().uri(createURLWithPort("/shell-descriptors")).body(rollbackAASList).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        URI location = createResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullCreate = location.toString().replace("..", createURLWithPort(""));
 
@@ -216,19 +184,13 @@ class BulkOperationControllerIT {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullCreate).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullCreate,
-                    //        String.class);
-                    LOGGER.info("testAsyncCreateRollback Status {}", statusResponse.getExchangeResult().getStatus());
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(400);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullCreate).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         String resultLocation = fullCreate.replace("/status", "/result");
-        RestTestClientResponse resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(400));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isBadRequest();
 
         Assertions.assertEquals(new ArrayList<AssetAdministrationShellDescriptor>(), aasRepository.getAASs(PagingInfo.ALL).getContent());
     }
@@ -241,31 +203,23 @@ class BulkOperationControllerIT {
                 generateSubmodel("002"),
                 generateSubmodel("003"));
 
-        //HttpEntity<List<SubmodelDescriptor>> entity = new HttpEntity<>(commitSubmodelList);
-        //ResponseEntity<Void> createResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.POST, entity, Void.class);
-        RestTestClientResponse createResponse = RestTestClientResponse.from(restClient.post().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange());
-        //Assertions.assertNotNull(createResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, createResponse.getStatusCode());
-        createResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
-        URI location = createResponse.getExchangeResult().getResponseHeaders().getLocation();
+        ExchangeResult createResponse = restClient.post().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        URI location = createResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullCreate = location.toString().replace("..", createURLWithPort(""));
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullCreate).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullCreate,
-                    //        String.class);
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullCreate).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         String resultLocation = fullCreate.replace("/status", "/result");
-        RestTestClientResponse resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
 
         Assertions.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
 
@@ -273,13 +227,10 @@ class BulkOperationControllerIT {
             aas.setIdShort(aas.getIdShort() + "_new");
         }
 
-        //HttpEntity<List<SubmodelDescriptor>> updateEntity = new HttpEntity<>(commitSubmodelList);
-        RestTestClientResponse updateResponse = RestTestClientResponse.from(restClient.put().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange());
-        //ResponseEntity<Void> updateResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.PUT, updateEntity, Void.class);
-        //Assertions.assertNotNull(updateResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, updateResponse.getStatusCode());
-        updateResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
-        location = updateResponse.getExchangeResult().getResponseHeaders().getLocation();
+        ExchangeResult updateResponse = restClient.put().uri(createURLWithPort("/submodel-descriptors")).body(commitSubmodelList).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        location = updateResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullUpdate = location.toString().replace("..", createURLWithPort(""));
 
@@ -287,18 +238,13 @@ class BulkOperationControllerIT {
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullUpdate).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullUpdate,
-                    //        String.class);
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullUpdate).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         resultLocation = fullUpdate.replace("/status", "/result");
-        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
 
         Assertions.assertTrue(listEquals(commitSubmodelList, aasRepository.getSubmodels(PagingInfo.ALL).getContent()));
 
@@ -306,33 +252,24 @@ class BulkOperationControllerIT {
         for (var aas: commitSubmodelList) {
             submodelIds.add(aas.getId());
         }
-        //HttpEntity<List<String>> deleteEntity = new HttpEntity<>(submodelIds);
-        RestTestClientResponse deleteResponse = RestTestClientResponse
-                .from(restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/submodel-descriptors")).body(submodelIds).exchange());
-        //ResponseEntity<Void> deleteResponse = restTemplate.exchange(createURLWithPort("/submodel-descriptors"), HttpMethod.DELETE, deleteEntity, Void.class);
-        //Assertions.assertNotNull(deleteResponse);
-        //Assertions.assertEquals(HttpStatus.ACCEPTED, deleteResponse.getStatusCode());
-        deleteResponse.assertThat().hasStatus(HttpStatus.ACCEPTED);
-        location = deleteResponse.getExchangeResult().getResponseHeaders().getLocation();
+        ExchangeResult deleteResponse = restClient.method(HttpMethod.DELETE).uri(createURLWithPort("/submodel-descriptors")).body(submodelIds).exchange()
+                .expectStatus().isAccepted()
+                .returnResult();
+        location = deleteResponse.getResponseHeaders().getLocation();
         Assertions.assertNotNull(location);
         String fullDelete = location.toString().replace("..", createURLWithPort(""));
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
                 .until(() -> {
-                    RestTestClientResponse statusResponse = RestTestClientResponse.from(restClient.get().uri(fullDelete).exchange());
-                    //ResponseEntity<String> statusResponse = restTemplate.getForEntity(
-                    //        fullDelete,
-                    //        String.class);
-                    //LOGGER.info("status: {}", statusResponse.getStatusCode());
-                    //return statusResponse.getExchangeResult().getStatus() == HttpStatusCode.valueOf(204);
-                    return statusResponse.getExchangeResult().getStatus() == HttpStatus.FOUND;
+                    return restClient.get().uri(fullDelete).exchange().returnResult().getStatus() == HttpStatus.FOUND;
                 });
 
         // Get result 
         resultLocation = fullDelete.replace("/status", "/result");
-        resultResponse = RestTestClientResponse.from(restClient.get().uri(resultLocation).exchange());
-        resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
+        restClient.get().uri(resultLocation).exchange()
+                .expectStatus().isNoContent();
+        //resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertEquals(new ArrayList<SubmodelDescriptor>(), aasRepository.getSubmodels(PagingInfo.ALL).getContent());
     }
@@ -340,25 +277,15 @@ class BulkOperationControllerIT {
 
     @Test
     void testStatusUnknownHandle(@Autowired RestTestClient restClient) {
-        RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange());
-        response.assertThat().hasStatus(HttpStatus.NOT_FOUND);
-        //ResponseEntity<String> response = restTemplate.getForEntity(
-        //        createURLWithPort("/status/unknown-id"),
-        //        String.class);
-
-        //Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange()
+                .expectStatus().isNotFound();
     }
 
 
     @Test
     void testResultUnknownHandle() {
-        RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange());
-        //RestTestClientResponse response = RestTestClientResponse.from(restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange());
-        //ResponseEntity<String> response = restTemplate.getForEntity(
-        //        createURLWithPort("/result/unknown-id"),
-        //        String.class);
-        response.assertThat().hasStatus(HttpStatus.NOT_FOUND);
-        //Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange()
+                .expectStatus().isNotFound();
     }
 
 

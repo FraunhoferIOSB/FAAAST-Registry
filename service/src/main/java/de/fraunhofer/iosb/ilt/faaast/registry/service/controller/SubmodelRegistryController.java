@@ -53,7 +53,6 @@ public class SubmodelRegistryController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubmodelRegistryController.class);
 
-    //@Autowired
     private final RegistryService service;
 
     @Autowired
