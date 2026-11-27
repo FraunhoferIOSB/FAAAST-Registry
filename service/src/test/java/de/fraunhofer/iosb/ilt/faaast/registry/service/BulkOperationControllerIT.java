@@ -269,7 +269,6 @@ class BulkOperationControllerIT {
         resultLocation = fullDelete.replace("/status", "/result");
         restClient.get().uri(resultLocation).exchange()
                 .expectStatus().isNoContent();
-        //resultResponse.assertThat().hasStatus(HttpStatus.valueOf(204));
 
         Assertions.assertEquals(new ArrayList<SubmodelDescriptor>(), aasRepository.getSubmodels(PagingInfo.ALL).getContent());
     }
@@ -277,15 +276,13 @@ class BulkOperationControllerIT {
 
     @Test
     void testStatusUnknownHandle(@Autowired RestTestClient restClient) {
-        restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange()
-                .expectStatus().isNotFound();
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, restClient.get().uri(createURLWithPort("/status/unknown-id")).exchange().returnResult().getStatus());
     }
 
 
     @Test
     void testResultUnknownHandle() {
-        restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange()
-                .expectStatus().isNotFound();
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, restClient.get().uri(createURLWithPort("/result/unknown-id")).exchange().returnResult().getStatus());
     }
 
 

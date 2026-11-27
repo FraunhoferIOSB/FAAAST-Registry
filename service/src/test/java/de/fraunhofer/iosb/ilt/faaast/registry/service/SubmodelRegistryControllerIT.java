@@ -79,8 +79,6 @@ class SubmodelRegistryControllerIT {
         EntityExchangeResult<Page<SubmodelDescriptor>> response = restClient.get().uri(createURLWithPort("")).exchange()
                 .expectStatus().isOk()
                 .expectBody(new ParameterizedTypeReference<Page<SubmodelDescriptor>>() {}).returnResult();
-        //Assertions.assertNotNull(response);
-        //Assertions.assertEquals(HttpStatus.OK, response.getStatus());
         Assertions.assertNotNull(response.getResponseBody());
         var list = response.getResponseBody().getContent();
         Assertions.assertNotNull(list);
