@@ -33,25 +33,22 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProtocolInformation;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.ExchangeResult;
 
 
-@ExtendWith(SpringExtension.class)
+// @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
@@ -77,13 +74,15 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         createAas(expected);
         checkGetAas(expected);
 
-        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
-                createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        EntityExchangeResult<Page<AssetAdministrationShellDescriptor>> response2 = restClient.get().uri(createURLWithPort("")).exchange()
+                .expectBody(new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {}).returnResult();
+        //ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
+        //        createURLWithPort(""), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
 
         Assertions.assertNotNull(response2);
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assertions.assertNotNull(response2.getBody());
-        var list = response2.getBody().getContent();
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatus());
+        Assertions.assertNotNull(response2.getResponseBody());
+        var list = response2.getResponseBody().getContent();
         Assertions.assertNotNull(list);
         Assertions.assertTrue(list.size() >= 0);
 
@@ -116,17 +115,19 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         expected.setIdShort("IntegrationTest100A");
         expected.getDisplayName().add(new DefaultLangStringNameType.Builder().text("Integration Test 100 Name Updated").language("en-US").build());
 
-        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
-        ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
+        ExchangeResult responsePut = restClient.put().uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId()))).body(expected).exchange().returnResult();
+        //HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(expected);
+        //ResponseEntity responsePut = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.PUT, entity, Void.class);
         Assertions.assertNotNull(responsePut);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatus());
 
         checkGetAas(expected);
 
         // delete AAS
-        ResponseEntity responseDelete = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.DELETE, entity, Void.class);
+        ExchangeResult responseDelete = restClient.delete().uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId()))).exchange().returnResult();
+        //ResponseEntity responseDelete = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())), HttpMethod.DELETE, entity, Void.class);
         Assertions.assertNotNull(responseDelete);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responseDelete.getStatus());
 
         checkGetAasNotExist(expected.getId());
     }
@@ -134,9 +135,10 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
 
     @Test
     void testInvalidLimit() {
-        ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
+        ExchangeResult response = restClient.get().uri(createURLWithPort("?limit=0")).exchange().returnResult();
+        //ResponseEntity response = restTemplate.exchange(createURLWithPort("?limit=0"), HttpMethod.GET, null, Void.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatus());
     }
 
 
@@ -156,16 +158,19 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         createAas(aas2);
         expectedMap.put(aas2.getId(), aas2);
 
-        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
-                createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType)), HttpMethod.GET, null,
-                new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        EntityExchangeResult<Page<AssetAdministrationShellDescriptor>> response = restClient.get()
+                .uri(createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType))).exchange()
+                .expectBody(new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {}).returnResult();
+        //ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
+        //        createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType)), HttpMethod.GET, null,
+        //        new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        var list = response.getBody().getContent();
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertNotNull(response.getResponseBody());
+        var list = response.getResponseBody().getContent();
         Assertions.assertNotNull(list);
         Assertions.assertEquals(1, list.size());
-        var metadata = response.getBody().getMetadata();
+        var metadata = response.getResponseBody().getMetadata();
         Assertions.assertNotNull(metadata);
         Assertions.assertNotNull(metadata.getCursor());
         Assertions.assertFalse(metadata.getCursor().isEmpty());
@@ -175,13 +180,16 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         Assertions.assertEquals(expectedMap.get(actual.getId()), actual);
         expectedMap.remove(actual.getId());
 
-        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
-                createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType) + "&cursor=" + metadata.getCursor()), HttpMethod.GET, null,
-                new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        EntityExchangeResult<Page<AssetAdministrationShellDescriptor>> response2 = restClient.get()
+                .uri(createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType) + "&cursor=" + metadata.getCursor())).exchange()
+                .expectBody(new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {}).returnResult();
+        //ResponseEntity<Page<AssetAdministrationShellDescriptor>> response2 = restTemplate.exchange(
+        //        createURLWithPort("?limit=1&assetType=" + EncodingHelper.base64UrlEncode(assetType) + "&cursor=" + metadata.getCursor()), HttpMethod.GET, null,
+        //        new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
         Assertions.assertNotNull(response2);
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assertions.assertNotNull(response2.getBody());
-        list = response2.getBody().getContent();
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatus());
+        Assertions.assertNotNull(response2.getResponseBody());
+        list = response2.getResponseBody().getContent();
         Assertions.assertNotNull(list);
         Assertions.assertEquals(1, list.size());
 
@@ -203,32 +211,41 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         checkGetSubmodelError(aas.getId(), newSubmodel.getId(), HttpStatus.NOT_FOUND);
 
         // add Submodel
-        HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(newSubmodel);
-        ResponseEntity<SubmodelDescriptor> responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
-                HttpMethod.POST, entity, SubmodelDescriptor.class);
+        EntityExchangeResult<SubmodelDescriptor> responsePost = restClient.post()
+                .uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors")).body(newSubmodel).exchange()
+                .expectBody(SubmodelDescriptor.class).returnResult();
+        //HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(newSubmodel);
+        //ResponseEntity<SubmodelDescriptor> responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
+        //        HttpMethod.POST, entity, SubmodelDescriptor.class);
         Assertions.assertNotNull(responsePost);
-        Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assertions.assertEquals(newSubmodel, responsePost.getBody());
+        Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatus());
+        Assertions.assertEquals(newSubmodel, responsePost.getResponseBody());
 
         checkGetSubmodel(aas.getId(), newSubmodel);
 
         // update Submodel
         newSubmodel.setIdShort("Submodel-101-2 updated");
         newSubmodel.getDescription().add(new DefaultLangStringTextType.Builder().language("en-US").text("Submodel 101-2 new Description").build());
-        entity = new HttpEntity<>(newSubmodel);
-        ResponseEntity responsePut = restTemplate.exchange(
-                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
-                HttpMethod.PUT, entity, Void.class);
+        EntityExchangeResult<SubmodelDescriptor> responsePut = restClient.put()
+                .uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())))
+                .body(newSubmodel).exchange().expectBody(SubmodelDescriptor.class).returnResult();
+        //entity = new HttpEntity<>(newSubmodel);
+        //ResponseEntity responsePut = restTemplate.exchange(
+        //        createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
+        //        HttpMethod.PUT, entity, Void.class);
         Assertions.assertNotNull(responsePut);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responsePut.getStatus());
         checkGetSubmodel(aas.getId(), newSubmodel);
 
         // delete Submodel
-        ResponseEntity responseDelete = restTemplate.exchange(
-                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
-                HttpMethod.DELETE, null, Void.class);
+        ExchangeResult responseDelete = restClient.delete()
+                .uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())))
+                .exchange().returnResult();
+        //ResponseEntity responseDelete = restTemplate.exchange(
+        //        createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(newSubmodel.getId())),
+        //        HttpMethod.DELETE, null, Void.class);
         Assertions.assertNotNull(responseDelete);
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, responseDelete.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, responseDelete.getStatus());
         checkGetSubmodelError(aas.getId(), newSubmodel.getId(), HttpStatus.NOT_FOUND);
     }
 
@@ -239,58 +256,72 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
         aas.setId("http://iosb.fraunhofer.de/IntegrationTest/Invalid/AAS1");
         createAas(aas);
 
-        HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(getSubmodelInvalid());
-        ResponseEntity responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
-                HttpMethod.POST, entity, Void.class);
+        ExchangeResult responsePost = restClient.post().uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"))
+                .body(getSubmodelInvalid()).exchange().returnResult();
+        //HttpEntity<SubmodelDescriptor> entity = new HttpEntity<>(getSubmodelInvalid());
+        //ResponseEntity responsePost = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aas.getId()) + "/submodel-descriptors"),
+        //        HttpMethod.POST, entity, Void.class);
         Assertions.assertNotNull(responsePost);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responsePost.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, responsePost.getStatus());
     }
 
 
     private void checkGetAas(AssetAdministrationShellDescriptor expected) {
-        ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())),
-                HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
+        EntityExchangeResult<AssetAdministrationShellDescriptor> response = restClient.get().uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())))
+                .exchange().expectBody(AssetAdministrationShellDescriptor.class).returnResult();
+        //ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(createURLWithPort("/" + EncodingHelper.base64UrlEncode(expected.getId())),
+        //        HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(expected, response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(expected, response.getResponseBody());
     }
 
 
     private void checkGetAasNotExist(String id) {
-        ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
-                createURLWithPort("/" + EncodingHelper.base64UrlEncode(id)), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
+        EntityExchangeResult<AssetAdministrationShellDescriptor> response = restClient.get().uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(id))).exchange()
+                .expectBody(AssetAdministrationShellDescriptor.class).returnResult();
+        //ResponseEntity<AssetAdministrationShellDescriptor> response = restTemplate.exchange(
+        //        createURLWithPort("/" + EncodingHelper.base64UrlEncode(id)), HttpMethod.GET, null, AssetAdministrationShellDescriptor.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
     }
 
 
     private void checkGetSubmodel(String aasId, SubmodelDescriptor submodel) {
-        ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
-                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodel.getId())), HttpMethod.GET, null,
-                SubmodelDescriptor.class);
+        EntityExchangeResult<SubmodelDescriptor> response = restClient.get()
+                .uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodel.getId()))).exchange()
+                .expectBody(SubmodelDescriptor.class).returnResult();
+        //ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
+        //        createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodel.getId())), HttpMethod.GET, null,
+        //        SubmodelDescriptor.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(submodel, response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(submodel, response.getResponseBody());
     }
 
 
     private void checkGetSubmodelError(String aasId, String submodelId, HttpStatusCode statusCode) {
-        ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
-                createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodelId)), HttpMethod.GET, null,
-                SubmodelDescriptor.class);
+        EntityExchangeResult<SubmodelDescriptor> response = restClient.get()
+                .uri(createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodelId))).exchange()
+                .expectBody(SubmodelDescriptor.class).returnResult();
+        //ResponseEntity<SubmodelDescriptor> response = restTemplate.exchange(
+        //        createURLWithPort("/" + EncodingHelper.base64UrlEncode(aasId) + "/submodel-descriptors/" + EncodingHelper.base64UrlEncode(submodelId)), HttpMethod.GET, null,
+        //        SubmodelDescriptor.class);
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(statusCode, response.getStatusCode());
+        Assertions.assertEquals(statusCode, response.getStatus());
     }
 
 
     private void checkCreateAasError(AssetAdministrationShellDescriptor aas, HttpStatusCode statusCode) {
-        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
-                AssetAdministrationShellDescriptor.class);
+        EntityExchangeResult<AssetAdministrationShellDescriptor> responsePost = restClient.post().uri(createURLWithPort("")).body(aas).exchange()
+                .expectBody(AssetAdministrationShellDescriptor.class).returnResult();
+        //HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
+        //ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange(createURLWithPort(""), HttpMethod.POST, entity,
+        //        AssetAdministrationShellDescriptor.class);
         Assertions.assertNotNull(responsePost);
-        Assertions.assertEquals(statusCode, responsePost.getStatusCode());
+        Assertions.assertEquals(statusCode, responsePost.getStatus());
     }
 
 
@@ -387,12 +418,14 @@ class ShellRegistryControllerIT extends AbstractShellRegistryControllerIT {
 
 
     private void assertGetAASs(String urlPostFix) {
-        ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
-                createURLWithPort(urlPostFix), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
+        EntityExchangeResult<Page<AssetAdministrationShellDescriptor>> response = restClient.get().uri(createURLWithPort(urlPostFix)).exchange()
+                .expectBody(new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {}).returnResult();
+        //ResponseEntity<Page<AssetAdministrationShellDescriptor>> response = restTemplate.exchange(
+        //        createURLWithPort(urlPostFix), HttpMethod.GET, null, new ParameterizedTypeReference<Page<AssetAdministrationShellDescriptor>>() {});
         Assertions.assertNotNull(response);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        var list = response.getBody().getContent();
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertNotNull(response.getResponseBody());
+        var list = response.getResponseBody().getContent();
         Assertions.assertNotNull(list);
     }
 

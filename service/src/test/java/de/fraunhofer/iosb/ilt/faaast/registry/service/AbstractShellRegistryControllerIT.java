@@ -42,15 +42,10 @@ import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList;
 import org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 
 public abstract class AbstractShellRegistryControllerIT {
@@ -60,8 +55,11 @@ public abstract class AbstractShellRegistryControllerIT {
     @LocalServerPort
     protected int port;
 
+    //@Autowired
+    //protected TestRestTemplate restTemplate;
+
     @Autowired
-    protected TestRestTemplate restTemplate;
+    RestTestClient restClient;
 
     @Value("${server.servlet.context-path}")
     private String apiPrefix;
@@ -72,12 +70,18 @@ public abstract class AbstractShellRegistryControllerIT {
 
 
     protected void createAas(AssetAdministrationShellDescriptor aas) {
-        HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
-        ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + apiPrefix + "/shell-descriptors", HttpMethod.POST,
-                entity, AssetAdministrationShellDescriptor.class);
-        Assertions.assertNotNull(responsePost);
-        Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
-        Assertions.assertEquals(aas, responsePost.getBody());
+        //HttpEntity<AssetAdministrationShellDescriptor> entity = new HttpEntity<>(aas);
+        restClient.post().uri("http://localhost:" + port + apiPrefix + "/shell-descriptors").body(aas).exchange()
+                .expectStatus().isCreated()
+                .expectBody(AssetAdministrationShellDescriptor.class)
+                .isEqualTo(aas);
+        //postResponse.assertThat().hasStatus(HttpStatus.CREATED);
+        //postResponse.getExchangeResult().
+        //ResponseEntity<AssetAdministrationShellDescriptor> responsePost = restTemplate.exchange("http://localhost:" + port + apiPrefix + "/shell-descriptors", HttpMethod.POST,
+        //        entity, AssetAdministrationShellDescriptor.class);
+        //Assertions.assertNotNull(responsePost);
+        //Assertions.assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+        //Assertions.assertEquals(aas, responsePost.getBody());
     }
 
 
